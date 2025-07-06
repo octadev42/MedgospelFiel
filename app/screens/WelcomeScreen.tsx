@@ -1,82 +1,106 @@
 import { FC } from "react"
 import { Image, ImageStyle, TextStyle, View, ViewStyle } from "react-native"
 
+import { Button } from "@/components/Button"
+import { Icon } from "@/components/Icon"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
-import { isRTL } from "@/i18n"
 import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
 import type { ThemedStyle } from "@/theme/types"
-import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
+import { openLinkInBrowser } from "@/utils/openLinkInBrowser"
 
-const welcomeLogo = require("@assets/images/logo.png")
-const welcomeFace = require("@assets/images/welcome-face.png")
+const bannerImage = require("@assets/images/brand/banner.png")
 
 export const WelcomeScreen: FC = function WelcomeScreen() {
-  const { themed, theme } = useAppTheme()
+  const { themed } = useAppTheme()
 
-  const $bottomContainerInsets = useSafeAreaInsetsStyle(["bottom"])
+  const handleWhatsAppPress = () => {
+    // You can replace this phone number with the actual WhatsApp number
+    const phoneNumber = "5511999999999" // Replace with actual number
+    const message = "Olá! Gostaria de solicitar um atendimento."
+    const whatsappUrl = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`
+    openLinkInBrowser(whatsappUrl)
+  }
 
   return (
-    <Screen preset="fixed" contentContainerStyle={$styles.flex1}>
-      <View style={themed($topContainer)}>
-        <Image style={themed($welcomeLogo)} source={welcomeLogo} resizeMode="contain" />
-        <Text
-          testID="welcome-heading"
-          style={themed($welcomeHeading)}
-          tx="welcomeScreen:readyForLaunch"
-          preset="heading"
-        />
-        <Text tx="welcomeScreen:exciting" preset="subheading" />
-        <Image
-          style={$welcomeFace}
-          source={welcomeFace}
-          resizeMode="contain"
-          tintColor={theme.colors.palette.neutral900}
-        />
+    <Screen preset="fixed" contentContainerStyle={themed($screenContentContainer)}>
+      <View style={themed($headerContainer)}>
+        <Image style={themed($banner)} source={bannerImage} resizeMode="contain" />
       </View>
-
-      <View style={themed([$bottomContainer, $bottomContainerInsets])}>
-        <Text tx="welcomeScreen:postscript" size="md" />
+      
+      <View style={themed($contentContainer)}>
+        <View style={themed($buttonContainer)}>
+          <Text 
+            tx="welcomeScreen:whatsappCall" 
+            preset="subheading" 
+            style={themed($callText)}
+          />
+          <Button
+            text="WhatsApp"
+            preset="filled"
+            onPress={handleWhatsAppPress}
+            style={themed($whatsappButton)}
+            textStyle={themed($buttonText)}
+            LeftAccessory={(props) => (
+              <Icon 
+                icon="whatsapp" 
+                size={20} 
+                color="white" 
+                style={{ marginRight: 8 }}
+              />
+            )}
+          />
+        </View>
       </View>
     </Screen>
   )
 }
 
-const $topContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  flexShrink: 1,
-  flexGrow: 1,
-  flexBasis: "57%",
-  justifyContent: "center",
-  paddingHorizontal: spacing.lg,
+const $screenContentContainer: ThemedStyle<ViewStyle> = () => ({
+  flex: 1,
+  justifyContent: "flex-start", // Override the default flex-end from Screen component
 })
 
-const $bottomContainer: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
-  flexShrink: 1,
-  flexGrow: 0,
-  flexBasis: "43%",
-  backgroundColor: colors.palette.neutral100,
-  borderTopLeftRadius: 16,
-  borderTopRightRadius: 16,
-  paddingHorizontal: spacing.lg,
-  justifyContent: "space-around",
-})
-
-const $welcomeLogo: ThemedStyle<ImageStyle> = ({ spacing }) => ({
-  height: 88,
+const $headerContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   width: "100%",
-  marginBottom: spacing.xxl,
+  height: 200,
+  paddingHorizontal: spacing.lg,
+  paddingTop: spacing.md,
 })
 
-const $welcomeFace: ImageStyle = {
-  height: 169,
-  width: 269,
-  position: "absolute",
-  bottom: -47,
-  right: -80,
-  transform: [{ scaleX: isRTL ? -1 : 1 }],
-}
+const $contentContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+  paddingHorizontal: spacing.lg,
+})
 
-const $welcomeHeading: ThemedStyle<TextStyle> = ({ spacing }) => ({
-  marginBottom: spacing.md,
+const $banner: ThemedStyle<ImageStyle> = () => ({
+  width: "100%",
+  height: "100%",
+})
+
+const $buttonContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  alignItems: "center",
+  gap: spacing.md,
+  width: "100%",
+})
+
+const $callText: ThemedStyle<TextStyle> = ({ colors }) => ({
+  textAlign: "center",
+  color: colors.palette.neutral700,
+  width: "100%",
+})
+
+const $whatsappButton: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  minWidth: 200,
+  paddingHorizontal: spacing.xl,
+  backgroundColor: "#25D366", // WhatsApp green color
+})
+
+const $buttonText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 18,
+  fontWeight: "600",
+  color: "white",
 })

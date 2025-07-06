@@ -9,6 +9,7 @@ const en = {
       "psst  — This probably isn't what your app looks like. (Unless your designer handed you these screens, and in that case, ship it!)",
     readyForLaunch: "Your app, almost ready for launch!",
     exciting: "(ohh, this is exciting!)",
+    whatsappCall: "For appointments, call:",
   },
   errorScreen: {
     title: "Something went wrong!",

@@ -12,12 +12,13 @@ import fr from "./fr"
 import hi from "./hi"
 import ja from "./ja"
 import ko from "./ko"
+import pt from "./pt"
 
 const fallbackLocale = "en-US"
 
 const systemLocales = Localization.getLocales()
 
-const resources = { ar, en, ko, es, fr, ja, hi }
+const resources = { ar, en, ko, es, fr, ja, hi, pt }
 const supportedTags = Object.keys(resources)
 
 // Checks to see if the device locale matches any of the supported locales
