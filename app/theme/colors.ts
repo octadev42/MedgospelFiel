@@ -1,63 +1,50 @@
 const palette = {
+  primary500: "#007C9B",
+  primary600: "#1C75BB",
+
+  success300: "#80ED99",
+  success500: "#52B69A",
+
+  danger500: "#EF476F",
+  info500: "#00E1F0",
+  warning500: "#FFBE0B",
+
+  neutral900: "#252525",
+  neutral800: "#3C3C3C",
+  neutral700: "#5C5C5C",
+  neutral600: "#7D7D7D",
+  neutral500: "#A0A0A0",
+  neutral400: "#C4C4C4",
+  neutral300: "#E0E0E0",
+  neutral200: "#F5F5F5",
+  // Primary Colors
+  primary100: "#00829B", // Teal
+  primary200: "#2176B6", // Blue
+  primary300: "#4CB6A3", // Green-Teal
+  primary400: "#00E6F6", // Cyan
+
+  // Semantic Colors
+  success: "#8CF6A0", // Green
+  error: "#F24B6A",   // Pink/Red
+  warning: "#FFC221", // Yellow
+
+  // Neutrals
   neutral100: "#FFFFFF",
-  neutral200: "#F4F2F1",
-  neutral300: "#D7CEC9",
-  neutral400: "#B6ACA6",
-  neutral500: "#978F8A",
-  neutral600: "#564E4A",
-  neutral700: "#3C3836",
-  neutral800: "#191015",
-  neutral900: "#000000",
-
-  primary100: "#F4E0D9",
-  primary200: "#E8C1B4",
-  primary300: "#DDA28E",
-  primary400: "#D28468",
-  primary500: "#C76542",
-  primary600: "#A54F31",
-
-  secondary100: "#DCDDE9",
-  secondary200: "#BCC0D6",
-  secondary300: "#9196B9",
-  secondary400: "#626894",
-  secondary500: "#41476E",
-
-  accent100: "#FFEED4",
-  accent200: "#FFE1B2",
-  accent300: "#FDD495",
-  accent400: "#FBC878",
-  accent500: "#FFBB50",
-
-  angry100: "#F2D6CD",
-  angry500: "#C03403",
 
   overlay20: "rgba(25, 16, 21, 0.2)",
   overlay50: "rgba(25, 16, 21, 0.5)",
 } as const
 
 export const colors = {
-  /**
-   * The palette is available to use, but prefer using the name.
-   * This is only included for rare, one-off cases. Try to use
-   * semantic names as much as possible.
-   */
   palette,
-  /**
-   * A helper for making something see-thru.
-   */
   transparent: "rgba(0, 0, 0, 0)",
-  /**
-   * The default text color in many components.
-   */
-  text: palette.neutral800,
-  /**
-   * Secondary text information.
-   */
+
+  text: palette.neutral900,
   textDim: palette.neutral600,
   /**
    * The default color of the screen background.
    */
-  background: palette.neutral200,
+  background: palette.neutral100, // Use white for card backgrounds
   /**
    * The default border color.
    */
@@ -65,7 +52,7 @@ export const colors = {
   /**
    * The main tinting color.
    */
-  tint: palette.primary500,
+  tint: palette.primary200, // Use blue as main accent
   /**
    * The inactive tinting color.
    */
@@ -77,9 +64,11 @@ export const colors = {
   /**
    * Error messages.
    */
-  error: palette.angry500,
+  error: palette.error,
   /**
    * Error Background.
    */
-  errorBackground: palette.angry100,
+  errorBackground: palette.error + '20', // 20% opacity
+  success: palette.success,
+  warning: palette.warning,
 } as const
