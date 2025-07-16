@@ -12,7 +12,7 @@ import { openLinkInBrowser } from "@/utils/openLinkInBrowser"
 
 const bannerImage = require("@assets/images/brand/banner.png")
 
-export const WelcomeScreen: FC = function WelcomeScreen() {
+export const HomeScreen: FC = function HomeScreen() {
   const { themed } = useAppTheme()
 
   const handleWhatsAppPress = () => {
@@ -103,4 +103,4 @@ const $buttonText: ThemedStyle<TextStyle> = () => ({
   fontSize: 18,
   fontWeight: "600",
   color: "white",
-})
+}) 
