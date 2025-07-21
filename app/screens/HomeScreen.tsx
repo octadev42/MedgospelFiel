@@ -1,5 +1,7 @@
 import { FC, useState } from "react"
-import { Image, ImageStyle, TextStyle, View, ViewStyle, TouchableOpacity } from "react-native"
+import { Image, ImageStyle, TextStyle, View, ViewStyle, TouchableOpacity, ScrollView } from "react-native"
+import { useNavigation } from "@react-navigation/native"
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 
 import { BottomNavigation } from "@/components/BottomNavigation"
 import { Icon } from "@/components/Icon"
@@ -8,18 +10,31 @@ import { Text } from "@/components/Text"
 import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
 import type { ThemedStyle } from "@/theme/types"
+import type { AppStackScreenProps, AppStackParamList } from "@/navigators/AppNavigator"
 
-export const HomeScreen: FC = function HomeScreen() {
+type HomeScreenProps = AppStackScreenProps<"Home">
+
+export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
   const { themed } = useAppTheme()
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
   const [activeTab, setActiveTab] = useState<"home" | "wallet" | "cart" | "heart" | "profile">("home")
 
   const serviceItems = [
-    { icon: "check", title: "Meus Agendamentos", onPress: () => {} },
-    { icon: "settings", title: "Exames e Resultados", onPress: () => {} },
-    { icon: "view", title: "Prevenção e Check-up", onPress: () => {} },
+    { icon: "check", title: "Consultas", onPress: () => navigation.navigate("Especialistas") },
+    { icon: "settings", title: "Exames de Imagem", onPress: () => {} },
+    { icon: "view", title: "Exames Laboratoriais", onPress: () => {} },
     { icon: "lock", title: "Procedimentos", onPress: () => {} },
     { icon: "menu", title: "Cirurgias", onPress: () => {} },
-    { icon: "more", title: "Clínicas Parceiras", onPress: () => {} },
+    { icon: "more", title: "Nossos Preços", onPress: () => {} },
+  ]
+
+  const specialtyItems = [
+    { icon: "check", title: "Neurologia", onPress: () => {} },
+    { icon: "settings", title: "Gastro-enterologia", onPress: () => {} },
+    { icon: "view", title: "Pneumologia", onPress: () => {} },
+    { icon: "lock", title: "Radiologia", onPress: () => {} },
+    { icon: "menu", title: "Cardiologia", onPress: () => {} },
+    { icon: "more", title: "Dermatologia", onPress: () => {} },
   ]
 
   const hospitalCards = [
@@ -27,113 +42,170 @@ export const HomeScreen: FC = function HomeScreen() {
     { title: "Hospital São Lucas", image: null },
   ]
 
+  const handleViewAllSpecialties = () => {
+    navigation.navigate("Especialidade")
+  }
+
+  const handleTabPress = (tab: "home" | "wallet" | "cart" | "heart" | "profile") => {
+    if (tab === "profile") {
+      navigation.navigate("Profile")
+    } else if (tab === "home") {
+      navigation.navigate("Home")
+    } else {
+      setActiveTab(tab)
+    }
+  }
+
   return (
-    <Screen 
-      preset="fixed" 
-      contentContainerStyle={themed($screenContentContainer)}
-      safeAreaEdges={["top"]}
-      systemBarStyle="light"
-    >
-      {/* Main Blue Container */}
-      <View style={themed($mainBlueContainer)}>
-        {/* Header Section */}
-        <View style={themed($headerContainer)}>
-          <View style={themed($headerTop)}>
-            <View style={themed($profileSection)}>
-              <View style={themed($profileImage)} />
-              <View style={themed($profileTextContainer)}>
-                <Text style={themed($welcomeText)} text="Seja bem-vinda, Maria!" />
-                <TouchableOpacity>
-                  <Text style={themed($profileLink)} text="Acessar meu perfil" />
+    <View style={themed($container)}>
+      <Screen 
+        preset="scroll" 
+        contentContainerStyle={themed($screenContentContainer)}
+        safeAreaEdges={["top"]}
+        systemBarStyle="light"
+      >
+        {/* Main Blue Container */}
+        <View style={themed($mainBlueContainer)}>
+          {/* Header Section */}
+          <View style={themed($headerContainer)}>
+            <View style={themed($headerTop)}>
+              <View style={themed($profileSection)}>
+                <View style={themed($profileImage)} />
+                <View style={themed($profileTextContainer)}>
+                  <Text style={themed($welcomeText)} text="Seja bem-vinda, Maria!" />
+                  <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+                    <Text style={themed($profileLink)} text="Acessar meu perfil" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <View style={themed($headerActions)}>
+                <TouchableOpacity style={themed($actionButton)}>
+                  <Icon icon="view" size={24} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity style={themed($actionButton)}>
+                  <View style={themed($notificationContainer)}>
+                    <Icon icon="bell" size={24} color="white" />
+                    <View style={themed($notificationBadge)}>
+                      <Text style={themed($notificationText)} text="2" />
+                    </View>
+                  </View>
                 </TouchableOpacity>
               </View>
             </View>
-            <View style={themed($headerActions)}>
-              <TouchableOpacity style={themed($actionButton)}>
-                <Icon icon="view" size={24} color="white" />
-              </TouchableOpacity>
-              <TouchableOpacity style={themed($actionButton)}>
-                <View style={themed($notificationContainer)}>
-                  <Icon icon="bell" size={24} color="white" />
-                  <View style={themed($notificationBadge)}>
-                    <Text style={themed($notificationText)} text="2" />
+          </View>
+
+          {/* Service Grid */}
+          <View style={themed($serviceGridContainer)}>
+            <View style={themed($serviceGrid)}>
+              {serviceItems.map((item, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={themed($serviceItem)}
+                  onPress={item.onPress}
+                >
+                  <View style={themed($serviceIconContainer)}>
+                    <Icon icon={item.icon as any} size={32} color="#20B2AA" />
                   </View>
-                </View>
-              </TouchableOpacity>
+                  <Text style={themed($serviceTitle)} text={item.title} />
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
         </View>
 
-        {/* Service Grid */}
-        <View style={themed($serviceGridContainer)}>
-          <View style={themed($serviceGrid)}>
-            {serviceItems.map((item, index) => (
+        {/* Especialidades Section */}
+        <View style={themed($especialidadesContainer)}>
+          <View style={themed($sectionHeader)}>
+            <Text style={themed($sectionTitle)} text="Especialidades" />
+            <TouchableOpacity onPress={handleViewAllSpecialties}>
+              <Text style={themed($viewAllLink)} text="Todos >" />
+            </TouchableOpacity>
+          </View>
+          
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={themed($especialidadesScrollContainer)}
+          >
+            {specialtyItems.map((item, index) => (
               <TouchableOpacity
                 key={index}
-                style={themed($serviceItem)}
+                style={themed($especialidadeCard)}
                 onPress={item.onPress}
               >
-                <View style={themed($serviceIconContainer)}>
+                <View style={themed($especialidadeIconContainer)}>
                   <Icon icon={item.icon as any} size={32} color="#20B2AA" />
                 </View>
-                <Text style={themed($serviceTitle)} text={item.title} />
+                <Text style={themed($especialidadeTitle)} text={item.title} />
               </TouchableOpacity>
             ))}
-          </View>
+          </ScrollView>
         </View>
-      </View>
 
-      {/* Top Hospital Section */}
-      <View style={themed($topHospitalContainer)}>
-        <View style={themed($sectionHeader)}>
-          <Text style={themed($sectionTitle)} text="Top Hospital" />
-          <TouchableOpacity>
-            <Text style={themed($viewAllLink)} text="Todos >" />
-          </TouchableOpacity>
-        </View>
-        
-        <View style={themed($hospitalCardsContainer)}>
-          {hospitalCards.map((hospital, index) => (
-            <TouchableOpacity key={index} style={themed($hospitalCard)}>
-              <View style={themed($hospitalImagePlaceholder)} />
-              <View style={themed($hospitalCardContent)}>
-                <Text style={themed($hospitalTitle)} text={hospital.title} />
-                <View style={themed($hospitalIconsRow)}>
-                  <View style={themed($doctorIconsContainer)}>
-                    {[1, 2, 3, 4].map((_, i) => (
-                      <View key={i} style={themed($doctorIcon)} />
-                    ))}
-                    <TouchableOpacity style={themed($plusIcon)}>
-                      <Text style={themed($plusText)} text="+" />
-                    </TouchableOpacity>
-                  </View>
-                  <View style={themed($actionIconsContainer)}>
-                    <TouchableOpacity style={themed($actionIcon)}>
-                      <Icon icon="check" size={16} color="#666" />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={themed($actionIcon)}>
-                      <Icon icon="more" size={16} color="#666" />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
+        {/* Top Hospital Section */}
+        <View style={themed($topHospitalContainer)}>
+          <View style={themed($sectionHeader)}>
+            <Text style={themed($sectionTitle)} text="Hospital" />
+            <TouchableOpacity>
+              <Text style={themed($viewAllLink)} text="Todos >" />
             </TouchableOpacity>
-          ))}
+          </View>
+          
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={themed($hospitalScrollContainer)}
+          >
+            {hospitalCards.map((hospital, index) => (
+              <TouchableOpacity key={index} style={themed($hospitalCard)}>
+                <View style={themed($hospitalImagePlaceholder)} />
+                <View style={themed($hospitalCardContent)}>
+                  <Text style={themed($hospitalTitle)} text={hospital.title} />
+                  <View style={themed($hospitalRatingRow)}>
+                    <View style={themed($ratingContainer)}>
+                      <Icon icon="check" size={16} color="#FFD700" />
+                      <Text style={themed($ratingText)} text="5.0" />
+                    </View>
+                    <Text style={themed($reviewsText)} text="(332 avaliações)" />
+                  </View>
+                  <TouchableOpacity>
+                    <Text style={themed($moreInfoLink)} text="Mais Info →" />
+                  </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
-      </View>
+      </Screen>
       
-      {/* Bottom Navigation */}
-      <BottomNavigation
-        active={activeTab}
-        onTabPress={setActiveTab}
-      />
-    </Screen>
+      {/* Bottom Navigation - Fixed at bottom */}
+      <View style={themed($bottomNavigationContainer)}>
+        <BottomNavigation
+          active={activeTab}
+          onTabPress={handleTabPress}
+        />
+      </View>
+    </View>
   )
 }
 
-const $screenContentContainer: ThemedStyle<ViewStyle> = () => ({
+const $container: ThemedStyle<ViewStyle> = () => ({
   flex: 1,
-  justifyContent: "flex-start",
+})
+
+const $screenContentContainer: ThemedStyle<ViewStyle> = () => ({
+  flexGrow: 1,
+  paddingBottom: 100, // Increased padding to account for fixed bottom navigation
+})
+
+const $bottomNavigationContainer: ThemedStyle<ViewStyle> = () => ({
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  right: 0,
+  backgroundColor: "white",
+  borderTopWidth: 1,
+  borderTopColor: "#E0E0E0",
 })
 
 const $mainBlueContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
@@ -269,8 +341,9 @@ const $serviceTitle: ThemedStyle<TextStyle> = () => ({
 
 const $topHospitalContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   paddingHorizontal: spacing.lg,
-  paddingTop: spacing.xl,
-  paddingBottom: spacing.lg,
+  paddingTop: spacing.lg,
+  paddingBottom: spacing.xl,
+  backgroundColor: "white",
 })
 
 const $sectionHeader: ThemedStyle<ViewStyle> = ({ spacing }) => ({
@@ -297,10 +370,11 @@ const $hospitalCardsContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
 })
 
 const $hospitalCard: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  width: 280,
   backgroundColor: "white",
   borderRadius: 12,
   padding: spacing.md,
-  flexDirection: "row",
+  marginRight: spacing.md,
   shadowColor: "#000",
   shadowOffset: {
     width: 0,
@@ -312,16 +386,17 @@ const $hospitalCard: ThemedStyle<ViewStyle> = ({ spacing }) => ({
 })
 
 const $hospitalImagePlaceholder: ThemedStyle<ViewStyle> = () => ({
-  width: 80,
-  height: 80,
+  width: "100%",
+  height: 120,
   backgroundColor: "#E0E0E0",
   borderRadius: 8,
-  marginRight: 12,
+  marginBottom: 12,
+  justifyContent: "center",
+  alignItems: "center",
 })
 
 const $hospitalCardContent: ThemedStyle<ViewStyle> = () => ({
   flex: 1,
-  justifyContent: "space-between",
 })
 
 const $hospitalTitle: ThemedStyle<TextStyle> = () => ({
@@ -373,4 +448,81 @@ const $actionIconsContainer: ThemedStyle<ViewStyle> = () => ({
 
 const $actionIcon: ThemedStyle<ViewStyle> = () => ({
   padding: 4,
+}) 
+
+const $especialidadesContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  paddingHorizontal: spacing.lg,
+  paddingTop: spacing.xl,
+  paddingBottom: spacing.lg,
+  backgroundColor: "#F8F9FA",
+})
+
+const $especialidadesScrollContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  paddingRight: spacing.lg,
+})
+
+const $especialidadeCard: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  width: 100,
+  height: 110,
+  backgroundColor: "white",
+  borderRadius: 12,
+  marginRight: spacing.md,
+  justifyContent: "center",
+  alignItems: "center",
+  padding: spacing.sm,
+  shadowColor: "#000",
+  shadowOffset: {
+    width: 0,
+    height: 2,
+  },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+  elevation: 3,
+})
+
+const $especialidadeIconContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  marginBottom: spacing.xs,
+})
+
+const $especialidadeTitle: ThemedStyle<TextStyle> = () => ({
+  fontSize: 11,
+  fontWeight: "500",
+  color: "#333",
+  textAlign: "center",
+  lineHeight: 14,
+  flexWrap: "wrap",
+}) 
+
+const $hospitalScrollContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  paddingRight: spacing.lg,
+})
+
+const $hospitalRatingRow: ThemedStyle<ViewStyle> = () => ({
+  flexDirection: "row",
+  alignItems: "center",
+  marginBottom: 8,
+})
+
+const $ratingContainer: ThemedStyle<ViewStyle> = () => ({
+  flexDirection: "row",
+  alignItems: "center",
+  marginRight: 8,
+})
+
+const $ratingText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 14,
+  fontWeight: "600",
+  color: "#333",
+  marginLeft: 4,
+})
+
+const $reviewsText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 12,
+  color: "#666",
+})
+
+const $moreInfoLink: ThemedStyle<TextStyle> = () => ({
+  fontSize: 12,
+  color: "#1E90FF",
+  fontWeight: "500",
 }) 

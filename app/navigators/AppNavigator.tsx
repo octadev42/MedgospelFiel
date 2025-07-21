@@ -11,6 +11,9 @@ import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navig
 import Config from "@/config"
 import { ErrorBoundary } from "@/screens/ErrorScreen/ErrorBoundary"
 import { HomeScreen } from "@/screens/HomeScreen"
+import { EspecialidadeScreen } from "@/screens/EspecialidadeScreen"
+import { EspecialistasScreen } from "@/screens/EspecialistasScreen"
+import { ProfileScreen } from "@/screens/ProfileScreen"
 import { useAppTheme } from "@/theme/context"
 
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
@@ -26,6 +29,9 @@ import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
  */
 export type AppStackParamList = {
   Home: undefined
+  Especialidade: undefined
+  Especialistas: undefined
+  Profile: undefined
   // 🔥 Your screens go here
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
@@ -59,7 +65,10 @@ const AppStack = () => {
         },
       }}
     >
-              <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Especialidade" component={EspecialidadeScreen} />
+      <Stack.Screen name="Especialistas" component={EspecialistasScreen} />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
       {/** 🔥 Your screens go here */}
       {/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
     </Stack.Navigator>
