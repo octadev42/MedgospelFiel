@@ -86,7 +86,7 @@ export const ProfileScreen: FC<ProfileScreenProps> = function ProfileScreen() {
           <TouchableOpacity style={themed($backButton)} onPress={handleBackPress}>
             <Icon icon="back" size={24} color="#20B2AA" />
           </TouchableOpacity>
-          <Text style={themed($headerTitle)} text="Relatórios" />
+          <Text style={themed($headerTitle)} text="Conta" />
           <View style={themed($headerSpacer)} />
         </View>
 
