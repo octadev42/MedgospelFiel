@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@expo-google-fonts/exo-2':
+        specifier: ^0.4.1
+        version: 0.4.1
       '@expo-google-fonts/space-grotesk':
         specifier: ^0.4.0
         version: 0.4.0
@@ -923,6 +926,9 @@ packages:
   '@eslint/js@8.57.1':
     resolution: {integrity: sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  '@expo-google-fonts/exo-2@0.4.1':
+    resolution: {integrity: sha512-LQHiOKHqVqR2DrVQHgzY4815IVvkV0Ea2XVcPlPoxZdXrOtGDD+C/BZ/GyGyiSZephC4n4kpe/uexExPtLip0Q==}
 
   '@expo-google-fonts/space-grotesk@0.4.0':
     resolution: {integrity: sha512-AwxzX8sbcy9QiYkJwc3pKgpMkHB/himJfcZNEl/a/KvGIra9CewPmBs/zwMYcWt8SsNMslqfeLy5NFeJtf8Ixg==}
@@ -6091,6 +6097,8 @@ snapshots:
       - supports-color
 
   '@eslint/js@8.57.1': {}
+
+  '@expo-google-fonts/exo-2@0.4.1': {}
 
   '@expo-google-fonts/space-grotesk@0.4.0': {}
 
