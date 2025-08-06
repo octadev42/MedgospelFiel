@@ -217,13 +217,6 @@ const $cardContainer: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
   alignSelf: "center",
 })
 
-const $logInCard: ThemedStyle<TextStyle> = ({ spacing }) => ({
-  marginBottom: spacing.xxxs,
-  fontSize: 24,
-  fontWeight: "400",
-  textAlign: "left",
-})
-
 const $enterDetailsCard: ThemedStyle<TextStyle> = ({ spacing }) => ({
   marginBottom: spacing.lg,
   fontSize: 28,
