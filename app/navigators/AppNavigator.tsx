@@ -9,10 +9,11 @@ import { NavigationContainer } from "@react-navigation/native"
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack"
 
 import Config from "@/config"
+import { LoginScreen } from "@/screens/Authentication/LoginScreen"
 import { ErrorBoundary } from "@/screens/ErrorScreen/ErrorBoundary"
-import { HomeScreen } from "@/screens/HomeScreen"
 import { EspecialidadeScreen } from "@/screens/EspecialidadeScreen"
 import { EspecialistasScreen } from "@/screens/EspecialistasScreen"
+import { HomeScreen } from "@/screens/HomeScreen"
 import { ProfileScreen } from "@/screens/ProfileScreen"
 import { useAppTheme } from "@/theme/context"
 
@@ -28,6 +29,7 @@ import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
  *   https://reactnavigation.org/docs/typescript/#organizing-types
  */
 export type AppStackParamList = {
+  Login: undefined
   Home: undefined
   Especialidade: undefined
   Especialistas: undefined
@@ -65,6 +67,7 @@ const AppStack = () => {
         },
       }}
     >
+      <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Especialidade" component={EspecialidadeScreen} />
       <Stack.Screen name="Especialistas" component={EspecialistasScreen} />
