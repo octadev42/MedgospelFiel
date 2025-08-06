@@ -36,6 +36,7 @@ Best Practices:
     
 Current Archtecture:
 - The project uses a boilerplate: the docs can be found here: https://docs.infinite.red/
+- When using the "components" folder components, always look for already definied props, eaxmple, if there is a prop to set size in a text component, use it, instead of set the size in the style directly
 - Here follows the initial instructions of ignite boilerplate used in this project:
 STARTING IGNITE DOCS
 What is Ignite?
