@@ -25,15 +25,17 @@ import type { ThemedStyle } from "@/theme/types"
 interface LoginScreenProps {}
 
 const logo = require("../../../assets/images/logo_branca.png")
+const bannerImage = require("../../../assets/images/login/banner.png")
 
 export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_props) {
   const authPasswordInput = useRef<TextInput>(null)
 
-  const [authEmail, setAuthEmail] = useState("")
+  const [authEmail, setAuthEmail] = useState("Joao_silva@gmail.com")
   const [authPassword, setAuthPassword] = useState("")
   const [isAuthPasswordHidden, setIsAuthPasswordHidden] = useState(true)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [attemptsCount, setAttemptsCount] = useState(0)
+  const [rememberMe, setRememberMe] = useState(false)
 
   const { login, loading, loginError, getValidationError } = useLogin()
 
@@ -43,11 +45,6 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   } = useAppTheme()
 
   useEffect(() => {
-    /*     // Here is where you could fetch credentials from keychain or storage
-    // and pre-fill the form fields.
-    setAuthEmail("pastozin")
-    setAuthPassword("9ALK/1!P4o") */
-
     SystemUI.setBackgroundColorAsync(colors.palette.primary600)
 
     // Return a "cleanup" function that React will run when the component unmounts
@@ -101,62 +98,88 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       contentContainerStyle={themed($screenContentContainer)}
       safeAreaEdges={["top", "bottom"]}
     >
-      <View style={themed($logoContainer)}>
-        <Image source={logo} style={themed($logoImage)} />
+      {/* Banner Section */}
+      <View style={themed($bannerContainer)}>
+        <Image source={bannerImage} style={themed($bannerImage)} />
       </View>
-      <View style={themed($cardContainer)}>
-        <Text text="Faça login no" preset="heading" style={themed($enterDetailsCard)} />
-        <Text text="Medgospel" preset="heading" style={themed($enterDetailsCard)} />
-        {attemptsCount > 2 && (
-          <Text text="Tente novamente" size="sm" weight="light" style={themed($hint)} />
-        )}
+
+      {/* Login Form Section */}
+      <View style={themed($formContainer)}>
+        <Text text="Faça login no" preset="heading" style={themed($loginTitle)} weight="light" size="xl"/>
+        <Text text="medgospel" preset="heading" style={themed($loginTitleBold)} weight="bold" size="xxl"/>
+        
         <TextField
           value={authEmail}
           onChangeText={setAuthEmail}
-          containerStyle={themed($textFieldCard)}
-          inputWrapperStyle={themed($inputWrapperCard)}
+          containerStyle={themed($textField)}
+          inputWrapperStyle={themed($inputWrapper)}
           autoCapitalize="none"
           autoComplete="username"
           autoCorrect={false}
           keyboardType="default"
-          label="E-mail ou usuário"
-          LabelTextProps={{ style: { marginBottom: 4 } }}
+          label="Email"
+          LabelTextProps={{ style: themed($fieldLabel) }}
           placeholder="Digite seu e-mail ou usuário"
           helper={error}
           status={error ? "error" : undefined}
           onSubmitEditing={() => authPasswordInput.current?.focus()}
         />
+        
         <TextField
           ref={authPasswordInput}
           value={authPassword}
           onChangeText={setAuthPassword}
-          containerStyle={themed($textFieldCard)}
-          inputWrapperStyle={themed($inputWrapperCard)}
+          containerStyle={themed($textField)}
+          inputWrapperStyle={themed($inputWrapper)}
           autoCapitalize="none"
           autoComplete="password"
           autoCorrect={false}
           secureTextEntry={isAuthPasswordHidden}
           label="Senha"
-          LabelTextProps={{ style: { marginBottom: 4 } }}
+          LabelTextProps={{ style: themed($fieldLabel) }}
           placeholder="Digite sua senha"
           onSubmitEditing={handleLogin}
           RightAccessory={PasswordRightAccessory}
         />
+
+        {/* Remember Me and Forgot Password */}
+        <View style={themed($optionsContainer)}>
+          <Pressable 
+            style={themed($rememberMeContainer)} 
+            onPress={() => setRememberMe(!rememberMe)}
+          >
+            <View style={themed($checkboxContainer)}>
+              {rememberMe && <View style={themed($checkboxChecked)} />}
+            </View>
+            <Text text="Lembrar de mim" style={themed($rememberMeText)} />
+          </Pressable>
+          
+          <Pressable>
+            <Text text="Esqueceu sua senha?" style={themed($forgotPasswordText)} />
+          </Pressable>
+        </View>
+
         {loginError ? <Text style={themed($loginError)}>{loginError}</Text> : null}
+        
         <Pressable
           onPress={handleLogin}
           disabled={loading}
           style={({ pressed }) => [
-            themed($tapButtonCard),
+            themed($loginButton),
             pressed && { backgroundColor: "#72dd88" },
             loading && { opacity: 0.7 },
           ]}
         >
           <View style={$buttonContent}>
-            {loading && <ActivityIndicator color="#1C75BB" style={$loadingIndicator} />}
-            <Text style={themed($tapButtonText)}>{loading ? "Entrando..." : "ENTRAR"}</Text>
+            {loading && <ActivityIndicator color="#fff" style={$loadingIndicator} />}
+            <Text style={themed($loginButtonText)}>{loading ? "Entrando..." : "ENTRAR"}</Text>
           </View>
         </Pressable>
+      </View>
+
+      {/* Bottom Logo */}
+      <View style={themed($bottomLogoContainer)}>
+        <Image source={logo} style={themed($bottomLogoImage)} />
       </View>
     </Screen>
   )
@@ -168,68 +191,143 @@ const $screenBackground: ThemedStyle<ViewStyle> = ({ colors }) => ({
 })
 
 const $screenContentContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  paddingTop: spacing.xxl,
+  flex: 1,
   paddingHorizontal: spacing.lg,
+  paddingTop: spacing.md,
   paddingBottom: spacing.lg,
 })
 
-const $tapButtonText: ThemedStyle<TextStyle> = () => ({
-  color: "#1C75BB",
-  fontWeight: "bold",
-  fontSize: 16,
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 1 },
-  shadowOpacity: 0.08,
-  shadowRadius: 4,
-  elevation: 2,
+// Banner Styles
+const $bannerContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  marginBottom: spacing.xl,
+  position: "relative",
 })
 
-const $inputWrapperCard: ThemedStyle<ViewStyle> = () => ({
-  backgroundColor: "#fff",
-  borderRadius: 10,
-})
-
-const $logoContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  alignItems: "center",
-  justifyContent: "center",
-  height: 120,
-  marginBottom: spacing.lg,
-})
-
-const $logoImage: ImageStyle = {
-  aspectRatio: 2,
-  height: 80,
-  resizeMode: "contain",
+const $bannerImage: ImageStyle = {
+  width: "100%",
+  height: 200,
+  borderRadius: 16,
+  resizeMode: "cover",
 }
 
-const $cardContainer: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
-  backgroundColor: colors.background,
-  borderRadius: 20,
-  padding: spacing.xl,
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 8,
-  elevation: 4,
-  alignItems: "stretch",
-  width: "100%",
-  maxWidth: 370,
-  alignSelf: "center",
+const $bannerTextOverlay: ThemedStyle<ViewStyle> = () => ({
+  position: "absolute",
+  right: 20,
+  top: 40,
+  alignItems: "flex-end",
 })
 
-const $enterDetailsCard: ThemedStyle<TextStyle> = ({ spacing }) => ({
-  marginBottom: spacing.lg,
-  fontSize: 28,
-  fontWeight: "700",
+const $bannerText: ThemedStyle<TextStyle> = () => ({
+  color: "#00B4D8",
+  fontSize: 18,
+  fontWeight: "600",
+  lineHeight: 22,
+  textAlign: "right",
+})
+
+const $bannerIndicators: ViewStyle = {
+  position: "absolute",
+  bottom: 16,
+  left: 0,
+  right: 0,
+  flexDirection: "row",
+  justifyContent: "center",
+  alignItems: "center",
+  gap: 8,
+}
+
+const $indicatorActive: ViewStyle = {
+  width: 8,
+  height: 8,
+  borderRadius: 4,
+  backgroundColor: "#00B4D8",
+}
+
+const $indicatorInactive: ViewStyle = {
+  width: 8,
+  height: 8,
+  borderRadius: 4,
+  backgroundColor: "rgba(255, 255, 255, 0.5)",
+}
+
+// Form Styles
+const $formContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  flex: 1,
+  paddingHorizontal: spacing.md,
+})
+
+const $loginTitle: ThemedStyle<TextStyle> = ({ spacing }) => ({
+  color: "#fff",
+  marginBottom: 0,
   textAlign: "left",
 })
 
-const $textFieldCard: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  marginBottom: spacing.lg,
-  borderRadius: 10,
+const $loginTitleBold: ThemedStyle<TextStyle> = ({ spacing }) => ({
+  color: "#fff",
+  marginBottom: spacing.xl,
+  textAlign: "left",
 })
 
-const $tapButtonCard: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+const $textField: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  marginBottom: spacing.lg,
+})
+
+const $inputWrapper: ThemedStyle<ViewStyle> = () => ({
+  backgroundColor: "#fff",
+  borderRadius: 10,
+  borderWidth: 0,
+})
+
+const $fieldLabel: ThemedStyle<TextStyle> = () => ({
+  color: "#fff",
+  marginBottom: 4,
+  fontSize: 14,
+  fontWeight: "500",
+})
+
+const $optionsContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: spacing.lg,
+})
+
+const $rememberMeContainer: ThemedStyle<ViewStyle> = () => ({
+  flexDirection: "row",
+  alignItems: "center",
+})
+
+const $checkboxContainer: ViewStyle = {
+  width: 18,
+  height: 18,
+  borderWidth: 2,
+  borderColor: "#fff",
+  borderRadius: 3,
+  marginRight: 8,
+  justifyContent: "center",
+  alignItems: "center",
+}
+
+const $checkboxChecked: ViewStyle = {
+  width: 10,
+  height: 10,
+  backgroundColor: "#fff",
+  borderRadius: 2,
+}
+
+const $rememberMeText: ThemedStyle<TextStyle> = () => ({
+  color: "#fff",
+  fontSize: 14,
+  fontWeight: "400",
+})
+
+const $forgotPasswordText: ThemedStyle<TextStyle> = () => ({
+  color: "#fff",
+  fontSize: 14,
+  fontWeight: "400",
+})
+
+const $loginButton: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   marginTop: spacing.md,
   borderRadius: 12,
   backgroundColor: "#8CF6A0",
@@ -237,9 +335,11 @@ const $tapButtonCard: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   alignSelf: "center",
 })
 
-const $hint: ThemedStyle<TextStyle> = ({ colors, spacing }) => ({
-  color: colors.tint,
-  marginBottom: spacing.md,
+const $loginButtonText: ThemedStyle<TextStyle> = () => ({
+  color: "#fff",
+  fontWeight: "bold",
+  fontSize: 16,
+  textAlign: "center",
 })
 
 const $loginError: ThemedStyle<TextStyle> = ({ colors, spacing }) => ({
@@ -247,6 +347,19 @@ const $loginError: ThemedStyle<TextStyle> = ({ colors, spacing }) => ({
   marginBottom: spacing.sm,
   textAlign: "center",
 })
+
+// Bottom Logo Styles
+const $bottomLogoContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  alignItems: "center",
+  justifyContent: "center",
+  paddingVertical: spacing.lg,
+})
+
+const $bottomLogoImage: ImageStyle = {
+  aspectRatio: 2,
+  height: 60,
+  resizeMode: "contain",
+}
 
 const $buttonContent: ViewStyle = {
   flexDirection: "row",
