@@ -28,6 +28,7 @@ import { initI18n } from "./i18n"
 import { AppNavigator } from "./navigators/AppNavigator"
 import { useNavigationPersistence } from "./navigators/navigationUtilities"
 import { ThemeProvider } from "./theme/context"
+import { ToastComponent } from "./components/Toast"
 import { customFontsToLoad } from "./theme/typography"
 import { loadDateFnsLocale } from "./utils/formatDate"
 import * as storage from "./utils/storage"
@@ -101,6 +102,7 @@ export function App() {
             initialState={initialNavigationState}
             onStateChange={onNavigationStateChange}
           />
+          <ToastComponent />
         </ThemeProvider>
       </KeyboardProvider>
     </SafeAreaProvider>

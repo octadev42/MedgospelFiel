@@ -18,6 +18,7 @@ import { ProfileScreen } from "@/screens/ProfileScreen"
 import { useAppTheme } from "@/theme/context"
 
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
+import { SignupScreen } from "@/screens/Authentication/SignupScreen"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -30,6 +31,7 @@ import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
  */
 export type AppStackParamList = {
   Login: undefined
+  Signup: undefined
   Home: undefined
   Especialidade: undefined
   Especialistas: undefined
@@ -67,6 +69,7 @@ const AppStack = () => {
         },
       }}
     >
+      <Stack.Screen name="Signup" component={SignupScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Especialidade" component={EspecialidadeScreen} />

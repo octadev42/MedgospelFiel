@@ -1,7 +1,7 @@
 import { useState } from "react"
 
 import { useStores } from "@/models"
-import { api } from "@/services/api"
+import { authService } from "@/services/auth.service"
 
 interface UseLoginReturn {
   login: (email: string, password: string) => Promise<void>
@@ -40,8 +40,8 @@ export const useLogin = (): UseLoginReturn => {
     }
 
     try {
-      // Call the real API
-      const result = await api.login(email, password)
+      // Call the auth service
+      const result = await authService.login(email, password)
       if (result.kind === "ok") {
         setAuthToken(result.token)
         setAuthUsername(email)

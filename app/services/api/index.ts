@@ -42,40 +42,7 @@ export class Api {
     })
   }
 
-  /**
-   * Logs in a user and returns a token.
-   */
-  async login(
-    username: string,
-    password: string,
-  ): Promise<
-    { kind: "ok"; token: string; fk_pessoa_fisica?: number } | (GeneralApiProblem & { error?: any })
-  > {
-    const payload = {
-      grant_type: "password",
-      client_id: "bqdKF45eaNNEBiy4bFTJkVpqWfaRC1Vp8uU2J8Au",
-      client_secret: "6Doz5E9eQaM9tNacDh8p5oWXOwpuoMxVEkDdyQyAaRCgMi79RAzcfwBsmFnpN2Hj",
-      username,
-      password,
-    }
-    const response: ApiResponse<any> = await this.apisauce.post("/v1/auth/token/", payload, {
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    })
-    if (!response.ok) {
-      return { kind: "rejected", error: response.data }
-    }
-    try {
-      const token = response.data?.access_token
-      const fk_pessoa_fisica = response.data?.fk_pessoa_fisica
-      if (token) {
-        return { kind: "ok", token, fk_pessoa_fisica }
-      } else {
-        return { kind: "bad-data", error: response.data }
-      }
-    } catch (e) {
-      return { kind: "bad-data", error: response.data }
-    }
-  }
+
 }
 
 // Singleton instance of the API for convenience
