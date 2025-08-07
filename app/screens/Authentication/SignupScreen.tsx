@@ -28,9 +28,8 @@ import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 import { cepLib } from "@/lib/cep.lib"
 import { locationService, Cidade } from "@/services/location.service"
-import { authService } from "@/services/auth.service"
-import { showApiErrors } from "@/utils/errorHandler"
-import { showToast } from "@/components/Toast"
+import { useLogin } from "@/hooks/useAuth"
+import { navigate } from "@/navigators/navigationUtilities"
 
 // TODO: Add "Signup" route to AppStackParamList in AppNavigator.tsx
 interface SignupScreenProps { }
@@ -166,6 +165,7 @@ const STEPS = [
 ] as const
 
 export const SignupScreen: FC<SignupScreenProps> = observer(function SignupScreen(_props) {
+    const { signup, loading: authLoading } = useLogin()
     const [currentStep, setCurrentStep] = useState(1)
     const [isLoading, setIsLoading] = useState(false)
     const [isLoadingCEP, setIsLoadingCEP] = useState(false)
@@ -353,7 +353,7 @@ export const SignupScreen: FC<SignupScreenProps> = observer(function SignupScree
         }
     }
 
-    const onAccessSubmit = async (data: AccessForm) => {
+        const onAccessSubmit = async (data: AccessForm) => {
         // Trigger validation for all fields to show errors
         const isValid = await accessForm.trigger()
 
@@ -362,7 +362,6 @@ export const SignupScreen: FC<SignupScreenProps> = observer(function SignupScree
             return
         }
 
-        setIsLoading(true)
         try {
             // Combine all three forms data
             const personalData = personalForm.getValues()
@@ -392,23 +391,16 @@ export const SignupScreen: FC<SignupScreenProps> = observer(function SignupScree
 
             console.log("Formatted payload:", formattedPayload)
 
-            // Submit to API using auth service
-            const result = await authService.signup(formattedPayload)
+            // Use the signup function from useLogin hook
+            const success = await signup(formattedPayload)
             
-            if (result.kind === "ok") {
-                console.log("Signup completed successfully!", result.message)
-                showToast.success("Sucesso!", "Conta criada com sucesso!")
-                // Here you could navigate to success screen
-            } else {
-
-                // Show all API errors as toast notifications
-                showApiErrors(result.error, "Erro no Cadastro")
+            if (success) {
+                console.log("Signup and login completed successfully!")
+                // Navigate to Home screen after successful signup and login
+                navigate("Home")
             }
         } catch (error) {
             console.error("Error submitting form:", error)
-            showToast.error("Erro", "Erro inesperado ao cadastrar usuário")
-        } finally {
-            setIsLoading(false)
         }
     }
 
@@ -937,17 +929,17 @@ export const SignupScreen: FC<SignupScreenProps> = observer(function SignupScree
                 {currentStep === 1 && (
                     <Pressable
                         onPress={personalForm.handleSubmit(onPersonalDataSubmit)}
-                        disabled={isLoading}
+                        disabled={authLoading}
                         style={({ pressed }) => [
                             themed($actionButton),
                             pressed && { backgroundColor: "#72dd88" },
-                            isLoading && { opacity: 0.7 },
+                            authLoading && { opacity: 0.7 },
                         ]}
                     >
                         <View style={$buttonContent}>
-                            {isLoading && <ActivityIndicator color="#fff" style={$loadingIndicator} />}
+                            {authLoading && <ActivityIndicator color="#fff" style={$loadingIndicator} />}
                             <Text style={themed($actionButtonText)}>
-                                {isLoading ? "Processando..." : "PRÓXIMO"}
+                                {authLoading ? "Processando..." : "PRÓXIMO"}
                             </Text>
                         </View>
                     </Pressable>
@@ -956,17 +948,17 @@ export const SignupScreen: FC<SignupScreenProps> = observer(function SignupScree
                 {currentStep === 2 && (
                     <Pressable
                         onPress={addressForm.handleSubmit(onAddressSubmit)}
-                        disabled={isLoading}
+                        disabled={authLoading}
                         style={({ pressed }) => [
                             themed($actionButton),
                             pressed && { backgroundColor: "#72dd88" },
-                            isLoading && { opacity: 0.7 },
+                            authLoading && { opacity: 0.7 },
                         ]}
                     >
                         <View style={$buttonContent}>
-                            {isLoading && <ActivityIndicator color="#fff" style={$loadingIndicator} />}
+                            {authLoading && <ActivityIndicator color="#fff" style={$loadingIndicator} />}
                             <Text style={themed($actionButtonText)}>
-                                {isLoading ? "Processando..." : "PRÓXIMO"}
+                                {authLoading ? "Processando..." : "PRÓXIMO"}
                             </Text>
                         </View>
                     </Pressable>
@@ -975,17 +967,17 @@ export const SignupScreen: FC<SignupScreenProps> = observer(function SignupScree
                 {currentStep === 3 && (
                     <Pressable
                         onPress={accessForm.handleSubmit(onAccessSubmit)}
-                        disabled={isLoading}
+                        disabled={authLoading}
                         style={({ pressed }) => [
                             themed($actionButton),
                             pressed && { backgroundColor: "#72dd88" },
-                            isLoading && { opacity: 0.7 },
+                            authLoading && { opacity: 0.7 },
                         ]}
                     >
                         <View style={$buttonContent}>
-                            {isLoading && <ActivityIndicator color="#fff" style={$loadingIndicator} />}
+                            {authLoading && <ActivityIndicator color="#fff" style={$loadingIndicator} />}
                             <Text style={themed($actionButtonText)}>
-                                {isLoading ? "Processando..." : "CADASTRAR"}
+                                {authLoading ? "Processando..." : "CADASTRAR"}
                             </Text>
                         </View>
                     </Pressable>
