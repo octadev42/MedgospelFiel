@@ -52,27 +52,41 @@ export const useStores = () => useContext(RootStoreContext)
  */
 export const useInitialRootStore = (callback?: () => void | Promise<void>) => {
   const rootStore = useStores()
+  console.log("useInitialRootStore called, rootStore:", rootStore)
   const [rehydrated, setRehydrated] = useState(false)
 
   // Kick off initial async loading actions, like loading fonts and rehydrating RootStore
   useEffect(() => {
+    console.log("useInitialRootStore useEffect triggered")
     let _unsubscribe: () => void | undefined
     ;(async () => {
-      // set up the RootStore (returns the state restored from AsyncStorage)
-      const { unsubscribe } = await setupRootStore(rootStore)
-      _unsubscribe = unsubscribe
+      try {
+        console.log("Starting root store setup...")
+        // set up the RootStore (returns the state restored from AsyncStorage)
+        const { unsubscribe } = await setupRootStore(rootStore)
+        _unsubscribe = unsubscribe
 
-      // reactotron integration with the MST root store (DEV only)
-      if (__DEV__) {
-        // @ts-ignore
-        console.tron.trackMstNode(rootStore)
+        // reactotron integration with the MST root store (DEV only)
+        if (__DEV__) {
+          // @ts-ignore
+          // console.tron.trackMstNode(rootStore)
+          console.log("Reactotron integration commented out for debugging")
+        }
+
+        // let the app know we've finished rehydrating
+        console.log("Setting rehydrated to true")
+        setRehydrated(true)
+
+        // invoke the callback, if provided
+        if (callback) {
+          console.log("Calling callback...")
+          callback()
+        }
+      } catch (error) {
+        console.error("Error in useInitialRootStore:", error)
+        // Even if there's an error, we should still set rehydrated to true to prevent infinite loading
+        setRehydrated(true)
       }
-
-      // let the app know we've finished rehydrating
-      setRehydrated(true)
-
-      // invoke the callback, if provided
-      if (callback) callback()
     })()
 
     return () => {

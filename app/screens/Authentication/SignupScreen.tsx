@@ -31,7 +31,6 @@ import { locationService, Cidade } from "@/services/location.service"
 import { useLogin } from "@/hooks/useAuth"
 import { navigate } from "@/navigators/navigationUtilities"
 
-// TODO: Add "Signup" route to AppStackParamList in AppNavigator.tsx
 interface SignupScreenProps { }
 
 const logo = require("../../../assets/images/logo_branca.png")
@@ -415,6 +414,9 @@ export const SignupScreen: FC<SignupScreenProps> = observer(function SignupScree
     const handleBack = () => {
         if (currentStep > 1) {
             setCurrentStep(currentStep - 1)
+        } else {
+            // If on first step, go back to login screen
+            navigate("Login")
         }
     }
 

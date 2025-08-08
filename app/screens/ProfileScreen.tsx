@@ -10,6 +10,7 @@ import { Text } from "@/components/Text"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 import type { AppStackParamList } from "@/navigators/AppNavigator"
+import { useStores } from "@/models/helpers/useStores"
 
 type ProfileScreenProps = {
   navigation: NativeStackNavigationProp<AppStackParamList, "Profile">
@@ -19,6 +20,7 @@ export const ProfileScreen: FC<ProfileScreenProps> = function ProfileScreen() {
   const { themed } = useAppTheme()
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
   const [activeTab, setActiveTab] = useState<"home" | "wallet" | "cart" | "heart" | "profile">("profile")
+  const { authenticationStore } = useStores()
 
   const menuItems = [
     { 
@@ -54,7 +56,10 @@ export const ProfileScreen: FC<ProfileScreenProps> = function ProfileScreen() {
     { 
       icon: "back", 
       title: "Sair", 
-      onPress: () => {} 
+      onPress: () => {
+        authenticationStore.logout()
+        navigation.navigate("Login")
+      } 
     },
   ]
 

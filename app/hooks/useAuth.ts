@@ -6,7 +6,7 @@ import { showToast } from "@/components/Toast"
 import { showApiErrors } from "@/utils/errorHandler"
 
 interface UseLoginReturn {
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string) => Promise<boolean>
   signup: (signupData: PessoaFisicaData) => Promise<boolean>
   loading: boolean
   loginError: string
@@ -31,7 +31,7 @@ export const useLogin = (): UseLoginReturn => {
     return ""
   }
 
-  async function login(email: string, password: string): Promise<void> {
+  async function login(email: string, password: string): Promise<boolean> {
     setLoginError("")
     setLoading(true)
 
@@ -39,12 +39,13 @@ export const useLogin = (): UseLoginReturn => {
     if (validation) {
       setLoginError(validation)
       setLoading(false)
-      return
+      return false
     }
 
     try {
       // Call the auth service
       const result = await authService.login(email, password)
+      console.log("result", result)
       if (result.kind === "ok") {
         setAuthToken(result.token)
         setAuthUsername(email)
@@ -56,6 +57,7 @@ export const useLogin = (): UseLoginReturn => {
 
         setLoginError("")
         setLoading(false)
+        return true
       } else {
         let message = "Erro ao fazer login."
         if (result.error && result.error.error === "invalid_grant") {
@@ -63,10 +65,12 @@ export const useLogin = (): UseLoginReturn => {
         }
         setLoginError(message)
         setLoading(false)
+        return false
       }
     } catch {
       setLoginError("Erro ao fazer login.")
       setLoading(false)
+      return false
     }
   }
 

@@ -11,6 +11,7 @@ import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
 import type { ThemedStyle } from "@/theme/types"
 import type { AppStackScreenProps, AppStackParamList } from "@/navigators/AppNavigator"
+import { WColorIcon } from "@/components/WColorIcon"
 
 type HomeScreenProps = AppStackScreenProps<"Home">
 
@@ -29,17 +30,15 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
   ]
 
   const specialtyItems = [
-    { icon: "check", title: "Neurologia", onPress: () => {} },
-    { icon: "settings", title: "Gastro-enterologia", onPress: () => {} },
-    { icon: "view", title: "Pneumologia", onPress: () => {} },
-    { icon: "lock", title: "Radiologia", onPress: () => {} },
-    { icon: "menu", title: "Cardiologia", onPress: () => {} },
-    { icon: "more", title: "Dermatologia", onPress: () => {} },
+    { icon: "especialidades_neurologia", title: "Neurologia", onPress: () => {} },
+    { icon: "especialidades_gastroenterologia", title: "Gastro-enterologia", onPress: () => {} },
+    { icon: "especialidades_pneumologia", title: "Pneumologia", onPress: () => {} },
+    { icon: "more", title: "Mais", onPress: () => {} },
   ]
 
   const hospitalCards = [
-    { title: "Clinica Batista", image: null },
-    { title: "Hospital São Lucas", image: null },
+    { title: "HVTCR - Hospital da Visão Dr. Thiago Castro Ramalho", image: require("@assets/images/estabelecimentos/hvisao.webp") },
+    { title: "Clinica Batista", image: require("@assets/images/estabelecimentos/clinica-batista.webp") },
   ]
 
   const handleViewAllSpecialties = () => {
@@ -104,7 +103,7 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
                   onPress={item.onPress}
                 >
                   <View style={themed($serviceIconContainer)}>
-                    <Icon icon={item.icon as any} size={32} color="#20B2AA" />
+                    <WColorIcon icon={item.icon as any} size={32} color="#20B2AA" />
                   </View>
                   <Text style={themed($serviceTitle)} text={item.title} />
                 </TouchableOpacity>
@@ -116,7 +115,7 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
         {/* Especialidades Section */}
         <View style={themed($especialidadesContainer)}>
           <View style={themed($sectionHeader)}>
-            <Text style={themed($sectionTitle)} text="Especialidades" />
+            <Text style={themed($sectionTitle)} text="Especialidades mais acessadas" />
             <TouchableOpacity onPress={handleViewAllSpecialties}>
               <Text style={themed($viewAllLink)} text="Todos >" />
             </TouchableOpacity>
@@ -134,7 +133,7 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
                 onPress={item.onPress}
               >
                 <View style={themed($especialidadeIconContainer)}>
-                  <Icon icon={item.icon as any} size={32} color="#20B2AA" />
+                  <WColorIcon icon={item.icon as any} size={32} color="#20B2AA" />
                 </View>
                 <Text style={themed($especialidadeTitle)} text={item.title} />
               </TouchableOpacity>
@@ -158,7 +157,7 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
           >
             {hospitalCards.map((hospital, index) => (
               <TouchableOpacity key={index} style={themed($hospitalCard)}>
-                <View style={themed($hospitalImagePlaceholder)} />
+                <Image source={hospital.image} style={themed($hospitalImagePlaceholder)} />
                 <View style={themed($hospitalCardContent)}>
                   <Text style={themed($hospitalTitle)} text={hospital.title} />
                   <View style={themed($hospitalRatingRow)}>
@@ -235,10 +234,10 @@ const $profileSection: ThemedStyle<ViewStyle> = () => ({
 })
 
 const $profileImage: ThemedStyle<ViewStyle> = () => ({
-  width: 50,
+  width: 8,
   height: 50,
   borderRadius: 25,
-  backgroundColor: "white",
+  backgroundColor: "transparent",
   marginRight: 12,
 })
 
@@ -385,7 +384,7 @@ const $hospitalCard: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   elevation: 3,
 })
 
-const $hospitalImagePlaceholder: ThemedStyle<ViewStyle> = () => ({
+const $hospitalImagePlaceholder: ThemedStyle<ImageStyle> = () => ({
   width: "100%",
   height: 120,
   backgroundColor: "#E0E0E0",

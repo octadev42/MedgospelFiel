@@ -7,6 +7,7 @@
 import { ComponentProps } from "react"
 import { NavigationContainer } from "@react-navigation/native"
 import { createNativeStackNavigator, NativeStackScreenProps } from "@react-navigation/native-stack"
+import { observer } from "mobx-react-lite"
 
 import Config from "@/config"
 import { LoginScreen } from "@/screens/Authentication/LoginScreen"
@@ -16,6 +17,7 @@ import { EspecialistasScreen } from "@/screens/EspecialistasScreen"
 import { HomeScreen } from "@/screens/HomeScreen"
 import { ProfileScreen } from "@/screens/ProfileScreen"
 import { useAppTheme } from "@/theme/context"
+import { useStores } from "@/models"
 
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 import { SignupScreen } from "@/screens/Authentication/SignupScreen"
@@ -30,9 +32,9 @@ import { SignupScreen } from "@/screens/Authentication/SignupScreen"
  *   https://reactnavigation.org/docs/typescript/#organizing-types
  */
 export type AppStackParamList = {
+  Home: undefined
   Login: undefined
   Signup: undefined
-  Home: undefined
   Especialidade: undefined
   Especialistas: undefined
   Profile: undefined
@@ -54,11 +56,14 @@ export type AppStackScreenProps<T extends keyof AppStackParamList> = NativeStack
 // Documentation: https://reactnavigation.org/docs/stack-navigator/
 const Stack = createNativeStackNavigator<AppStackParamList>()
 
-const AppStack = () => {
+const AppStack = observer(() => {
   const {
     theme: { colors },
   } = useAppTheme()
-
+  
+  const { authenticationStore } = useStores()
+  const isAuthenticated = authenticationStore.isAuthenticated
+  console.log("isAuthenticated", isAuthenticated)
   return (
     <Stack.Navigator
       screenOptions={{
@@ -68,10 +73,11 @@ const AppStack = () => {
           backgroundColor: colors.background,
         },
       }}
+      initialRouteName={isAuthenticated ? "Home" : "Login"}
     >
-      <Stack.Screen name="Signup" component={SignupScreen} />
-      <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Signup" component={SignupScreen} />
       <Stack.Screen name="Especialidade" component={EspecialidadeScreen} />
       <Stack.Screen name="Especialistas" component={EspecialistasScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
@@ -79,12 +85,12 @@ const AppStack = () => {
       {/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
     </Stack.Navigator>
   )
-}
+})
 
 export interface NavigationProps
   extends Partial<ComponentProps<typeof NavigationContainer<AppStackParamList>>> {}
 
-export const AppNavigator = (props: NavigationProps) => {
+export const AppNavigator = observer((props: NavigationProps) => {
   const { navigationTheme } = useAppTheme()
 
   useBackButtonHandler((routeName) => exitRoutes.includes(routeName))
@@ -96,4 +102,4 @@ export const AppNavigator = (props: NavigationProps) => {
       </ErrorBoundary>
     </NavigationContainer>
   )
-}
+})

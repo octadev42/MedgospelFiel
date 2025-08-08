@@ -20,6 +20,9 @@ import { TextField, TextFieldAccessoryProps } from "@/components/TextField"
 import { useLogin } from "@/hooks/useAuth"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
+import { navigate } from "@/navigators/navigationUtilities"
+import { showToast } from "@/components/Toast"
+import { Button } from "@/components/Button"
 
 // TODO: Add "Login" route to AppStackParamList in AppNavigator.tsx
 interface LoginScreenProps {}
@@ -30,12 +33,11 @@ const bannerImage = require("../../../assets/images/login/banner.png")
 export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_props) {
   const authPasswordInput = useRef<TextInput>(null)
 
-  const [authEmail, setAuthEmail] = useState("Joao_silva@gmail.com")
+  const [authEmail, setAuthEmail] = useState("")
   const [authPassword, setAuthPassword] = useState("")
   const [isAuthPasswordHidden, setIsAuthPasswordHidden] = useState(true)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [attemptsCount, setAttemptsCount] = useState(0)
-  const [rememberMe, setRememberMe] = useState(false)
 
   const { login, loading, loginError, getValidationError } = useLogin()
 
@@ -60,13 +62,16 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     setIsSubmitted(true)
     setAttemptsCount(attemptsCount + 1)
 
-    await login(authEmail, authPassword)
+    const result = await login(authEmail, authPassword)
 
-    // Clear form on successful login (the hook handles success state)
-    if (!loginError) {
+    // Clear form on successful login and navigate to home
+    if (result) {
       setIsSubmitted(false)
       setAuthPassword("")
       setAuthEmail("")
+      showToast.success("Sucesso!", "Login realizado com sucesso!")
+      // Navigate to home screen after successful login
+      navigate("Home")
     } else {
       setIsSubmitted(false)
     }
@@ -142,16 +147,13 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
           RightAccessory={PasswordRightAccessory}
         />
 
-        {/* Remember Me and Forgot Password */}
+        {/* Signup and Forgot Password */}
         <View style={themed($optionsContainer)}>
           <Pressable 
-            style={themed($rememberMeContainer)} 
-            onPress={() => setRememberMe(!rememberMe)}
+            style={themed($signupButton)} 
+            onPress={() => navigate("Signup")}
           >
-            <View style={themed($checkboxContainer)}>
-              {rememberMe && <View style={themed($checkboxChecked)} />}
-            </View>
-            <Text text="Lembrar de mim" style={themed($rememberMeText)} />
+            <Text text="Criar conta" style={themed($signupButtonText)} />
           </Pressable>
           
           <Pressable>
@@ -160,7 +162,6 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
         </View>
 
         {loginError ? <Text style={themed($loginError)}>{loginError}</Text> : null}
-        
         <Pressable
           onPress={handleLogin}
           disabled={loading}
@@ -292,33 +293,17 @@ const $optionsContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   marginBottom: spacing.lg,
 })
 
-const $rememberMeContainer: ThemedStyle<ViewStyle> = () => ({
-  flexDirection: "row",
-  alignItems: "center",
+
+
+const $signupButton: ThemedStyle<ViewStyle> = () => ({
+  paddingVertical: 4,
 })
 
-const $checkboxContainer: ViewStyle = {
-  width: 18,
-  height: 18,
-  borderWidth: 2,
-  borderColor: "#fff",
-  borderRadius: 3,
-  marginRight: 8,
-  justifyContent: "center",
-  alignItems: "center",
-}
-
-const $checkboxChecked: ViewStyle = {
-  width: 10,
-  height: 10,
-  backgroundColor: "#fff",
-  borderRadius: 2,
-}
-
-const $rememberMeText: ThemedStyle<TextStyle> = () => ({
+const $signupButtonText: ThemedStyle<TextStyle> = () => ({
   color: "#fff",
   fontSize: 14,
   fontWeight: "400",
+  textDecorationLine: "underline",
 })
 
 const $forgotPasswordText: ThemedStyle<TextStyle> = () => ({
@@ -333,6 +318,7 @@ const $loginButton: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   backgroundColor: "#8CF6A0",
   width: "100%",
   alignSelf: "center",
+  padding: 6
 })
 
 const $loginButtonText: ThemedStyle<TextStyle> = () => ({

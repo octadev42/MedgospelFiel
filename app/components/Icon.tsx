@@ -124,12 +124,6 @@ export const iconRegistry = {
   view: require("@assets/icons/view.png"),
   x: require("@assets/icons/x.png"),
   whatsapp: require("@assets/icons/whatsapp.png"),
-  homegrid_cirurgias: require("@assets/icons/homegrid/cirurgias.png"),
-  homegrid_consultas: require("@assets/icons/homegrid/consultas.png"),
-  homegrid_exames_imagem: require("@assets/icons/homegrid/exames_imagem.png"),
-  homegrid_exames_laboratoriais: require("@assets/icons/homegrid/exames_laboratoriais.png"),
-  homegrid_nossos_precos: require("@assets/icons/homegrid/nossos_precos.png"),
-  homegrid_procedimentos: require("@assets/icons/homegrid/procedimentos.png"),
 }
 
 const $imageStyleBase: ImageStyle = {
