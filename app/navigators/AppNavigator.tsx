@@ -21,6 +21,7 @@ import { useStores } from "@/models"
 
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 import { SignupScreen } from "@/screens/Authentication/SignupScreen"
+import { EscolherFluxoConsultaScreen } from "@/screens/Agendamento/EscolherFluxoConsulta"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -35,6 +36,7 @@ export type AppStackParamList = {
   Home: undefined
   Login: undefined
   Signup: undefined
+  EscolherFluxoConsulta: undefined
   Especialidade: undefined
   Especialistas: undefined
   Profile: undefined
@@ -73,7 +75,7 @@ const AppStack = observer(() => {
           backgroundColor: colors.background,
         },
       }}
-      initialRouteName={isAuthenticated ? "Home" : "Login"}
+      initialRouteName={isAuthenticated ? "Home" : "EscolherFluxoConsulta"}
     >
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
@@ -81,6 +83,7 @@ const AppStack = observer(() => {
       <Stack.Screen name="Especialidade" component={EspecialidadeScreen} />
       <Stack.Screen name="Especialistas" component={EspecialistasScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="EscolherFluxoConsulta" component={EscolherFluxoConsultaScreen} />
       {/** 🔥 Your screens go here */}
       {/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
     </Stack.Navigator>
