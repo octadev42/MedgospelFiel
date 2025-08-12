@@ -21,7 +21,7 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
   const [activeTab, setActiveTab] = useState<"home" | "wallet" | "cart" | "heart" | "profile">("home")
 
   const serviceItems = [
-    { icon: "homegrid_consultas", title: "Consultas", onPress: () => navigation.navigate("Especialistas") },
+    { icon: "homegrid_consultas", title: "Consultas", onPress: () => navigation.navigate("EscolherFluxoConsulta") },
     { icon: "homegrid_exames_imagem", title: "Exames de Imagem", onPress: () => {} },
     { icon: "homegrid_exames_laboratoriais", title: "Exames Laboratoriais", onPress: () => {} },
     { icon: "homegrid_procedimentos", title: "Procedimentos", onPress: () => {} },

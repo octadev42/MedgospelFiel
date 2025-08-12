@@ -1,7 +1,8 @@
 import { FC, useState } from "react"
-import { TextStyle, View, ViewStyle, TouchableOpacity, TextInput, ScrollView } from "react-native"
+import { TextStyle, View, ViewStyle, TouchableOpacity, TextInput, ScrollView, Image } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import { observer } from "mobx-react-lite"
 
 import { BottomNavigation } from "@/components/BottomNavigation"
 import { Icon } from "@/components/Icon"
@@ -10,40 +11,85 @@ import { Text } from "@/components/Text"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 import type { AppStackParamList } from "@/navigators/AppNavigator"
+import { useStores } from "@/models"
 
 type EspecialidadeScreenProps = {
   navigation: NativeStackNavigationProp<AppStackParamList, "Especialidade">
 }
 
-export const EspecialidadeScreen: FC<EspecialidadeScreenProps> = function EspecialidadeScreen() {
+export const EspecialidadeScreen: FC<EspecialidadeScreenProps> = observer(function EspecialidadeScreen() {
   const { themed } = useAppTheme()
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
+  const { schedulingStore } = useStores()
   const [searchText, setSearchText] = useState("")
   const [activeTab, setActiveTab] = useState<"home" | "wallet" | "cart" | "heart" | "profile">("home")
 
+  const handleSpecialtyPress = (specialtyTitle: string) => {
+    schedulingStore.setEspeciality(specialtyTitle)
+    navigation.navigate("Especialistas")
+  }
+
   const allSpecialties = [
-    { icon: "check", title: "Neurologia", onPress: () => {} },
-    { icon: "settings", title: "Gastro-enterologia", onPress: () => {} },
-    { icon: "view", title: "Pneumologia", onPress: () => {} },
-    { icon: "lock", title: "Radiologia", onPress: () => {} },
-    { icon: "menu", title: "Cirurgia Bucomaxilofacial", onPress: () => {} },
-    { icon: "more", title: "Ortopedia", onPress: () => {} },
-    { icon: "check", title: "Reumatologia", onPress: () => {} },
-    { icon: "settings", title: "Oftalmologia", onPress: () => {} },
-    { icon: "view", title: "Cardiologia", onPress: () => {} },
-    { icon: "lock", title: "Endocrinologia", onPress: () => {} },
-    { icon: "menu", title: "Otorrino-laringologia", onPress: () => {} },
-    { icon: "more", title: "Clínico Geral", onPress: () => {} },
-    { icon: "check", title: "Dermatologia", onPress: () => {} },
-    { icon: "settings", title: "Ginecologia", onPress: () => {} },
-    { icon: "view", title: "Pediatria", onPress: () => {} },
-    { icon: "lock", title: "Urologia", onPress: () => {} },
-    { icon: "menu", title: "Psiquiatria", onPress: () => {} },
-    { icon: "more", title: "Oncologia", onPress: () => {} },
-    { icon: "check", title: "Hematologia", onPress: () => {} },
-    { icon: "settings", title: "Nefrologia", onPress: () => {} },
-    { icon: "view", title: "Gastroenterologia", onPress: () => {} },
-    { icon: "lock", title: "Hepatologia", onPress: () => {} },
+    { 
+      icon: require("@assets/icons/especialidades/icon_oftalmo.png"), 
+      title: "Oftalmologia", 
+      onPress: () => handleSpecialtyPress("Oftalmologia")
+    },
+    { 
+      icon: require("@assets/icons/especialidades/Heart Rate.png"), 
+      title: "Cardiologia", 
+      onPress: () => handleSpecialtyPress("Cardiologia")
+    },
+    { 
+      icon: require("@assets/icons/especialidades/Bone.png"), 
+      title: "Ortopedia", 
+      onPress: () => handleSpecialtyPress("Ortopedia")
+    },
+    { 
+      icon: require("@assets/icons/especialidades/icon_gineco.png"), 
+      title: "Ginecologia", 
+      onPress: () => handleSpecialtyPress("Ginecologia")
+    },
+    { 
+      icon: require("@assets/icons/especialidades/DNA.png"), 
+      title: "Endocrinologia", 
+      onPress: () => handleSpecialtyPress("Endocrinologia")
+    },
+    { 
+      icon: require("@assets/icons/especialidades/icon_gastro.png"), 
+      title: "Gastroenterologia", 
+      onPress: () => handleSpecialtyPress("Gastroenterologia")
+    },
+    { 
+      icon: require("@assets/icons/especialidades/Brain.png"), 
+      title: "Neurologia Clínica", 
+      onPress: () => handleSpecialtyPress("Neurologia Clínica")
+    },
+    { 
+      icon: require("@assets/icons/especialidades/icon_dermato.png"), 
+      title: "Dermatologia", 
+      onPress: () => handleSpecialtyPress("Dermatologia")
+    },
+    { 
+      icon: require("@assets/icons/especialidades/icon_angio.png"), 
+      title: "Angiologia", 
+      onPress: () => handleSpecialtyPress("Angiologia")
+    },
+    { 
+      icon: require("@assets/icons/especialidades/icon_uro.png"), 
+      title: "Urologia", 
+      onPress: () => handleSpecialtyPress("Urologia")
+    },
+    { 
+      icon: require("@assets/icons/especialidades/icon_otorrino.png"), 
+      title: "Otorrinolaringologia", 
+      onPress: () => handleSpecialtyPress("Otorrinolaringologia")
+    },
+    { 
+      icon: require("@assets/icons/especialidades/Body.png"), 
+      title: "Clínico Geral", 
+      onPress: () => handleSpecialtyPress("Clínico Geral")
+    },
   ]
 
   const filteredSpecialties = allSpecialties.filter(specialty =>
@@ -110,7 +156,7 @@ export const EspecialidadeScreen: FC<EspecialidadeScreenProps> = function Especi
                 onPress={specialty.onPress}
               >
                 <View style={themed($specialtyIconContainer)}>
-                  <Icon icon={specialty.icon as any} size={32} color="#20B2AA" />
+                  <Image source={specialty.icon} style={themed($specialtyIcon)} />
                 </View>
                 <Text style={themed($specialtyTitle)} text={specialty.title} />
               </TouchableOpacity>
@@ -128,7 +174,7 @@ export const EspecialidadeScreen: FC<EspecialidadeScreenProps> = function Especi
       </View>
     </View>
   )
-}
+})
 
 const $container: ThemedStyle<ViewStyle> = () => ({
   flex: 1,
@@ -219,37 +265,40 @@ const $specialtiesContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
 })
 
 const $specialtiesGrid: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  backgroundColor: "white",
-  borderRadius: 16,
-  padding: spacing.md,
-  shadowColor: "#000",
-  shadowOffset: {
-    width: 0,
-    height: 2,
-  },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-  elevation: 3,
   flexDirection: "row",
   flexWrap: "wrap",
-  justifyContent: "flex-start",
-  gap: spacing.sm,
+  justifyContent: "space-between",
+  gap: spacing.md,
 })
 
 const $specialtyCard: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   width: "30%",
   aspectRatio: 1,
-  backgroundColor: "transparent",
+  backgroundColor: "white",
   borderWidth: 1,
   borderColor: "#E0E0E0",
-  borderRadius: 8,
+  borderRadius: 12,
   justifyContent: "center",
   alignItems: "center",
   padding: spacing.xs,
+  shadowColor: "#000",
+  shadowOffset: {
+    width: 0,
+    height: 1,
+  },
+  shadowOpacity: 0.1,
+  shadowRadius: 2,
+  elevation: 2,
 })
 
 const $specialtyIconContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   marginBottom: spacing.xs,
+})
+
+const $specialtyIcon: ThemedStyle<any> = () => ({
+  width: 40,
+  height: 40,
+  resizeMode: "contain",
 })
 
 const $specialtyTitle: ThemedStyle<TextStyle> = () => ({

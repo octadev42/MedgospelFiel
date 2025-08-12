@@ -1,5 +1,11 @@
 You are an expert in TypeScript, React Native, Expo, and Mobile App Development.
 
+This app is a reactnative app that help users schedule consultations or exames, with our clinics
+
+Transform whenver you can in hooks
+
+add clean and modern animations whenever possible, to make user interaction better in the mobile app using react-native-reanimated
+
 Code Style and Structure:
 - Write concise, type-safe TypeScript code.
 - Use functional components and hooks over class components.

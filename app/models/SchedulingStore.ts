@@ -1,0 +1,31 @@
+import { Instance, SnapshotOut, types } from "mobx-state-tree"
+
+export const SchedulingStoreModel = types
+  .model("SchedulingStore")
+  .props({
+    selectedEspecialist: types.maybe(types.string),
+    selectedEspeciality: types.maybe(types.string),
+    selectedEstablishment: types.maybe(types.string)
+  })
+  .views((store) => ({
+
+  }))
+  .actions((store) => ({
+    setEspeciality(especiality: string) {
+      store.selectedEspeciality = especiality
+    },
+    setEspecialist(especialist: string) {
+      store.selectedEspecialist = especialist
+    },
+    setEstablishment(establishment: string) {
+      store.selectedEstablishment = establishment
+    },
+    resetScheduling(){
+      store.selectedEspecialist = undefined
+      store.selectedEspeciality = undefined
+      store.selectedEstablishment = undefined
+    }
+  }))
+
+export interface SchedulingStore extends Instance<typeof SchedulingStoreModel> {}
+export interface SchedulingStoreSnapshot extends SnapshotOut<typeof SchedulingStoreModel> {}

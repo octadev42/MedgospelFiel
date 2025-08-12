@@ -14,6 +14,7 @@ import { LoginScreen } from "@/screens/Authentication/LoginScreen"
 import { ErrorBoundary } from "@/screens/ErrorScreen/ErrorBoundary"
 import { EspecialidadeScreen } from "@/screens/EspecialidadeScreen"
 import { EspecialistasScreen } from "@/screens/EspecialistasScreen"
+import { EstablishmentsScreen } from "@/screens/EstablishmentsScreen"
 import { HomeScreen } from "@/screens/HomeScreen"
 import { ProfileScreen } from "@/screens/ProfileScreen"
 import { useAppTheme } from "@/theme/context"
@@ -39,6 +40,7 @@ export type AppStackParamList = {
   EscolherFluxoConsulta: undefined
   Especialidade: undefined
   Especialistas: undefined
+  Establishments: undefined
   Profile: undefined
   // 🔥 Your screens go here
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
@@ -82,6 +84,7 @@ const AppStack = observer(() => {
       <Stack.Screen name="Signup" component={SignupScreen} />
       <Stack.Screen name="Especialidade" component={EspecialidadeScreen} />
       <Stack.Screen name="Especialistas" component={EspecialistasScreen} />
+      <Stack.Screen name="Establishments" component={EstablishmentsScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="EscolherFluxoConsulta" component={EscolherFluxoConsultaScreen} />
       {/** 🔥 Your screens go here */}

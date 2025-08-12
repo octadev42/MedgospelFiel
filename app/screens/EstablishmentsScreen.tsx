@@ -1,6 +1,6 @@
 import { FC, useState } from "react"
 import { TextStyle, View, ViewStyle, TouchableOpacity, TextInput, ScrollView, Image, ImageStyle } from "react-native"
-import { CheckCircle } from "lucide-react-native"
+import { ChevronRight, Star } from "lucide-react-native"
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { observer } from "mobx-react-lite"
@@ -14,52 +14,60 @@ import type { ThemedStyle } from "@/theme/types"
 import type { AppStackParamList } from "@/navigators/AppNavigator"
 import { useStores } from "@/models"
 import { showToast } from "@/components/Toast"
-import { useEspecialists } from "@/hooks/useEspecialists"
+import { useTabelaPreco } from "@/hooks/useTabelaPreco"
 
-type EspecialistasScreenProps = {
-  navigation: NativeStackNavigationProp<AppStackParamList, "Especialistas">
+type EstablishmentsScreenProps = {
+  navigation: NativeStackNavigationProp<AppStackParamList, "Establishments">
 }
 
-const SpecialistImage: FC = () => {
+const ClinicImage: FC<{ price: string }> = ({ price }) => {
   const { themed } = useAppTheme()
-  const [isLoading, setIsLoading] = useState(true)
 
   return (
     <View style={themed($imageContainer)}>
-      <Image 
-        source={{
-          uri: 'https://avatar.iran.liara.run/public'
-        }} 
-        style={themed($profilePlaceholder)}
-        onLoadStart={() => setIsLoading(true)}
-        onLoad={() => setIsLoading(false)}
-        onError={() => setIsLoading(false)}
-      />
-      {isLoading && (
-        <View style={themed($imageLoadingPlaceholder)}>
-          <Icon icon="more" size={24} color="#E0E0E0" />
-        </View>
-      )}
+      <View style={themed($clinicImagePlaceholder)}>
+        <Icon icon="x" size={32} color="#E0E0E0" />
+      </View>
+      <View style={themed($priceBadge)}>
+        <Text style={themed($priceText)} text={price} />
+      </View>
     </View>
   )
 }
 
-export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(function EspecialistasScreen() {
+export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(function EstablishmentsScreen() {
   const { themed } = useAppTheme()
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
   const { schedulingStore } = useStores()
   const [searchText, setSearchText] = useState("")
   const [activeTab, setActiveTab] = useState<"home" | "wallet" | "cart" | "heart" | "profile">("home")
 
-  const handleSpecialistPress = (specialistName: string) => {
-    schedulingStore.setEspecialist(specialistName)
-    console.log(`Selected specialist: ${specialistName}`)
+  // Use the tabelaPreco hook
+  const { loading, error, data: tabelaPrecoData } = useTabelaPreco({
+    app: true,
+    fk_especialista: schedulingStore.selectedEspecialist ? parseInt(schedulingStore.selectedEspecialist) : undefined,
+    fk_estabelecimento: schedulingStore.selectedEstablishment ? parseInt(schedulingStore.selectedEstablishment) : undefined,
+  })
 
-    navigation.navigate("Establishments")
+  // Transform the data to match our UI needs
+  const establishments = tabelaPrecoData ? [
+    {
+      id: tabelaPrecoData.fk_pessoa_juridica,
+      name: tabelaPrecoData.nome_fantasia,
+      address: tabelaPrecoData.endereco,
+      rating: 5.0, // Mock rating since it's not in the API response
+      reviews: 332, // Mock reviews since it's not in the API response
+      price: `R$${tabelaPrecoData.valor_total.toFixed(2)}`,
+      onPress: () => handleEstablishmentPress(tabelaPrecoData.nome_fantasia),
+    }
+  ] : []
+
+  const handleEstablishmentPress = (establishmentName: string) => {
+    schedulingStore.setEstablishment(establishmentName)
+    showToast.success("Estabelecimento selecionado", `${establishmentName} foi selecionado`)
+    console.log(`Selected establishment: ${establishmentName}`)
   }
 
-  const { loading, error, especialistas } = useEspecialists()
-  console.log('especialistas',especialistas)
   const handleBackPress = () => {
     navigation.goBack()
   }
@@ -72,6 +80,11 @@ export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(functi
     } else {
       setActiveTab(tab)
     }
+  }
+
+  const handleInfoPress = (establishmentName: string) => {
+    showToast.info("Informações", `Mostrando informações de ${establishmentName}`)
+    console.log(`Info for: ${establishmentName}`)
   }
 
   return (
@@ -88,16 +101,9 @@ export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(functi
             <TouchableOpacity style={themed($backButton)} onPress={handleBackPress}>
               <Icon icon="back" size={24} color="white" />
             </TouchableOpacity>
-            <Text style={themed($headerTitle)} text={schedulingStore.selectedEspeciality || "Especialistas"} />
+            <Text style={themed($headerTitle)} text="Locais de Atendimento" />
             <View style={themed($headerSpacer)} />
           </View>
-
-          {/* Subtitle */}
-          {schedulingStore.selectedEspeciality && (
-            <View style={themed($subtitleContainer)}>
-              <Text style={themed($subtitleText)} text={`Especialistas em ${schedulingStore.selectedEspeciality}`} />
-            </View>
-          )}
 
           {/* Search Bar */}
           <View style={themed($searchContainer)}>
@@ -117,24 +123,46 @@ export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(functi
           </View>
         </View>
 
-        {/* Specialists List */}
-        <View style={themed($specialistsContainer)}>
-          {especialistas.map((specialist) => (
-            <TouchableOpacity
-              key={specialist.id}
-              style={themed($specialistCard)}
-              onPress={() => handleSpecialistPress(specialist.nome)}
-            >
-              <SpecialistImage />
-              <View style={themed($specialistInfo)}>
-                <Text style={themed($specialistName)} text={specialist.nome} />
-                <Text style={themed($specialistDetails)} text={`${specialist.perfil} | ${specialist.observacao}`} />
-              </View>
-                <TouchableOpacity style={themed($optionsButton)}>
-                  <CheckCircle size={20} color="#666" />
+        {/* Establishments List */}
+        <View style={themed($establishmentsContainer)}>
+          {loading ? (
+            <View style={themed($loadingContainer)}>
+              <Text style={themed($loadingText)} text="Carregando estabelecimentos..." />
+            </View>
+          ) : error ? (
+            <View style={themed($errorContainer)}>
+              <Text style={themed($errorText)} text={error} />
+            </View>
+          ) : establishments.length === 0 ? (
+            <View style={themed($emptyContainer)}>
+              <Text style={themed($emptyText)} text="Nenhum estabelecimento encontrado" />
+            </View>
+          ) : (
+            establishments.map((establishment) => (
+              <TouchableOpacity
+                key={establishment.id}
+                style={themed($establishmentCard)}
+                onPress={establishment.onPress}
+              >
+                <ClinicImage price={establishment.price} />
+                <View style={themed($establishmentInfo)}>
+                  <Text style={themed($establishmentName)} text={establishment.name} />
+                  <Text style={themed($establishmentAddress)} text={establishment.address} />
+                  <View style={themed($ratingContainer)}>
+                    <Star size={16} color="#FFD700" fill="#FFD700" />
+                    <Text style={themed($ratingText)} text={`${establishment.rating} (${establishment.reviews} avaliações)`} />
+                  </View>
+                </View>
+                <TouchableOpacity 
+                  style={themed($infoButton)}
+                  onPress={() => handleInfoPress(establishment.name)}
+                >
+                  <Text style={themed($infoText)} text="Informações" />
+                  <ChevronRight size={16} color="#1E90FF" />
                 </TouchableOpacity>
-            </TouchableOpacity>
-          ))}
+              </TouchableOpacity>
+            ))
+          )}
         </View>
       </Screen>
 
@@ -198,18 +226,6 @@ const $headerSpacer: ThemedStyle<ViewStyle> = () => ({
   width: 40,
 })
 
-const $subtitleContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  marginBottom: spacing.sm,
-})
-
-const $subtitleText: ThemedStyle<TextStyle> = () => ({
-  fontSize: 14,
-  fontWeight: "400",
-  color: "white",
-  textAlign: "center",
-  opacity: 0.9,
-})
-
 const $searchContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   marginBottom: spacing.lg,
 })
@@ -243,7 +259,7 @@ const $filterButton: ThemedStyle<ViewStyle> = () => ({
   padding: 4,
 })
 
-const $specialistsContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+const $establishmentsContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   backgroundColor: "white",
   borderTopLeftRadius: 20,
   borderTopRightRadius: 20,
@@ -253,9 +269,9 @@ const $specialistsContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   flex: 1,
 })
 
-const $specialistCard: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+const $establishmentCard: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   flexDirection: "row",
-  alignItems: "center",
+  alignItems: "flex-start",
   backgroundColor: "white",
   borderRadius: 12,
   padding: spacing.md,
@@ -275,36 +291,43 @@ const $imageContainer: ThemedStyle<ViewStyle> = () => ({
   marginRight: 12,
 })
 
-const $profilePlaceholder: ThemedStyle<ImageStyle> = () => ({
-  width: 60,
-  height: 60,
+const $clinicImagePlaceholder: ThemedStyle<ViewStyle> = () => ({
+  width: 80,
+  height: 80,
   borderRadius: 8,
-})
-
-const $imageLoadingPlaceholder: ThemedStyle<ViewStyle> = () => ({
-  position: "absolute",
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
   backgroundColor: "#F5F5F5",
-  borderRadius: 8,
   justifyContent: "center",
   alignItems: "center",
 })
 
-const $specialistInfo: ThemedStyle<ViewStyle> = () => ({
+const $priceBadge: ThemedStyle<ViewStyle> = () => ({
+  position: "absolute",
+  bottom: -4,
+  right: -4,
+  backgroundColor: "#1E90FF",
+  borderRadius: 12,
+  paddingHorizontal: 8,
+  paddingVertical: 4,
+})
+
+const $priceText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 12,
+  fontWeight: "700",
+  color: "white",
+})
+
+const $establishmentInfo: ThemedStyle<ViewStyle> = () => ({
   flex: 1,
 })
 
-const $specialistName: ThemedStyle<TextStyle> = () => ({
+const $establishmentName: ThemedStyle<TextStyle> = () => ({
   fontSize: 16,
   fontWeight: "700",
   color: "#333",
   marginBottom: 4,
 })
 
-const $specialistDetails: ThemedStyle<TextStyle> = () => ({
+const $establishmentAddress: ThemedStyle<TextStyle> = () => ({
   fontSize: 14,
   color: "#666",
   marginBottom: 6,
@@ -321,6 +344,54 @@ const $ratingText: ThemedStyle<TextStyle> = () => ({
   marginLeft: 4,
 })
 
-const $optionsButton: ThemedStyle<ViewStyle> = () => ({
+const $infoButton: ThemedStyle<ViewStyle> = () => ({
+  flexDirection: "row",
+  alignItems: "center",
   padding: 8,
+})
+
+const $infoText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 14,
+  fontWeight: "600",
+  color: "#1E90FF",
+  marginRight: 4,
+})
+
+const $loadingContainer: ThemedStyle<ViewStyle> = () => ({
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+  paddingVertical: 40,
+})
+
+const $loadingText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  color: "#666",
+  textAlign: "center",
+})
+
+const $errorContainer: ThemedStyle<ViewStyle> = () => ({
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+  paddingVertical: 40,
+})
+
+const $errorText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  color: "#FF6B6B",
+  textAlign: "center",
+})
+
+const $emptyContainer: ThemedStyle<ViewStyle> = () => ({
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+  paddingVertical: 40,
+})
+
+const $emptyText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  color: "#666",
+  textAlign: "center",
 }) 

@@ -15,6 +15,7 @@ import { Text } from "@/components/Text"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 import { navigate } from "@/navigators/navigationUtilities"
+import { useStores } from "@/models"
 
 interface EscolherFluxoConsultaScreenProps { }
 
@@ -27,18 +28,23 @@ export const EscolherFluxoConsultaScreen: FC<EscolherFluxoConsultaScreenProps> =
 
     const insets = useSafeAreaInsets()
 
+    const { schedulingStore } = useStores()
+
     const handleFindDoctor = () => {
       // Navigate to find doctor screen
+      schedulingStore.resetScheduling()
       navigate("Especialistas")
     }
 
     const handleChooseSpecialty = () => {
       // Navigate to specialty selection screen
+      schedulingStore.resetScheduling()
       navigate("Especialidade")
     }
 
     const handleSearchClinic = () => {
       // Navigate to clinic search screen
+      schedulingStore.resetScheduling()
       navigate("Home")
     }
 
