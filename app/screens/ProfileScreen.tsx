@@ -1,4 +1,4 @@
-import { FC, useState } from "react"
+import { FC, useEffect, useState } from "react"
 import { TextStyle, View, ViewStyle, TouchableOpacity, Image } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
@@ -19,47 +19,46 @@ type ProfileScreenProps = {
 export const ProfileScreen: FC<ProfileScreenProps> = function ProfileScreen() {
   const { themed } = useAppTheme()
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
-  const [activeTab, setActiveTab] = useState<"home" | "wallet" | "cart" | "heart" | "profile">("profile")
-  const { authenticationStore } = useStores()
+  const { authenticationStore, appGeralStore } = useStores()
 
   const menuItems = [
-    { 
-      icon: "check", 
-      title: "Editar Perfil", 
-      onPress: () => {} 
+    {
+      icon: "check",
+      title: "Editar Perfil",
+      onPress: () => { }
     },
-    { 
-      icon: "settings", 
-      title: "Cartões de Crédito", 
-      onPress: () => {} 
+    {
+      icon: "settings",
+      title: "Cartões de Crédito",
+      onPress: () => { }
     },
-    { 
-      icon: "view", 
-      title: "Termos e Condições", 
-      onPress: () => {} 
+    {
+      icon: "view",
+      title: "Termos e Condições",
+      onPress: () => { }
     },
-    { 
-      icon: "lock", 
-      title: "Política de Privacidade", 
-      onPress: () => {} 
+    {
+      icon: "lock",
+      title: "Política de Privacidade",
+      onPress: () => { }
     },
-    { 
-      icon: "menu", 
-      title: "Dúvidas Frequentes", 
-      onPress: () => {} 
+    {
+      icon: "menu",
+      title: "Dúvidas Frequentes",
+      onPress: () => { }
     },
-    { 
-      icon: "more", 
-      title: "Fale Conosco", 
-      onPress: () => {} 
+    {
+      icon: "more",
+      title: "Fale Conosco",
+      onPress: () => { }
     },
-    { 
-      icon: "back", 
-      title: "Sair", 
+    {
+      icon: "back",
+      title: "Sair",
       onPress: () => {
         authenticationStore.logout()
         navigation.navigate("Login")
-      } 
+      }
     },
   ]
 
@@ -67,21 +66,14 @@ export const ProfileScreen: FC<ProfileScreenProps> = function ProfileScreen() {
     navigation.goBack()
   }
 
-  const handleTabPress = (tab: "home" | "wallet" | "cart" | "heart" | "profile") => {
-    if (tab === "profile") {
-      // Already on profile screen, just update the active tab
-      setActiveTab(tab)
-    } else if (tab === "home") {
-      navigation.navigate("Home")
-    } else {
-      setActiveTab(tab)
-    }
-  }
+  useEffect(() => {
+    appGeralStore.setActiveTab('profile')
+  }, [])
 
   return (
     <View style={themed($container)}>
-      <Screen 
-        preset="scroll" 
+      <Screen
+        preset="scroll"
         contentContainerStyle={themed($screenContentContainer)}
         safeAreaEdges={["top"]}
         systemBarStyle="dark"
@@ -123,13 +115,10 @@ export const ProfileScreen: FC<ProfileScreenProps> = function ProfileScreen() {
           ))}
         </View>
       </Screen>
-      
+
       {/* Bottom Navigation - Fixed at bottom */}
       <View style={themed($bottomNavigationContainer)}>
-        <BottomNavigation
-          active={activeTab}
-          onTabPress={handleTabPress}
-        />
+        <BottomNavigation />
       </View>
     </View>
   )

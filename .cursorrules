@@ -4,7 +4,7 @@ This app is a reactnative app that help users schedule consultations or exames, 
 
 Transform whenver you can in hooks
 
-add clean and modern animations whenever possible, to make user interaction better in the mobile app using react-native-reanimated
+add smooth and modern animations whenever possible, to make user interaction better in the mobile app using react-native-reanimated
 
 Code Style and Structure:
 - Write concise, type-safe TypeScript code.

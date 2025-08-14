@@ -15,6 +15,7 @@ import { ErrorBoundary } from "@/screens/ErrorScreen/ErrorBoundary"
 import { EspecialidadeScreen } from "@/screens/EspecialidadeScreen"
 import { EspecialistasScreen } from "@/screens/EspecialistasScreen"
 import { EstablishmentsScreen } from "@/screens/EstablishmentsScreen"
+import { CarteirinhaScreen } from "@/screens/CarteirinhaScreen"
 import { HomeScreen } from "@/screens/HomeScreen"
 import { ProfileScreen } from "@/screens/ProfileScreen"
 import { useAppTheme } from "@/theme/context"
@@ -23,6 +24,8 @@ import { useStores } from "@/models"
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 import { SignupScreen } from "@/screens/Authentication/SignupScreen"
 import { EscolherFluxoConsultaScreen } from "@/screens/Agendamento/EscolherFluxoConsulta"
+import { CarrinhoScreen } from "@/screens/CarrinhoScreen"
+import { FavoritosScreen } from "@/screens/FavoritosScreen"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -39,6 +42,9 @@ export type AppStackParamList = {
   Signup: undefined
   EscolherFluxoConsulta: undefined
   Especialidade: undefined
+  Carteirinha: undefined
+  Favoritos: undefined
+  Carrinho: undefined
   Especialistas: undefined
   Establishments: undefined
   Profile: undefined
@@ -64,7 +70,7 @@ const AppStack = observer(() => {
   const {
     theme: { colors },
   } = useAppTheme()
-  
+
   const { authenticationStore } = useStores()
   const isAuthenticated = authenticationStore.isAuthenticated
   console.log("isAuthenticated", isAuthenticated)
@@ -83,6 +89,9 @@ const AppStack = observer(() => {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Signup" component={SignupScreen} />
       <Stack.Screen name="Especialidade" component={EspecialidadeScreen} />
+      <Stack.Screen name="Carteirinha" component={CarteirinhaScreen} />
+      <Stack.Screen name="Carrinho" component={CarrinhoScreen} />
+      <Stack.Screen name="Favoritos" component={FavoritosScreen} />
       <Stack.Screen name="Especialistas" component={EspecialistasScreen} />
       <Stack.Screen name="Establishments" component={EstablishmentsScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
@@ -94,7 +103,7 @@ const AppStack = observer(() => {
 })
 
 export interface NavigationProps
-  extends Partial<ComponentProps<typeof NavigationContainer<AppStackParamList>>> {}
+  extends Partial<ComponentProps<typeof NavigationContainer<AppStackParamList>>> { }
 
 export const AppNavigator = observer((props: NavigationProps) => {
   const { navigationTheme } = useAppTheme()

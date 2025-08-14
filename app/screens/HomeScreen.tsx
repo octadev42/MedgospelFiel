@@ -1,4 +1,4 @@
-import { FC, useState } from "react"
+import { FC, useEffect, useState } from "react"
 import { Image, ImageStyle, TextStyle, View, ViewStyle, TouchableOpacity, ScrollView } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
@@ -12,28 +12,30 @@ import { $styles } from "@/theme/styles"
 import type { ThemedStyle } from "@/theme/types"
 import type { AppStackScreenProps, AppStackParamList } from "@/navigators/AppNavigator"
 import { WColorIcon } from "@/components/WColorIcon"
+import { useStores } from "@/models"
 
 type HomeScreenProps = AppStackScreenProps<"Home">
 
 export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
   const { themed } = useAppTheme()
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
-  const [activeTab, setActiveTab] = useState<"home" | "wallet" | "cart" | "heart" | "profile">("home")
+
+  const { appGeralStore } = useStores()
 
   const serviceItems = [
     { icon: "homegrid_consultas", title: "Consultas", onPress: () => navigation.navigate("EscolherFluxoConsulta") },
-    { icon: "homegrid_exames_imagem", title: "Exames de Imagem", onPress: () => {} },
-    { icon: "homegrid_exames_laboratoriais", title: "Exames Laboratoriais", onPress: () => {} },
-    { icon: "homegrid_procedimentos", title: "Procedimentos", onPress: () => {} },
-    { icon: "homegrid_cirurgias", title: "Cirurgias", onPress: () => {} },
-    { icon: "homegrid_nossos_precos", title: "Nossos Preços", onPress: () => {} },
+    { icon: "homegrid_exames_imagem", title: "Exames de Imagem", onPress: () => { } },
+    { icon: "homegrid_exames_laboratoriais", title: "Exames Laboratoriais", onPress: () => { } },
+    { icon: "homegrid_procedimentos", title: "Procedimentos", onPress: () => { } },
+    { icon: "homegrid_cirurgias", title: "Cirurgias", onPress: () => { } },
+    { icon: "homegrid_nossos_precos", title: "Nossos Preços", onPress: () => { } },
   ]
 
   const specialtyItems = [
-    { icon: "especialidades_neurologia", title: "Neurologia", onPress: () => {} },
-    { icon: "especialidades_gastroenterologia", title: "Gastro-enterologia", onPress: () => {} },
-    { icon: "especialidades_pneumologia", title: "Pneumologia", onPress: () => {} },
-    { icon: "more", title: "Mais", onPress: () => {} },
+    { icon: "especialidades_neurologia", title: "Neurologia", onPress: () => { } },
+    { icon: "especialidades_gastroenterologia", title: "Gastro-enterologia", onPress: () => { } },
+    { icon: "especialidades_pneumologia", title: "Pneumologia", onPress: () => { } },
+    { icon: "more", title: "Mais", onPress: () => { } },
   ]
 
   const hospitalCards = [
@@ -45,20 +47,14 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
     navigation.navigate("Especialidade")
   }
 
-  const handleTabPress = (tab: "home" | "wallet" | "cart" | "heart" | "profile") => {
-    if (tab === "profile") {
-      navigation.navigate("Profile")
-    } else if (tab === "home") {
-      navigation.navigate("Home")
-    } else {
-      setActiveTab(tab)
-    }
-  }
+  useEffect(() => {
+    appGeralStore.setActiveTab('home')
+  }, [])
 
   return (
     <View style={themed($container)}>
-      <Screen 
-        preset="scroll" 
+      <Screen
+        preset="scroll"
         contentContainerStyle={themed($screenContentContainer)}
         safeAreaEdges={["top"]}
         systemBarStyle="light"
@@ -120,9 +116,9 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
               <Text style={themed($viewAllLink)} text="Todos >" />
             </TouchableOpacity>
           </View>
-          
-          <ScrollView 
-            horizontal 
+
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={themed($especialidadesScrollContainer)}
           >
@@ -149,9 +145,9 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
               <Text style={themed($viewAllLink)} text="Todos >" />
             </TouchableOpacity>
           </View>
-          
-          <ScrollView 
-            horizontal 
+
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={themed($hospitalScrollContainer)}
           >
@@ -176,13 +172,10 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
           </ScrollView>
         </View>
       </Screen>
-      
+
       {/* Bottom Navigation - Fixed at bottom */}
       <View style={themed($bottomNavigationContainer)}>
-        <BottomNavigation
-          active={activeTab}
-          onTabPress={handleTabPress}
-        />
+        <BottomNavigation />
       </View>
     </View>
   )
@@ -336,7 +329,7 @@ const $serviceTitle: ThemedStyle<TextStyle> = () => ({
   color: "#333",
   textAlign: "center",
   lineHeight: 16,
-}) 
+})
 
 const $topHospitalContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   paddingHorizontal: spacing.lg,
@@ -447,7 +440,7 @@ const $actionIconsContainer: ThemedStyle<ViewStyle> = () => ({
 
 const $actionIcon: ThemedStyle<ViewStyle> = () => ({
   padding: 4,
-}) 
+})
 
 const $especialidadesContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   paddingHorizontal: spacing.lg,
@@ -490,7 +483,7 @@ const $especialidadeTitle: ThemedStyle<TextStyle> = () => ({
   textAlign: "center",
   lineHeight: 14,
   flexWrap: "wrap",
-}) 
+})
 
 const $hospitalScrollContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   paddingRight: spacing.lg,

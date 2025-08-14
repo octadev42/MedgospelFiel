@@ -1,6 +1,6 @@
 import { FC, useState } from "react"
 import { TextStyle, View, ViewStyle, TouchableOpacity, TextInput, ScrollView, Image, ImageStyle } from "react-native"
-import { ChevronRight, Star } from "lucide-react-native"
+import { ChevronRight, Star, MapPin, FileText, Calendar, Clock, MessageCircle } from "lucide-react-native"
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { observer } from "mobx-react-lite"
@@ -9,6 +9,7 @@ import { BottomNavigation } from "@/components/BottomNavigation"
 import { Icon } from "@/components/Icon"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
+import { ScheduleCalendar } from "@/components/ScheduleCalendar"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 import type { AppStackParamList } from "@/navigators/AppNavigator"
@@ -20,17 +21,58 @@ type EstablishmentsScreenProps = {
   navigation: NativeStackNavigationProp<AppStackParamList, "Establishments">
 }
 
-const ClinicImage: FC<{ price: string }> = ({ price }) => {
+const EstablishmentCard: FC<{ establishment: any }> = ({ establishment }) => {
   const { themed } = useAppTheme()
 
   return (
-    <View style={themed($imageContainer)}>
-      <View style={themed($clinicImagePlaceholder)}>
-        <Icon icon="x" size={32} color="#E0E0E0" />
+    <View style={themed($establishmentCardContainer)}>
+      <View style={themed($clinicImageContainer)}>
+          <Image
+            source={require("@assets/images/estabelecimentos/hvisao.webp")}
+            style={themed($clinicImage)}
+          />
+        </View>
+      {/* Header Section */}
+      <View style={themed($cardHeaderSection)}>
+
+        <View style={themed($clinicInfoContainer)}>
+          <Text style={themed($clinicName)} text={establishment.name} />
+          <Text style={themed($clinicAddress)} text={establishment.address} />
+
+          <View style={themed($ratingRow)}>
+            <View style={themed($ratingContainer)}>
+              <Star size={14} color="#FFD700" fill="#FFD700" />
+              <Star size={14} color="#FFD700" fill="#FFD700" />
+              <Star size={14} color="#FFD700" fill="#FFD700" />
+              <Star size={14} color="#FFD700" fill="#FFD700" />
+              <Star size={14} color="#FFD700" fill="#FFD700" />
+              <Text style={themed($ratingText)} text="4.75" />
+
+              <Text style={themed($reviewsText)} text="(332 avaliações)" />
+            </View>
+           
+          </View>
+        </View>
       </View>
-      <View style={themed($priceBadge)}>
-        <Text style={themed($priceText)} text={price} />
+
+      {/* Pricing Section */}
+      <View style={themed($pricingContainer)}>
+        <View style={themed($priceDisplay)}>
+          <Text style={themed($priceLabel)} text="Valor:" />
+          <Text style={themed($priceValue)} text={establishment.price} />
+        </View>
+
+        <TouchableOpacity style={themed($infoButton)}>
+          <Text style={themed($infoButtonText)} text="Observações" />
+          <ChevronRight size={16} color="#1E90FF" />
+        </TouchableOpacity>
       </View>
+
+      {/* Schedule Calendar Component */}
+      <ScheduleCalendar
+        onDateSelect={(date) => console.log('Selected date:', date)}
+        onTimeSelect={(time) => console.log('Selected time:', time)}
+      />
     </View>
   )
 }
@@ -40,7 +82,6 @@ export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(func
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
   const { schedulingStore } = useStores()
   const [searchText, setSearchText] = useState("")
-  const [activeTab, setActiveTab] = useState<"home" | "wallet" | "cart" | "heart" | "profile">("home")
 
   // Use the tabelaPreco hook
   const { loading, error, data: tabelaPrecoData } = useTabelaPreco({
@@ -70,16 +111,6 @@ export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(func
 
   const handleBackPress = () => {
     navigation.goBack()
-  }
-
-  const handleTabPress = (tab: "home" | "wallet" | "cart" | "heart" | "profile") => {
-    if (tab === "home") {
-      navigation.navigate("Home")
-    } else if (tab === "profile") {
-      navigation.navigate("Profile")
-    } else {
-      setActiveTab(tab)
-    }
   }
 
   const handleInfoPress = (establishmentName: string) => {
@@ -139,28 +170,7 @@ export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(func
             </View>
           ) : (
             establishments.map((establishment) => (
-              <TouchableOpacity
-                key={establishment.id}
-                style={themed($establishmentCard)}
-                onPress={establishment.onPress}
-              >
-                <ClinicImage price={establishment.price} />
-                <View style={themed($establishmentInfo)}>
-                  <Text style={themed($establishmentName)} text={establishment.name} />
-                  <Text style={themed($establishmentAddress)} text={establishment.address} />
-                  <View style={themed($ratingContainer)}>
-                    <Star size={16} color="#FFD700" fill="#FFD700" />
-                    <Text style={themed($ratingText)} text={`${establishment.rating} (${establishment.reviews} avaliações)`} />
-                  </View>
-                </View>
-                <TouchableOpacity 
-                  style={themed($infoButton)}
-                  onPress={() => handleInfoPress(establishment.name)}
-                >
-                  <Text style={themed($infoText)} text="Informações" />
-                  <ChevronRight size={16} color="#1E90FF" />
-                </TouchableOpacity>
-              </TouchableOpacity>
+              <EstablishmentCard key={establishment.id} establishment={establishment} />
             ))
           )}
         </View>
@@ -168,10 +178,7 @@ export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(func
 
       {/* Bottom Navigation - Fixed at bottom */}
       <View style={themed($bottomNavigationContainer)}>
-        <BottomNavigation
-          active={activeTab}
-          onTabPress={handleTabPress}
-        />
+        <BottomNavigation />
       </View>
     </View>
   )
@@ -269,92 +276,147 @@ const $establishmentsContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   flex: 1,
 })
 
-const $establishmentCard: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  flexDirection: "row",
-  alignItems: "flex-start",
+const $establishmentCardContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   backgroundColor: "white",
-  borderRadius: 12,
-  padding: spacing.md,
-  marginBottom: spacing.md,
+  borderRadius: 20,
+  marginBottom: spacing.lg,
+  borderWidth: 1,
+  borderColor: "#E8E8E8",
   shadowColor: "#000",
   shadowOffset: {
     width: 0,
-    height: 2,
+    height: 4,
   },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-  elevation: 3,
+  shadowOpacity: 0.08,
+  shadowRadius: 12,
+  elevation: 6,
+  overflow: "hidden",
 })
 
-const $imageContainer: ThemedStyle<ViewStyle> = () => ({
-  position: "relative",
-  marginRight: 12,
+const $cardHeaderSection: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  flexDirection: "row",
+  padding: spacing.lg,
+  paddingBottom: spacing.md,
 })
 
-const $clinicImagePlaceholder: ThemedStyle<ViewStyle> = () => ({
-  width: 80,
-  height: 80,
-  borderRadius: 8,
-  backgroundColor: "#F5F5F5",
-  justifyContent: "center",
-  alignItems: "center",
+const $clinicImageContainer: ThemedStyle<ViewStyle> = () => ({
 })
 
-const $priceBadge: ThemedStyle<ViewStyle> = () => ({
-  position: "absolute",
-  bottom: -4,
-  right: -4,
-  backgroundColor: "#1E90FF",
-  borderRadius: 12,
-  paddingHorizontal: 8,
-  paddingVertical: 4,
+const $clinicImage: ThemedStyle<ImageStyle> = () => ({
+  width: '100%',
+  height: 200,
+  borderTopLeftRadius: 12,
+  borderTopRightRadius: 12,
 })
 
-const $priceText: ThemedStyle<TextStyle> = () => ({
-  fontSize: 12,
-  fontWeight: "700",
-  color: "white",
-})
 
-const $establishmentInfo: ThemedStyle<ViewStyle> = () => ({
+
+const $clinicInfoContainer: ThemedStyle<ViewStyle> = () => ({
   flex: 1,
+  justifyContent: "space-between",
 })
 
-const $establishmentName: ThemedStyle<TextStyle> = () => ({
-  fontSize: 16,
+const $clinicName: ThemedStyle<TextStyle> = () => ({
+  fontSize: 18,
   fontWeight: "700",
-  color: "#333",
+  color: "#1A1A1A",
   marginBottom: 4,
+  lineHeight: 22,
 })
 
-const $establishmentAddress: ThemedStyle<TextStyle> = () => ({
+const $clinicAddress: ThemedStyle<TextStyle> = () => ({
   fontSize: 14,
   color: "#666",
-  marginBottom: 6,
+  marginBottom: 8,
+  lineHeight: 18,
+})
+
+const $ratingRow: ThemedStyle<ViewStyle> = () => ({
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
 })
 
 const $ratingContainer: ThemedStyle<ViewStyle> = () => ({
   flexDirection: "row",
   alignItems: "center",
+  gap: 2,
 })
 
 const $ratingText: ThemedStyle<TextStyle> = () => ({
-  fontSize: 12,
-  color: "#666",
+  fontSize: 14,
+  color: "#1A1A1A",
   marginLeft: 4,
+  fontWeight: "600",
+})
+
+const $reviewsText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 12,
+  color: "#999",
+})
+
+const $pricingContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  paddingHorizontal: spacing.lg,
+  paddingVertical: spacing.md,
+  borderTopWidth: 1,
+  borderTopColor: "#F0F0F0",
+  backgroundColor: "#F8F9FA",
+})
+
+const $priceDisplay: ThemedStyle<ViewStyle> = () => ({
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 8,
+})
+
+const $priceLabel: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  fontWeight: "600",
+  color: "#666",
+})
+
+const $priceValue: ThemedStyle<TextStyle> = () => ({
+  fontSize: 20,
+  fontWeight: "800",
+  color: "#1E90FF",
 })
 
 const $infoButton: ThemedStyle<ViewStyle> = () => ({
   flexDirection: "row",
   alignItems: "center",
-  padding: 8,
+  gap: 4,
 })
 
-const $infoText: ThemedStyle<TextStyle> = () => ({
-  fontSize: 14,
+const $infoButtonText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 13,
   fontWeight: "600",
   color: "#1E90FF",
-  marginRight: 4,
+})
+
+const $helpContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  paddingHorizontal: spacing.lg,
+  paddingBottom: spacing.lg,
+})
+
+const $helpButton: ThemedStyle<ViewStyle> = () => ({
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  backgroundColor: "#4CAF50",
+  borderRadius: 12,
+  paddingVertical: 12,
+  paddingHorizontal: 16,
+})
+
+const $helpText: ThemedStyle<TextStyle> = () => ({
+  flex: 1,
+  fontSize: 14,
+  fontWeight: "600",
+  color: "white",
+  marginLeft: 8,
 })
 
 const $loadingContainer: ThemedStyle<ViewStyle> = () => ({

@@ -10,6 +10,7 @@ export interface TabelaPrecoResponse {
     telefone: string
     valor_total: number
     valor_total_disponivel: number
+    foto: string
     itens: Array<{
         nome: string
         subgrupo_codigo: string | null
@@ -38,9 +39,10 @@ export interface TabelaPrecoResponse {
 
 const mockTabelaPrecoResponse: TabelaPrecoResponse = {
     "fk_pessoa_juridica": 12345,
-    "nome_fantasia": "Clínica Batista - Unidade Centro",
+    "nome_fantasia": "HVisão",
     "endereco": "Rua das Flores, 123 - Centro, São Paulo - SP",
     "telefone": "(11) 3456-7890",
+    "foto": require("@assets/images/estabelecimentos/hvisao.webp"),
     "valor_total": 850.00,
     "valor_total_disponivel": 650.00,
     "itens": [

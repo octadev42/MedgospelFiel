@@ -26,10 +26,10 @@ const SpecialistImage: FC = () => {
 
   return (
     <View style={themed($imageContainer)}>
-      <Image 
+      <Image
         source={{
           uri: 'https://avatar.iran.liara.run/public'
-        }} 
+        }}
         style={themed($profilePlaceholder)}
         onLoadStart={() => setIsLoading(true)}
         onLoad={() => setIsLoading(false)}
@@ -49,7 +49,6 @@ export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(functi
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
   const { schedulingStore } = useStores()
   const [searchText, setSearchText] = useState("")
-  const [activeTab, setActiveTab] = useState<"home" | "wallet" | "cart" | "heart" | "profile">("home")
 
   const handleSpecialistPress = (specialistName: string) => {
     schedulingStore.setEspecialist(specialistName)
@@ -59,19 +58,8 @@ export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(functi
   }
 
   const { loading, error, especialistas } = useEspecialists()
-  console.log('especialistas',especialistas)
   const handleBackPress = () => {
     navigation.goBack()
-  }
-
-  const handleTabPress = (tab: "home" | "wallet" | "cart" | "heart" | "profile") => {
-    if (tab === "home") {
-      navigation.navigate("Home")
-    } else if (tab === "profile") {
-      navigation.navigate("Profile")
-    } else {
-      setActiveTab(tab)
-    }
   }
 
   return (
@@ -130,9 +118,9 @@ export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(functi
                 <Text style={themed($specialistName)} text={specialist.nome} />
                 <Text style={themed($specialistDetails)} text={`${specialist.perfil} | ${specialist.observacao}`} />
               </View>
-                <TouchableOpacity style={themed($optionsButton)}>
-                  <CheckCircle size={20} color="#666" />
-                </TouchableOpacity>
+              <TouchableOpacity style={themed($optionsButton)}>
+                <CheckCircle size={20} color="#666" />
+              </TouchableOpacity>
             </TouchableOpacity>
           ))}
         </View>
@@ -140,10 +128,7 @@ export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(functi
 
       {/* Bottom Navigation - Fixed at bottom */}
       <View style={themed($bottomNavigationContainer)}>
-        <BottomNavigation
-          active={activeTab}
-          onTabPress={handleTabPress}
-        />
+        <BottomNavigation />
       </View>
     </View>
   )

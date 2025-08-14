@@ -22,7 +22,6 @@ export const EspecialidadeScreen: FC<EspecialidadeScreenProps> = observer(functi
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
   const { schedulingStore } = useStores()
   const [searchText, setSearchText] = useState("")
-  const [activeTab, setActiveTab] = useState<"home" | "wallet" | "cart" | "heart" | "profile">("home")
 
   const handleSpecialtyPress = (specialtyTitle: string) => {
     schedulingStore.setEspeciality(specialtyTitle)
@@ -30,64 +29,64 @@ export const EspecialidadeScreen: FC<EspecialidadeScreenProps> = observer(functi
   }
 
   const allSpecialties = [
-    { 
-      icon: require("@assets/icons/especialidades/icon_oftalmo.png"), 
-      title: "Oftalmologia", 
+    {
+      icon: require("@assets/icons/especialidades/icon_oftalmo.png"),
+      title: "Oftalmologia",
       onPress: () => handleSpecialtyPress("Oftalmologia")
     },
-    { 
-      icon: require("@assets/icons/especialidades/Heart Rate.png"), 
-      title: "Cardiologia", 
+    {
+      icon: require("@assets/icons/especialidades/Heart Rate.png"),
+      title: "Cardiologia",
       onPress: () => handleSpecialtyPress("Cardiologia")
     },
-    { 
-      icon: require("@assets/icons/especialidades/Bone.png"), 
-      title: "Ortopedia", 
+    {
+      icon: require("@assets/icons/especialidades/Bone.png"),
+      title: "Ortopedia",
       onPress: () => handleSpecialtyPress("Ortopedia")
     },
-    { 
-      icon: require("@assets/icons/especialidades/icon_gineco.png"), 
-      title: "Ginecologia", 
+    {
+      icon: require("@assets/icons/especialidades/icon_gineco.png"),
+      title: "Ginecologia",
       onPress: () => handleSpecialtyPress("Ginecologia")
     },
-    { 
-      icon: require("@assets/icons/especialidades/DNA.png"), 
-      title: "Endocrinologia", 
+    {
+      icon: require("@assets/icons/especialidades/DNA.png"),
+      title: "Endocrinologia",
       onPress: () => handleSpecialtyPress("Endocrinologia")
     },
-    { 
-      icon: require("@assets/icons/especialidades/icon_gastro.png"), 
-      title: "Gastroenterologia", 
+    {
+      icon: require("@assets/icons/especialidades/icon_gastro.png"),
+      title: "Gastroenterologia",
       onPress: () => handleSpecialtyPress("Gastroenterologia")
     },
-    { 
-      icon: require("@assets/icons/especialidades/Brain.png"), 
-      title: "Neurologia Clínica", 
+    {
+      icon: require("@assets/icons/especialidades/Brain.png"),
+      title: "Neurologia Clínica",
       onPress: () => handleSpecialtyPress("Neurologia Clínica")
     },
-    { 
-      icon: require("@assets/icons/especialidades/icon_dermato.png"), 
-      title: "Dermatologia", 
+    {
+      icon: require("@assets/icons/especialidades/icon_dermato.png"),
+      title: "Dermatologia",
       onPress: () => handleSpecialtyPress("Dermatologia")
     },
-    { 
-      icon: require("@assets/icons/especialidades/icon_angio.png"), 
-      title: "Angiologia", 
+    {
+      icon: require("@assets/icons/especialidades/icon_angio.png"),
+      title: "Angiologia",
       onPress: () => handleSpecialtyPress("Angiologia")
     },
-    { 
-      icon: require("@assets/icons/especialidades/icon_uro.png"), 
-      title: "Urologia", 
+    {
+      icon: require("@assets/icons/especialidades/icon_uro.png"),
+      title: "Urologia",
       onPress: () => handleSpecialtyPress("Urologia")
     },
-    { 
-      icon: require("@assets/icons/especialidades/icon_otorrino.png"), 
-      title: "Otorrinolaringologia", 
+    {
+      icon: require("@assets/icons/especialidades/icon_otorrino.png"),
+      title: "Otorrinolaringologia",
       onPress: () => handleSpecialtyPress("Otorrinolaringologia")
     },
-    { 
-      icon: require("@assets/icons/especialidades/Body.png"), 
-      title: "Clínico Geral", 
+    {
+      icon: require("@assets/icons/especialidades/Body.png"),
+      title: "Clínico Geral",
       onPress: () => handleSpecialtyPress("Clínico Geral")
     },
   ]
@@ -100,20 +99,12 @@ export const EspecialidadeScreen: FC<EspecialidadeScreenProps> = observer(functi
     navigation.goBack()
   }
 
-  const handleTabPress = (tab: "home" | "wallet" | "cart" | "heart" | "profile") => {
-    if (tab === "home") {
-      navigation.navigate("Home")
-    } else if (tab === "profile") {
-      navigation.navigate("Profile")
-    } else {
-      setActiveTab(tab)
-    }
-  }
+
 
   return (
     <View style={themed($container)}>
-      <Screen 
-        preset="scroll" 
+      <Screen
+        preset="scroll"
         contentContainerStyle={themed($screenContentContainer)}
         safeAreaEdges={["top"]}
         systemBarStyle="light"
@@ -164,13 +155,10 @@ export const EspecialidadeScreen: FC<EspecialidadeScreenProps> = observer(functi
           </View>
         </View>
       </Screen>
-      
+
       {/* Bottom Navigation - Fixed at bottom */}
       <View style={themed($bottomNavigationContainer)}>
-        <BottomNavigation
-          active={activeTab}
-          onTabPress={handleTabPress}
-        />
+        <BottomNavigation />
       </View>
     </View>
   )

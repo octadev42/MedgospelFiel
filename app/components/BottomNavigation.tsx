@@ -1,53 +1,78 @@
-import React from "react"
+import React, { useState } from "react"
 import { View, TouchableOpacity, StyleSheet } from "react-native"
 import { Home, CreditCard, ShoppingCart, Heart, User } from "lucide-react-native"
 import { useAppTheme } from "@/theme/context"
+import { AppStackParamList } from "@/navigators/AppNavigator"
+import { useNavigation } from "@react-navigation/native"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import { BottomTab } from "@/models/AppGeralStore"
+import { useStores } from "@/models"
+import { observer } from "mobx-react-lite"
 
 interface BottomNavigationProps {
-  active: "home" | "wallet" | "cart" | "heart" | "profile"
-  onTabPress: (tab: "home" | "wallet" | "cart" | "heart" | "profile") => void
 }
 
-export const BottomNavigation: React.FC<BottomNavigationProps> = ({ active, onTabPress }) => {
+
+export const BottomNavigation: React.FC<BottomNavigationProps> = observer(() => {
   const { theme: { colors } } = useAppTheme()
   const iconColor = colors.palette.neutral600
   const activeIconBg = { backgroundColor: '#E8F5E8' }
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
+
+  const { appGeralStore } = useStores()
+  const { activeTab } = appGeralStore
+
+  const handleTabPress = (tab: BottomTab) => {
+    if (tab === "home") {
+      navigation.navigate("Home")
+    } else if (tab === "profile") {
+      navigation.navigate("Profile")
+    } else if (tab === "carteirinha") {
+      navigation.navigate("Carteirinha")
+    } else if (tab === 'cart') {
+      navigation.navigate("Carrinho")
+    }else if (tab === 'heart'){
+      navigation.navigate('Favoritos')
+    } else {
+      appGeralStore.setActiveTab(tab)
+    }
+  }
 
   return (
     <View style={styles.bottomNav}>
       <TouchableOpacity
-        style={[styles.navIcon, active === "home" && activeIconBg]}
-        onPress={() => onTabPress('home')}
+        style={[styles.navIcon, activeTab === "home" && activeIconBg]}
+        onPress={() => handleTabPress('home')}
       >
-        <Home color={active === "home" ? "#20B2AA" : iconColor} size={24} />
+        <Home color={activeTab === "home" ? "#20B2AA" : iconColor} size={24} />
       </TouchableOpacity>
       <TouchableOpacity
-        style={[styles.navIcon, active === "wallet" && activeIconBg]}
-        onPress={() => onTabPress('wallet')}
+        style={[styles.navIcon, activeTab === "carteirinha" && activeIconBg]}
+        onPress={() => handleTabPress('carteirinha')}
       >
-        <CreditCard color={active === "wallet" ? "#20B2AA" : iconColor} size={24} />
+        <CreditCard color={activeTab === "carteirinha" ? "#20B2AA" : iconColor} size={24} />
       </TouchableOpacity>
       <TouchableOpacity
-        style={[styles.navIcon, active === "cart" && activeIconBg]}
-        onPress={() => onTabPress('cart')}
+        style={[styles.navIcon, activeTab === "cart" && activeIconBg]}
+        onPress={() => handleTabPress('cart')}
       >
-        <ShoppingCart color={active === "cart" ? "#20B2AA" : iconColor} size={24} />
+        <ShoppingCart color={activeTab === "cart" ? "#20B2AA" : iconColor} size={24} />
       </TouchableOpacity>
       <TouchableOpacity
-        style={[styles.navIcon, active === "heart" && activeIconBg]}
-        onPress={() => onTabPress('heart')}
+        style={[styles.navIcon, activeTab === "heart" && activeIconBg]}
+        onPress={() => handleTabPress('heart')}
       >
-        <Heart color={active === "heart" ? "#20B2AA" : iconColor} size={24} />
+        <Heart color={activeTab === "heart" ? "#20B2AA" : iconColor} size={24} />
       </TouchableOpacity>
       <TouchableOpacity
-        style={[styles.navIcon, active === "profile" && activeIconBg]}
-        onPress={() => onTabPress('profile')}
+        style={[styles.navIcon, activeTab === "profile" && activeIconBg]}
+        onPress={() => handleTabPress('profile')}
       >
-        <User color={active === "profile" ? "#20B2AA" : iconColor} size={24} />
+        <User color={activeTab === "profile" ? "#20B2AA" : iconColor} size={24} />
       </TouchableOpacity>
     </View>
   )
-}
+})
 
 const styles = StyleSheet.create({
   bottomNav: {
