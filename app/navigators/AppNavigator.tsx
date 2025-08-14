@@ -15,17 +15,13 @@ import { ErrorBoundary } from "@/screens/ErrorScreen/ErrorBoundary"
 import { EspecialidadeScreen } from "@/screens/EspecialidadeScreen"
 import { EspecialistasScreen } from "@/screens/EspecialistasScreen"
 import { EstablishmentsScreen } from "@/screens/EstablishmentsScreen"
-import { CarteirinhaScreen } from "@/screens/CarteirinhaScreen"
-import { HomeScreen } from "@/screens/HomeScreen"
-import { ProfileScreen } from "@/screens/ProfileScreen"
 import { useAppTheme } from "@/theme/context"
 import { useStores } from "@/models"
 
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 import { SignupScreen } from "@/screens/Authentication/SignupScreen"
 import { EscolherFluxoConsultaScreen } from "@/screens/Agendamento/EscolherFluxoConsulta"
-import { CarrinhoScreen } from "@/screens/CarrinhoScreen"
-import { FavoritosScreen } from "@/screens/FavoritosScreen"
+import { BottomTabsNavigator } from "./BottomTabsNavigator"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -37,17 +33,13 @@ import { FavoritosScreen } from "@/screens/FavoritosScreen"
  *   https://reactnavigation.org/docs/typescript/#organizing-types
  */
 export type AppStackParamList = {
-  Home: undefined
+  MainTabs: undefined
   Login: undefined
   Signup: undefined
   EscolherFluxoConsulta: undefined
   Especialidade: undefined
-  Carteirinha: undefined
-  Favoritos: undefined
-  Carrinho: undefined
   Especialistas: undefined
   Establishments: undefined
-  Profile: undefined
   // 🔥 Your screens go here
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
@@ -83,18 +75,14 @@ const AppStack = observer(() => {
           backgroundColor: colors.background,
         },
       }}
-      initialRouteName={isAuthenticated ? "Home" : "EscolherFluxoConsulta"}
+      initialRouteName={isAuthenticated ? "MainTabs" : "EscolherFluxoConsulta"}
     >
-      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="MainTabs" component={BottomTabsNavigator} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Signup" component={SignupScreen} />
       <Stack.Screen name="Especialidade" component={EspecialidadeScreen} />
-      <Stack.Screen name="Carteirinha" component={CarteirinhaScreen} />
-      <Stack.Screen name="Carrinho" component={CarrinhoScreen} />
-      <Stack.Screen name="Favoritos" component={FavoritosScreen} />
       <Stack.Screen name="Especialistas" component={EspecialistasScreen} />
       <Stack.Screen name="Establishments" component={EstablishmentsScreen} />
-      <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="EscolherFluxoConsulta" component={EscolherFluxoConsultaScreen} />
       {/** 🔥 Your screens go here */}
       {/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}

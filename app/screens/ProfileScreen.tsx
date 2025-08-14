@@ -3,7 +3,6 @@ import { TextStyle, View, ViewStyle, TouchableOpacity, Image } from "react-nativ
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 
-import { BottomNavigation } from "@/components/BottomNavigation"
 import { Icon } from "@/components/Icon"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
@@ -13,7 +12,7 @@ import type { AppStackParamList } from "@/navigators/AppNavigator"
 import { useStores } from "@/models/helpers/useStores"
 
 type ProfileScreenProps = {
-  navigation: NativeStackNavigationProp<AppStackParamList, "Profile">
+  navigation: NativeStackNavigationProp<AppStackParamList, "MainTabs">
 }
 
 export const ProfileScreen: FC<ProfileScreenProps> = function ProfileScreen() {
@@ -115,11 +114,6 @@ export const ProfileScreen: FC<ProfileScreenProps> = function ProfileScreen() {
           ))}
         </View>
       </Screen>
-
-      {/* Bottom Navigation - Fixed at bottom */}
-      <View style={themed($bottomNavigationContainer)}>
-        <BottomNavigation />
-      </View>
     </View>
   )
 }

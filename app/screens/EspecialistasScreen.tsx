@@ -5,7 +5,6 @@ import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { observer } from "mobx-react-lite"
 
-import { BottomNavigation } from "@/components/BottomNavigation"
 import { Icon } from "@/components/Icon"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
@@ -15,6 +14,7 @@ import type { AppStackParamList } from "@/navigators/AppNavigator"
 import { useStores } from "@/models"
 import { showToast } from "@/components/Toast"
 import { useEspecialists } from "@/hooks/useEspecialists"
+import { Header } from "@/components/Header"
 
 type EspecialistasScreenProps = {
   navigation: NativeStackNavigationProp<AppStackParamList, "Especialistas">
@@ -64,46 +64,12 @@ export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(functi
 
   return (
     <View style={themed($container)}>
+      <Header title={schedulingStore.selectedEspeciality || "Especialistas"} backgroundColor="#1E90FF" titleStyle={{ color: "white" }} leftIcon="back" leftIconColor="white" onLeftPress={handleBackPress} />
       <Screen
         preset="scroll"
         contentContainerStyle={themed($screenContentContainer)}
-        safeAreaEdges={["top"]}
         systemBarStyle="light"
       >
-        {/* Header Section */}
-        <View style={themed($headerContainer)}>
-          <View style={themed($headerTop)}>
-            <TouchableOpacity style={themed($backButton)} onPress={handleBackPress}>
-              <Icon icon="back" size={24} color="white" />
-            </TouchableOpacity>
-            <Text style={themed($headerTitle)} text={schedulingStore.selectedEspeciality || "Especialistas"} />
-            <View style={themed($headerSpacer)} />
-          </View>
-
-          {/* Subtitle */}
-          {schedulingStore.selectedEspeciality && (
-            <View style={themed($subtitleContainer)}>
-              <Text style={themed($subtitleText)} text={`Especialistas em ${schedulingStore.selectedEspeciality}`} />
-            </View>
-          )}
-
-          {/* Search Bar */}
-          <View style={themed($searchContainer)}>
-            <View style={themed($searchBar)}>
-              <Icon icon="view" size={20} color="#666" />
-              <TextInput
-                style={themed($searchInput)}
-                placeholder="Pesquisar"
-                placeholderTextColor="#666"
-                value={searchText}
-                onChangeText={setSearchText}
-              />
-              <TouchableOpacity style={themed($filterButton)}>
-                <Icon icon="more" size={20} color="#666" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
 
         {/* Specialists List */}
         <View style={themed($specialistsContainer)}>
@@ -125,11 +91,6 @@ export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(functi
           ))}
         </View>
       </Screen>
-
-      {/* Bottom Navigation - Fixed at bottom */}
-      <View style={themed($bottomNavigationContainer)}>
-        <BottomNavigation />
-      </View>
     </View>
   )
 })

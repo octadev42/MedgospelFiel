@@ -5,8 +5,6 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { observer } from "mobx-react-lite"
 import { ArrowLeft, Plus, CreditCard } from "lucide-react-native"
 
-import { BottomNavigation } from "@/components/BottomNavigation"
-import { Icon } from "@/components/Icon"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { useAppTheme } from "@/theme/context"
@@ -15,7 +13,7 @@ import type { AppStackParamList } from "@/navigators/AppNavigator"
 import { useStores } from "@/models"
 
 type CarteirinhaScreenProps = {
-  navigation: NativeStackNavigationProp<AppStackParamList, "Carteirinha">
+  navigation: NativeStackNavigationProp<AppStackParamList, "MainTabs">
 }
 
 interface PaymentMethod {
@@ -175,11 +173,6 @@ export const CarteirinhaScreen: FC<CarteirinhaScreenProps> = observer(function C
               </View>
             ))}
           </View>
-        </View>
-
-        {/* Bottom Navigation - Fixed at bottom */}
-        <View style={themed($bottomNavigationContainer)}>
-          <BottomNavigation />
         </View>
       </Screen>
     </View>

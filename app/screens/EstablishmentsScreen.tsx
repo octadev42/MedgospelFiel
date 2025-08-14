@@ -6,7 +6,6 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { observer } from "mobx-react-lite"
 import Animated, { FadeInUp, FadeInDown, FadeIn } from "react-native-reanimated"
 
-import { BottomNavigation } from "@/components/BottomNavigation"
 import { Icon } from "@/components/Icon"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
@@ -17,6 +16,7 @@ import type { AppStackParamList } from "@/navigators/AppNavigator"
 import { useStores } from "@/models"
 import { showToast } from "@/components/Toast"
 import { useTabelaPreco } from "@/hooks/useTabelaPreco"
+import { Header } from "@/components/Header"
 
 type EstablishmentsScreenProps = {
   navigation: NativeStackNavigationProp<AppStackParamList, "Establishments">
@@ -49,15 +49,15 @@ interface EstablishmentData {
   }>
 }
 
-const EstablishmentCard: FC<{ 
-  establishment: EstablishmentData; 
+const EstablishmentCard: FC<{
+  establishment: EstablishmentData;
   establishmentRawData: any;
   index: number;
 }> = ({ establishment, establishmentRawData, index }) => {
   const { themed } = useAppTheme()
 
   return (
-    <Animated.View 
+    <Animated.View
       entering={FadeInUp.delay(index * 100).springify()}
       style={themed($establishmentCardContainer)}
     >
@@ -67,13 +67,13 @@ const EstablishmentCard: FC<{
           style={themed($clinicImage)}
         />
       </View>
-      
+
       {/* Header Section */}
       <View style={themed($cardHeaderSection)}>
         <View style={themed($clinicInfoContainer)}>
           <Text style={themed($clinicName)} text={establishment.name} />
           <Text style={themed($clinicAddress)} text={establishment.address} />
-          
+
           {establishment.phone && (
             <Text style={themed($clinicPhone)} text={establishment.phone} />
           )}
@@ -81,11 +81,11 @@ const EstablishmentCard: FC<{
           <View style={themed($ratingRow)}>
             <View style={themed($ratingContainer)}>
               {[...Array(5)].map((_, i) => (
-                <Star 
-                  key={i} 
-                  size={14} 
-                  color={i < Math.floor(establishment.rating) ? "#FFD700" : "#E0E0E0"} 
-                  fill={i < Math.floor(establishment.rating) ? "#FFD700" : "transparent"} 
+                <Star
+                  key={i}
+                  size={14}
+                  color={i < Math.floor(establishment.rating) ? "#FFD700" : "#E0E0E0"}
+                  fill={i < Math.floor(establishment.rating) ? "#FFD700" : "transparent"}
                 />
               ))}
               <Text style={themed($ratingText)} text={establishment.rating.toFixed(1)} />
@@ -125,11 +125,11 @@ export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(func
   const [searchText, setSearchText] = useState("")
 
   // Use the tabelaPreco hook with proper parameters
-  const { 
-    loading, 
-    error, 
-    data: tabelaPrecoData, 
-    refetch 
+  const {
+    loading,
+    error,
+    data: tabelaPrecoData,
+    refetch
   } = useTabelaPreco({
     app: true,
     fk_especialista: schedulingStore.selectedEspecialist ? parseInt(schedulingStore.selectedEspecialist) : undefined,
@@ -197,10 +197,10 @@ export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(func
 
   return (
     <View style={themed($container)}>
+      <Header title="Locais de Atendimento" backgroundColor="#1E90FF" titleStyle={{ color: "white" }} leftIcon="back" leftIconColor="white" onLeftPress={handleBackPress} />
       <Screen
         preset="scroll"
         contentContainerStyle={themed($screenContentContainer)}
-        safeAreaEdges={["top"]}
         systemBarStyle="light"
         ScrollViewProps={{
           refreshControl: (
@@ -213,33 +213,6 @@ export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(func
           ),
         }}
       >
-        {/* Header Section */}
-        <Animated.View entering={FadeInDown.springify()} style={themed($headerContainer)}>
-          <View style={themed($headerTop)}>
-            <TouchableOpacity style={themed($backButton)} onPress={handleBackPress}>
-              <Icon icon="back" size={24} color="white" />
-            </TouchableOpacity>
-            <Text style={themed($headerTitle)} text="Locais de Atendimento" />
-            <View style={themed($headerSpacer)} />
-          </View>
-
-          {/* Search Bar */}
-          <View style={themed($searchContainer)}>
-            <View style={themed($searchBar)}>
-              <Icon icon="view" size={20} color="#666" />
-              <TextInput
-                style={themed($searchInput)}
-                placeholder="Pesquisar estabelecimentos..."
-                placeholderTextColor="#666"
-                value={searchText}
-                onChangeText={setSearchText}
-              />
-              <TouchableOpacity style={themed($filterButton)}>
-                <Icon icon="more" size={20} color="#666" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Animated.View>
 
         {/* Establishments List */}
         <View style={themed($establishmentsContainer)}>
@@ -257,31 +230,26 @@ export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(func
           ) : filteredEstablishments.length === 0 ? (
             <Animated.View entering={FadeIn.springify()} style={themed($emptyContainer)}>
               <Text style={themed($emptyText)} text={
-                searchText 
-                  ? "Nenhum estabelecimento encontrado para sua pesquisa" 
+                searchText
+                  ? "Nenhum estabelecimento encontrado para sua pesquisa"
                   : "Nenhum estabelecimento disponível no momento"
               } />
             </Animated.View>
-                      ) : (
+          ) : (
             filteredEstablishments.map((establishment, index) => {
               const rawData = tabelaPrecoData?.find(data => data.fk_pessoa_juridica === establishment.id)
               return (
-                <EstablishmentCard 
-                  key={establishment.id} 
-                  establishment={establishment} 
+                <EstablishmentCard
+                  key={establishment.id}
+                  establishment={establishment}
                   establishmentRawData={rawData}
-                  index={index} 
+                  index={index}
                 />
               )
             })
           )}
         </View>
       </Screen>
-
-      {/* Bottom Navigation - Fixed at bottom */}
-      <View style={themed($bottomNavigationContainer)}>
-        <BottomNavigation />
-      </View>
     </View>
   )
 })
@@ -303,13 +271,6 @@ const $bottomNavigationContainer: ThemedStyle<ViewStyle> = () => ({
   backgroundColor: "white",
   borderTopWidth: 1,
   borderTopColor: "#E0E0E0",
-})
-
-const $headerContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  backgroundColor: "#1E90FF",
-  paddingHorizontal: spacing.lg,
-  paddingTop: spacing.xl,
-  paddingBottom: spacing.lg,
 })
 
 const $headerTop: ThemedStyle<ViewStyle> = ({ spacing }) => ({

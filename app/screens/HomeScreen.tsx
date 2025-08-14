@@ -3,7 +3,7 @@ import { Image, ImageStyle, TextStyle, View, ViewStyle, TouchableOpacity, Scroll
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 
-import { BottomNavigation } from "@/components/BottomNavigation"
+
 import { Icon } from "@/components/Icon"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
@@ -14,13 +14,13 @@ import type { AppStackScreenProps, AppStackParamList } from "@/navigators/AppNav
 import { WColorIcon } from "@/components/WColorIcon"
 import { useStores } from "@/models"
 
-type HomeScreenProps = AppStackScreenProps<"Home">
+type HomeScreenProps = {
+  navigation: NativeStackNavigationProp<AppStackParamList, "MainTabs">
+}
 
 export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
   const { themed } = useAppTheme()
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
-
-  const { appGeralStore } = useStores()
 
   const serviceItems = [
     { icon: "homegrid_consultas", title: "Consultas", onPress: () => navigation.navigate("EscolherFluxoConsulta") },
@@ -47,9 +47,7 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
     navigation.navigate("Especialidade")
   }
 
-  useEffect(() => {
-    appGeralStore.setActiveTab('home')
-  }, [])
+
 
   return (
     <View style={themed($container)}>
@@ -68,7 +66,7 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
                 <View style={themed($profileImage)} />
                 <View style={themed($profileTextContainer)}>
                   <Text style={themed($welcomeText)} text="Seja bem-vinda, Maria!" />
-                  <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+                  <TouchableOpacity onPress={() => {}}>
                     <Text style={themed($profileLink)} text="Acessar meu perfil" />
                   </TouchableOpacity>
                 </View>
@@ -173,10 +171,7 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
         </View>
       </Screen>
 
-      {/* Bottom Navigation - Fixed at bottom */}
-      <View style={themed($bottomNavigationContainer)}>
-        <BottomNavigation />
-      </View>
+
     </View>
   )
 }
@@ -187,17 +182,7 @@ const $container: ThemedStyle<ViewStyle> = () => ({
 
 const $screenContentContainer: ThemedStyle<ViewStyle> = () => ({
   flexGrow: 1,
-  paddingBottom: 100, // Increased padding to account for fixed bottom navigation
-})
-
-const $bottomNavigationContainer: ThemedStyle<ViewStyle> = () => ({
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  right: 0,
-  backgroundColor: "white",
-  borderTopWidth: 1,
-  borderTopColor: "#E0E0E0",
+  paddingBottom: 20,
 })
 
 const $mainBlueContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({

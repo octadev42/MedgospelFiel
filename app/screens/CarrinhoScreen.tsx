@@ -1,10 +1,10 @@
 import { FC, useEffect, useState } from "react"
-import { TextStyle, View, ViewStyle, TouchableOpacity, TextInput, ScrollView, Image } from "react-native"
+import { TextStyle, View, ViewStyle, TouchableOpacity, Image, ImageStyle } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { observer } from "mobx-react-lite"
+import { ChevronLeft, Trash2, Plus } from "lucide-react-native"
 
-import { BottomNavigation } from "@/components/BottomNavigation"
 import { Icon } from "@/components/Icon"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
@@ -12,44 +12,220 @@ import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 import type { AppStackParamList } from "@/navigators/AppNavigator"
 import { useStores } from "@/models"
+import { Header } from "@/components/Header"
 
 type CarrinhoScreenProps = {
-  navigation: NativeStackNavigationProp<AppStackParamList, "Carteirinha">
+  navigation: NativeStackNavigationProp<AppStackParamList, "MainTabs">
+}
+
+interface CartItem {
+  id: string
+  name: string
+  type: string
+  price: number
+  quantity: number
+  selected: boolean
+  image?: string
+  icon?: string
 }
 
 export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function CarrinhoScreen() {
   const { themed } = useAppTheme()
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
-  const { schedulingStore } = useStores()
-  const [searchText, setSearchText] = useState("")
+  const [cartItems, setCartItems] = useState<CartItem[]>([
+    {
+      id: "1",
+      name: "Dr. Jenny Wilson",
+      type: "Neurologista",
+      price: 120.00,
+      quantity: 1,
+      selected: false,
+      image: "https://via.placeholder.com/60x60"
+    },
+    {
+      id: "2",
+      name: "Exame de Imagem",
+      type: "Exame",
+      price: 36.00,
+      quantity: 1,
+      selected: false,
+      icon: "clipboard"
+    },
+    {
+      id: "3",
+      name: "Exame de Lab.",
+      type: "Exame",
+      price: 36.00,
+      quantity: 1,
+      selected: true,
+      icon: "microscope"
+    }
+  ])
 
-  const { appGeralStore } = useStores()
+  const [selectAll, setSelectAll] = useState(false)
+  const [useWalletCredits, setUseWalletCredits] = useState(false)
 
-  useEffect(() => {
-    appGeralStore.setActiveTab('cart')
-  }, [])
 
+
+  const toggleSelectAll = () => {
+    const newSelectAll = !selectAll
+    setSelectAll(newSelectAll)
+    setCartItems(items => items.map(item => ({ ...item, selected: newSelectAll })))
+  }
+
+  const toggleItemSelection = (itemId: string) => {
+    setCartItems(items => items.map(item =>
+      item.id === itemId ? { ...item, selected: !item.selected } : item
+    ))
+  }
+
+  const updateItemQuantity = (itemId: string, increment: boolean) => {
+    setCartItems(items => items.map(item => {
+      if (item.id === itemId) {
+        const newQuantity = increment ? item.quantity + 1 : Math.max(1, item.quantity - 1)
+        return { ...item, quantity: newQuantity }
+      }
+      return item
+    }))
+  }
+
+  const removeItem = (itemId: string) => {
+    setCartItems(items => items.filter(item => item.id !== itemId))
+  }
+
+  const selectedItems = cartItems.filter(item => item.selected)
+  const totalPrice = selectedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+
+  const handleBackPress = () => {
+    navigation.goBack()
+  }
+
+  const handlePaymentPress = () => {
+    // Navigate to payment screen
+    console.log("Going to payment with total:", totalPrice)
+  }
+
+  const renderCartItem = (item: CartItem) => (
+    <View key={item.id} style={themed($cartItemContainer)}>
+      <TouchableOpacity
+        style={themed($checkboxContainer)}
+        onPress={() => toggleItemSelection(item.id)}
+      >
+        <View style={[
+          themed($checkbox),
+          item.selected && themed($checkboxSelected)
+        ]}>
+          {item.selected && <Icon icon="check" size={12} color="white" />}
+        </View>
+      </TouchableOpacity>
+
+      <View style={themed($itemImageContainer)}>
+        {item.image ? (
+          <Image source={{ uri: item.image }} style={themed($itemImage)} />
+        ) : (
+          <View style={themed($itemIconContainer)}>
+            <Icon icon="view" size={24} color="#666" />
+          </View>
+        )}
+      </View>
+
+      <View style={themed($itemInfoContainer)}>
+        <Text style={themed($itemName)} text={item.name} />
+        <Text style={themed($itemType)} text={item.type} />
+        <Text style={themed($itemPrice)} text={`R$ ${item.price.toFixed(2).replace('.', ',')}`} />
+      </View>
+
+      <View style={themed($itemActionsContainer)}>
+        <TouchableOpacity
+          style={themed($removeButton)}
+          onPress={() => removeItem(item.id)}
+        >
+          <Trash2 size={16} color="#FF6B6B" />
+        </TouchableOpacity>
+
+        {item.type === "Exame" && (
+          <View style={themed($quantityContainer)}>
+            <Text style={themed($quantityText)} text={item.quantity.toString()} />
+            <TouchableOpacity
+              style={themed($quantityButton)}
+              onPress={() => updateItemQuantity(item.id, true)}
+            >
+              <Plus size={16} color="#1E90FF" />
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    </View>
+  )
 
   return (
     <View style={themed($container)}>
+      <Header title="Carrinho" backgroundColor="#1E90FF" titleStyle={{ color: "white" }} leftIcon="back" leftIconColor="white" onLeftPress={handleBackPress} />
+
       <Screen
         preset="scroll"
         contentContainerStyle={themed($screenContentContainer)}
-        safeAreaEdges={["top"]}
         systemBarStyle="light"
       >
-        <Text>Carrinho</Text>
-        {/* Bottom Navigation - Fixed at bottom */}
-        <View style={themed($bottomNavigationContainer)}>
-          <BottomNavigation />
+        {/* Cart Content */}
+        <View style={themed($cartContentContainer)}>
+          {/* Select All */}
+          <TouchableOpacity style={themed($selectAllContainer)} onPress={toggleSelectAll}>
+            <View style={[
+              themed($checkbox),
+              selectAll && themed($checkboxSelected)
+            ]}>
+              {selectAll && <Icon icon="check" size={12} color="white" />}
+            </View>
+            <Text style={themed($selectAllText)} text="Selecionar todos" />
+          </TouchableOpacity>
+
+          {/* Cart Items */}
+          {cartItems.map(renderCartItem)}
+
+          {/* Payment Summary */}
+          <View style={themed($paymentSummaryContainer)}>
+            <Text style={themed($sectionTitle)} text="Resumo do Pagamento" />
+            <View style={themed($totalContainer)}>
+              <Text style={themed($totalLabel)} text="Total" />
+              <Text style={themed($totalValue)} text={`R$ ${totalPrice.toFixed(2).replace('.', ',')}`} />
+            </View>
+          </View>
+
+          {/* Payment Methods */}
+          <View style={themed($paymentMethodsContainer)}>
+            <Text style={themed($sectionTitle)} text="Método de Pagamento" />
+
+            {/* VISA Card */}
+            <View style={themed($paymentMethodCard)}>
+              <Text style={themed($paymentMethodText)} text="VISA" />
+              <TouchableOpacity style={themed($changeButton)}>
+                <Text style={themed($changeButtonText)} text="Mudar" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+
+        {/* Payment Button */}
+        <View style={themed($paymentButtonContainer)}>
+          <TouchableOpacity
+            style={themed($paymentButton)}
+            onPress={handlePaymentPress}
+            activeOpacity={0.8}
+          >
+            <Text style={themed($paymentButtonText)} text="Ir para Pagamento" />
+          </TouchableOpacity>
         </View>
       </Screen>
+
+
     </View>
   )
 })
 
 const $container: ThemedStyle<ViewStyle> = () => ({
   flex: 1,
+  backgroundColor: "#1E90FF",
 })
 
 const $screenContentContainer: ThemedStyle<ViewStyle> = () => ({
@@ -57,12 +233,264 @@ const $screenContentContainer: ThemedStyle<ViewStyle> = () => ({
   paddingBottom: 100, // Add padding to account for bottom navigation
 })
 
-const $bottomNavigationContainer: ThemedStyle<ViewStyle> = () => ({
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  right: 0,
-  backgroundColor: "white",
-  borderTopWidth: 1,
-  borderTopColor: "#E0E0E0",
+const $headerContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  paddingHorizontal: spacing.lg,
+  paddingVertical: spacing.lg,
 })
+
+const $backButton: ThemedStyle<ViewStyle> = () => ({
+  padding: 8,
+})
+
+const $headerTitle: ThemedStyle<TextStyle> = () => ({
+  fontSize: 20,
+  fontWeight: "700",
+  color: "white",
+  flex: 1,
+  textAlign: "center",
+})
+
+const $headerSpacer: ThemedStyle<ViewStyle> = () => ({
+  width: 40,
+})
+
+const $cartContentContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  backgroundColor: "white",
+  borderTopLeftRadius: 20,
+  borderTopRightRadius: 20,
+  paddingHorizontal: spacing.lg,
+  paddingTop: spacing.lg,
+  flex: 1,
+})
+
+const $selectAllContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  flexDirection: "row",
+  alignItems: "center",
+  marginBottom: spacing.lg,
+})
+
+const $checkboxContainer: ThemedStyle<ViewStyle> = () => ({
+  padding: 4,
+})
+
+const $checkbox: ThemedStyle<ViewStyle> = () => ({
+  width: 20,
+  height: 20,
+  borderRadius: 4,
+  borderWidth: 2,
+  borderColor: "#E0E0E0",
+  backgroundColor: "white",
+  alignItems: "center",
+  justifyContent: "center",
+})
+
+const $checkboxSelected: ThemedStyle<ViewStyle> = () => ({
+  backgroundColor: "#4CAF50",
+  borderColor: "#4CAF50",
+})
+
+const $selectAllText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  fontWeight: "600",
+  color: "#333",
+  marginLeft: 12,
+})
+
+const $cartItemContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  flexDirection: "row",
+  alignItems: "center",
+  paddingVertical: spacing.md,
+  borderBottomWidth: 1,
+  borderBottomColor: "#F0F0F0",
+})
+
+const $itemImageContainer: ThemedStyle<ViewStyle> = () => ({
+  marginLeft: 12,
+  marginRight: 16,
+})
+
+const $itemImage: ThemedStyle<ImageStyle> = () => ({
+  width: 60,
+  height: 60,
+  borderRadius: 8,
+  backgroundColor: "#F0F0F0",
+})
+
+const $itemIconContainer: ThemedStyle<ViewStyle> = () => ({
+  width: 60,
+  height: 60,
+  borderRadius: 8,
+  backgroundColor: "#F0F0F0",
+  alignItems: "center",
+  justifyContent: "center",
+})
+
+const $itemInfoContainer: ThemedStyle<ViewStyle> = () => ({
+  flex: 1,
+})
+
+const $itemName: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  fontWeight: "600",
+  color: "#333",
+  marginBottom: 4,
+})
+
+const $itemType: ThemedStyle<TextStyle> = () => ({
+  fontSize: 14,
+  color: "#666",
+  marginBottom: 8,
+})
+
+const $itemPrice: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  fontWeight: "700",
+  color: "#4CAF50",
+})
+
+const $itemActionsContainer: ThemedStyle<ViewStyle> = () => ({
+  alignItems: "flex-end",
+  gap: 8,
+})
+
+const $removeButton: ThemedStyle<ViewStyle> = () => ({
+  padding: 4,
+})
+
+const $quantityContainer: ThemedStyle<ViewStyle> = () => ({
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 8,
+})
+
+const $quantityText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  fontWeight: "600",
+  color: "#333",
+  minWidth: 20,
+  textAlign: "center",
+})
+
+const $quantityButton: ThemedStyle<ViewStyle> = () => ({
+  padding: 4,
+})
+
+const $paymentSummaryContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  marginTop: spacing.xl,
+  marginBottom: spacing.lg,
+})
+
+const $sectionTitle: ThemedStyle<TextStyle> = ({ spacing }) => ({
+  fontSize: 18,
+  fontWeight: "700",
+  color: "#333",
+  marginBottom: spacing.md,
+})
+
+const $totalContainer: ThemedStyle<ViewStyle> = () => ({
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+})
+
+const $totalLabel: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  fontWeight: "600",
+  color: "#333",
+})
+
+const $totalValue: ThemedStyle<TextStyle> = () => ({
+  fontSize: 18,
+  fontWeight: "700",
+  color: "#4CAF50",
+})
+
+const $paymentMethodsContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  marginBottom: spacing.xl,
+})
+
+const $paymentMethodCard: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  backgroundColor: "white",
+  borderRadius: 12,
+  padding: spacing.md,
+  marginBottom: spacing.md,
+  borderWidth: 1,
+  borderColor: "#E0E0E0",
+})
+
+const $paymentMethodText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  fontWeight: "600",
+  color: "#333",
+})
+
+const $changeButton: ThemedStyle<ViewStyle> = () => ({
+  paddingVertical: 6,
+  paddingHorizontal: 12,
+})
+
+const $changeButtonText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 14,
+  fontWeight: "600",
+  color: "#1E90FF",
+})
+
+const $walletCard: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  backgroundColor: "white",
+  borderRadius: 12,
+  padding: spacing.md,
+  borderWidth: 1,
+  borderColor: "#E0E0E0",
+})
+
+const $walletInfoContainer: ThemedStyle<ViewStyle> = () => ({
+  flex: 1,
+})
+
+const $walletQuestion: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  fontWeight: "600",
+  color: "#333",
+  marginBottom: 4,
+})
+
+const $walletBalance: ThemedStyle<TextStyle> = () => ({
+  fontSize: 14,
+  color: "#666",
+})
+
+const $paymentButtonContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  paddingHorizontal: spacing.lg,
+  paddingBottom: spacing.lg,
+})
+
+const $paymentButton: ThemedStyle<ViewStyle> = () => ({
+  backgroundColor: "#4CAF50",
+  borderRadius: 12,
+  paddingVertical: 16,
+  alignItems: "center",
+  shadowColor: "#000",
+  shadowOffset: {
+    width: 0,
+    height: 2,
+  },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+  elevation: 3,
+})
+
+const $paymentButtonText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 18,
+  fontWeight: "700",
+  color: "white",
+})
+

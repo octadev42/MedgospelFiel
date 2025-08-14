@@ -16,8 +16,14 @@ import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 import { navigate } from "@/navigators/navigationUtilities"
 import { useStores } from "@/models"
+import { Header } from "@/components/Header"
+import { AppStackParamList } from "@/navigators/AppNavigator"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import { useNavigation } from "@react-navigation/native"
 
-interface EscolherFluxoConsultaScreenProps { }
+interface EscolherFluxoConsultaScreenProps {
+  navigation: NativeStackNavigationProp<AppStackParamList, "EscolherFluxoConsulta">
+}
 
 export const EscolherFluxoConsultaScreen: FC<EscolherFluxoConsultaScreenProps> = observer(
   function EscolherFluxoConsultaScreen(_props) {
@@ -26,7 +32,7 @@ export const EscolherFluxoConsultaScreen: FC<EscolherFluxoConsultaScreenProps> =
       theme: { colors },
     } = useAppTheme()
 
-    const insets = useSafeAreaInsets()
+    const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
 
     const { schedulingStore } = useStores()
 
@@ -41,95 +47,86 @@ export const EscolherFluxoConsultaScreen: FC<EscolherFluxoConsultaScreenProps> =
       schedulingStore.resetScheduling()
       navigate("Especialidade")
     }
-
-    const handleSearchClinic = () => {
-      // Navigate to clinic search screen
-      schedulingStore.resetScheduling()
-      navigate("Home")
-    }
-
     const handleBack = () => {
-      navigate("Home")
+      navigation.goBack()
     }
 
     return (
-      <Screen
-        preset="auto"
-        backgroundColor={colors.palette.primary600}
-        style={themed($screenBackground)}
-        contentContainerStyle={themed($screenContentContainer)}
-        safeAreaEdges={["top"]}
-      >
-        {/* Header */}
-        <View style={[themed($header)]}>
-          <Pressable onPress={handleBack} style={themed($backButton)}>
-            <ArrowLeft size={24} color="#fff" />
-          </Pressable>
-          <Text text="Como deseja agendar?" style={themed($headerTitle)} />
-          <View style={themed($headerSpacer)} />
-        </View>
-
-        {/* Content */}
-        <View style={themed($contentContainer)}>
-          {/* Action Buttons */}
-          <View style={themed($buttonsContainer)}>
-            {/* Find Doctor Button */}
-            <Pressable
-              style={({ pressed }) => [
-                themed($actionButtonSecondary),
-                pressed && themed($buttonPressed),
-              ]}
-              onPress={handleFindDoctor}
-            >
-              <View style={themed($buttonContent)}>
-                <Image source={require("@assets/images/fluxo/escolher_medico.png")} />
-                <View style={themed($buttonTextContainer)}>
-                  <Text text="Encontrar Médico" style={themed($buttonText)} />
-                  <Text text="Pesquise pelo nome do profissional" style={themed($buttonAction)} />
+      <View style={themed($container)}>
+        <Header title="Como deseja agendar?" backgroundColor="#1E90FF" titleStyle={{ color: "white" }} leftIcon="back" leftIconColor="white" onLeftPress={handleBack} />
+        <Screen
+          preset="auto"
+          backgroundColor={colors.palette.primary600}
+          style={themed($screenBackground)}
+          contentContainerStyle={themed($screenContentContainer)}
+        >
+          {/* Content */}
+          <View style={themed($contentContainer)}>
+            {/* Action Buttons */}
+            <View style={themed($buttonsContainer)}>
+              {/* Find Doctor Button */}
+              <Pressable
+                style={({ pressed }) => [
+                  themed($actionButtonSecondary),
+                  pressed && themed($buttonPressed),
+                ]}
+                onPress={handleFindDoctor}
+              >
+                <View style={themed($buttonContent)}>
+                  <Image source={require("@assets/images/fluxo/escolher_medico.png")} />
+                  <View style={themed($buttonTextContainer)}>
+                    <Text text="Encontrar Médico" style={themed($buttonText)} />
+                    <Text text="Pesquise pelo nome do profissional" style={themed($buttonAction)} />
+                  </View>
                 </View>
-              </View>
-            </Pressable>
+              </Pressable>
 
-            {/* Choose Specialty Button */}
-            <Pressable
-              style={({ pressed }) => [
-                themed($actionButtonSecondary),
-                pressed && themed($buttonPressed),
-              ]}
-              onPress={handleChooseSpecialty}
-            >
-              <View style={themed($buttonContent)}>
-                <Image source={require("@assets/images/fluxo/escolher_especialidade.png")} />
-                <View style={themed($buttonTextContainer)}>
+              {/* Choose Specialty Button */}
+              <Pressable
+                style={({ pressed }) => [
+                  themed($actionButtonSecondary),
+                  pressed && themed($buttonPressed),
+                ]}
+                onPress={handleChooseSpecialty}
+              >
+                <View style={themed($buttonContent)}>
+                  <Image source={require("@assets/images/fluxo/escolher_especialidade.png")} />
+                  <View style={themed($buttonTextContainer)}>
 
-                  <Text text="Escolher Especialidade" style={themed($buttonText)} />
-                  <Text text="Veja todos os especialistas disponíveis" style={themed($buttonAction)} />
+                    <Text text="Escolher Especialidade" style={themed($buttonText)} />
+                    <Text text="Veja todos os especialistas disponíveis" style={themed($buttonAction)} />
+                  </View>
                 </View>
-              </View>
-            </Pressable>
+              </Pressable>
 
-            {/* Search Clinic Button */}
-            <Pressable
-              style={({ pressed }) => [
-                themed($actionButtonSecondary),
-                pressed && themed($buttonPressed),
-              ]}
-              onPress={handleSearchClinic}
-            >
-              <View style={themed($buttonContent)}>
-                <Image source={require("@assets/images/fluxo/buscar_clinica.png")} />
-                <View style={themed($buttonTextContainer)}>
-                  <Text text="Buscar Clínica" style={themed($buttonText)} />
-                  <Text text="Selecione por localização e unidade" style={themed($buttonAction)} />
+              {/* Search Clinic Button */}
+              <Pressable
+                style={({ pressed }) => [
+                  themed($actionButtonSecondary),
+                  pressed && themed($buttonPressed),
+                ]}
+                onPress={()=>{}}
+              >
+                <View style={themed($buttonContent)}>
+                  <Image source={require("@assets/images/fluxo/buscar_clinica.png")} />
+                  <View style={themed($buttonTextContainer)}>
+                    <Text text="Buscar Clínica" style={themed($buttonText)} />
+                    <Text text="Selecione por localização e unidade" style={themed($buttonAction)} />
+                  </View>
                 </View>
-              </View>
-            </Pressable>
+              </Pressable>
+            </View>
           </View>
-        </View>
-      </Screen>
+        </Screen>
+      </View>
     )
   },
 )
+
+
+const $container: ThemedStyle<ViewStyle> = () => ({
+  flex: 1,
+})
 
 // Screen Styles
 const $screenBackground: ThemedStyle<ViewStyle> = ({ colors }) => ({

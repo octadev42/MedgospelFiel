@@ -4,7 +4,6 @@ import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { observer } from "mobx-react-lite"
 
-import { BottomNavigation } from "@/components/BottomNavigation"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { useAppTheme } from "@/theme/context"
@@ -13,7 +12,7 @@ import type { AppStackParamList } from "@/navigators/AppNavigator"
 import { useStores } from "@/models"
 
 type FavoritosScreenProps = {
-  navigation: NativeStackNavigationProp<AppStackParamList, "Carteirinha">
+  navigation: NativeStackNavigationProp<AppStackParamList, "MainTabs">
 }
 
 export const FavoritosScreen: FC<FavoritosScreenProps> = observer(function FavoritosScreen() {
@@ -35,10 +34,6 @@ export const FavoritosScreen: FC<FavoritosScreenProps> = observer(function Favor
         systemBarStyle="light"
       >
         <Text>Favoritos</Text>
-        {/* Bottom Navigation - Fixed at bottom */}
-        <View style={themed($bottomNavigationContainer)}>
-          <BottomNavigation />
-        </View>
       </Screen>
     </View>
   )
