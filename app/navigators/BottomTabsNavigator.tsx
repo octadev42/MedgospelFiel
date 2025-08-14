@@ -109,7 +109,7 @@ export const BottomTabsNavigator = observer(() => {
           ),
         }}
       />
-      <Tab.Screen
+    {/*   <Tab.Screen
         name="Favoritos"
         component={FavoritosScreen}
         options={{
@@ -125,7 +125,7 @@ export const BottomTabsNavigator = observer(() => {
             />
           ),
         }}
-      />
+      /> */}
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
