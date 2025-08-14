@@ -7,6 +7,7 @@ interface UseTabelaPrecoParams {
   fk_procedimento?: string
   tipo_procedimento?: string
   fk_especialista?: number
+  fk_especialidade?: number
   fk_estabelecimento?: number
   fk_cidade?: number
 }
@@ -33,6 +34,7 @@ export const useTabelaPreco = (params: UseTabelaPrecoParams = {}): UseTabelaPrec
         params.fk_procedimento,
         params.tipo_procedimento,
         params.fk_especialista,
+        params.fk_especialidade,
         params.fk_estabelecimento,
         params.fk_cidade
       )
@@ -56,6 +58,7 @@ export const useTabelaPreco = (params: UseTabelaPrecoParams = {}): UseTabelaPrec
     params.app,
     params.fk_procedimento,
     params.tipo_procedimento,
+    params.fk_especialidade,
     params.fk_especialista,
     params.fk_estabelecimento,
     params.fk_cidade

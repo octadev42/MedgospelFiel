@@ -3,6 +3,8 @@ import { TextStyle, View, ViewStyle, TouchableOpacity, Dimensions } from "react-
 import { Calendar, Clock } from "lucide-react-native"
 import { observer } from "mobx-react-lite"
 import Carousel from "react-native-reanimated-carousel"
+import { format, isToday, parseISO } from "date-fns"
+import { ptBR } from "date-fns/locale"
 
 import { Text } from "@/components/Text"
 import { useAppTheme } from "@/theme/context"
@@ -11,6 +13,14 @@ import type { ThemedStyle } from "@/theme/types"
 interface ScheduleCalendarProps {
   onDateSelect?: (date: string) => void
   onTimeSelect?: (time: string) => void
+  horarios?: Array<{
+    id: number
+    data: string
+    hora_inicial: string
+    hora_final: string
+    vagas_total: number
+    vagas_disponiveis: number
+  }>
 }
 
 interface DaySchedule {
@@ -32,58 +42,57 @@ const { width: screenWidth } = Dimensions.get('window')
 export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function ScheduleCalendar({
   onDateSelect,
   onTimeSelect,
+  horarios = [],
 }) {
   const { themed } = useAppTheme()
   const [selectedDate, setSelectedDate] = useState<string>("")
   const [selectedTime, setSelectedTime] = useState<string>("")
-  const [activeTab, setActiveTab] = useState<"scheduled" | "guide">("scheduled")
   const [currentIndex, setCurrentIndex] = useState(0)
 
   const carouselRef = useRef<any>(null)
 
-  // Mock data - in real app this would come from API
-  const daySchedules: DaySchedule[] = [
-    {
-      id: "1",
-      day: "Ter",
-      date: "12/08",
-      isToday: true,
-      timeSlots: [
-        { id: "1-1", time: "A partir de 9hrs", available: true },
-        { id: "1-2", time: "A partir de 15hrs", available: true },
-      ]
-    },
-    {
-      id: "2",
-      day: "Qua",
-      date: "13/08",
-      isToday: false,
-      timeSlots: [
-        { id: "2-1", time: "A partir de 9hrs", available: true },
-        { id: "2-2", time: "A partir de 15hrs", available: true },
-      ]
-    },
-    {
-      id: "3",
-      day: "Qui",
-      date: "14/08",
-      isToday: false,
-      timeSlots: [
-        { id: "3-1", time: "A partir de 9hrs", available: true },
-        { id: "3-2", time: "A partir de 15hrs", available: true },
-      ]
-    },
-    {
-      id: "4",
-      day: "Sex",
-      date: "15/08",
-      isToday: false,
-      timeSlots: [
-        { id: "4-1", time: "A partir de 9hrs", available: true },
-        { id: "4-2", time: "A partir de 15hrs", available: true },
-      ]
-    },
-  ]
+  // Transform horarios data into day schedules
+  const transformHorariosToDaySchedules = (): DaySchedule[] => {
+    if (!horarios || horarios.length === 0) {
+      return []
+    }
+
+    // Group horarios by date
+    const horariosByDate = horarios.reduce((acc, horario) => {
+      const date = horario.data
+      if (!acc[date]) {
+        acc[date] = []
+      }
+      acc[date].push(horario)
+      return acc
+    }, {} as Record<string, typeof horarios>)
+
+    // Convert to DaySchedule format
+    const daySchedules: DaySchedule[] = Object.entries(horariosByDate).map(([date, horarios]) => {
+      const dateObj = parseISO(date)
+      
+      const timeSlots: TimeSlot[] = horarios.map(horario => ({
+        id: `${horario.id}`,
+        time: `${horario.hora_inicial.slice(0, 5)} - ${horario.hora_final.slice(0, 5)}`,
+        available: horario.vagas_disponiveis > 0,
+        vagas_disponiveis: horario.vagas_disponiveis,
+        vagas_total: horario.vagas_total,
+      }))
+
+      return {
+        id: date,
+        day: format(dateObj, 'EEE', { locale: ptBR }),
+        date: format(dateObj, 'dd/MM', { locale: ptBR }),
+        isToday: isToday(dateObj),
+        timeSlots,
+      }
+    })
+
+    // Sort by date
+    return daySchedules.sort((a, b) => parseISO(a.id).getTime() - parseISO(b.id).getTime())
+  }
+
+  const daySchedules = transformHorariosToDaySchedules()
 
   // Group daySchedules into chunks of 2
   const groupedSchedules = daySchedules.reduce((result: DaySchedule[][], current, index) => {

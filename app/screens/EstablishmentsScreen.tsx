@@ -1,9 +1,10 @@
-import { FC, useState } from "react"
-import { TextStyle, View, ViewStyle, TouchableOpacity, TextInput, ScrollView, Image, ImageStyle } from "react-native"
+import { FC, useState, useCallback } from "react"
+import { TextStyle, View, ViewStyle, TouchableOpacity, TextInput, ScrollView, Image, ImageStyle, RefreshControl } from "react-native"
 import { ChevronRight, Star, MapPin, FileText, Calendar, Clock, MessageCircle } from "lucide-react-native"
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { observer } from "mobx-react-lite"
+import Animated, { FadeInUp, FadeInDown, FadeIn } from "react-native-reanimated"
 
 import { BottomNavigation } from "@/components/BottomNavigation"
 import { Icon } from "@/components/Icon"
@@ -21,36 +22,75 @@ type EstablishmentsScreenProps = {
   navigation: NativeStackNavigationProp<AppStackParamList, "Establishments">
 }
 
-const EstablishmentCard: FC<{ establishment: any }> = ({ establishment }) => {
+interface EstablishmentData {
+  id: number
+  name: string
+  address: string
+  phone: string
+  photo: string
+  price: string
+  availablePrice: string
+  rating: number
+  reviews: number
+  items: Array<{
+    name: string
+    price: number
+    available: boolean
+    observation: string
+    information: string
+    schedules: Array<{
+      id: number
+      date: string
+      startTime: string
+      endTime: string
+      totalSlots: number
+      availableSlots: number
+    }>
+  }>
+}
+
+const EstablishmentCard: FC<{ 
+  establishment: EstablishmentData; 
+  establishmentRawData: any;
+  index: number;
+}> = ({ establishment, establishmentRawData, index }) => {
   const { themed } = useAppTheme()
 
   return (
-    <View style={themed($establishmentCardContainer)}>
+    <Animated.View 
+      entering={FadeInUp.delay(index * 100).springify()}
+      style={themed($establishmentCardContainer)}
+    >
       <View style={themed($clinicImageContainer)}>
-          <Image
-            source={require("@assets/images/estabelecimentos/hvisao.webp")}
-            style={themed($clinicImage)}
-          />
-        </View>
+        <Image
+          source={establishment.photo ? { uri: establishment.photo } : require("@assets/images/estabelecimentos/hvisao.webp")}
+          style={themed($clinicImage)}
+        />
+      </View>
+      
       {/* Header Section */}
       <View style={themed($cardHeaderSection)}>
-
         <View style={themed($clinicInfoContainer)}>
           <Text style={themed($clinicName)} text={establishment.name} />
           <Text style={themed($clinicAddress)} text={establishment.address} />
+          
+          {establishment.phone && (
+            <Text style={themed($clinicPhone)} text={establishment.phone} />
+          )}
 
           <View style={themed($ratingRow)}>
             <View style={themed($ratingContainer)}>
-              <Star size={14} color="#FFD700" fill="#FFD700" />
-              <Star size={14} color="#FFD700" fill="#FFD700" />
-              <Star size={14} color="#FFD700" fill="#FFD700" />
-              <Star size={14} color="#FFD700" fill="#FFD700" />
-              <Star size={14} color="#FFD700" fill="#FFD700" />
-              <Text style={themed($ratingText)} text="4.75" />
-
-              <Text style={themed($reviewsText)} text="(332 avaliações)" />
+              {[...Array(5)].map((_, i) => (
+                <Star 
+                  key={i} 
+                  size={14} 
+                  color={i < Math.floor(establishment.rating) ? "#FFD700" : "#E0E0E0"} 
+                  fill={i < Math.floor(establishment.rating) ? "#FFD700" : "transparent"} 
+                />
+              ))}
+              <Text style={themed($ratingText)} text={establishment.rating.toFixed(1)} />
+              <Text style={themed($reviewsText)} text={`(${establishment.reviews} avaliações)`} />
             </View>
-           
           </View>
         </View>
       </View>
@@ -72,8 +112,9 @@ const EstablishmentCard: FC<{ establishment: any }> = ({ establishment }) => {
       <ScheduleCalendar
         onDateSelect={(date) => console.log('Selected date:', date)}
         onTimeSelect={(time) => console.log('Selected time:', time)}
+        horarios={establishmentRawData?.itens?.[0]?.horarios_tabela_preco || []}
       />
-    </View>
+    </Animated.View>
   )
 }
 
@@ -83,40 +124,76 @@ export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(func
   const { schedulingStore } = useStores()
   const [searchText, setSearchText] = useState("")
 
-  // Use the tabelaPreco hook
-  const { loading, error, data: tabelaPrecoData } = useTabelaPreco({
+  // Use the tabelaPreco hook with proper parameters
+  const { 
+    loading, 
+    error, 
+    data: tabelaPrecoData, 
+    refetch 
+  } = useTabelaPreco({
     app: true,
     fk_especialista: schedulingStore.selectedEspecialist ? parseInt(schedulingStore.selectedEspecialist) : undefined,
     fk_estabelecimento: schedulingStore.selectedEstablishment ? parseInt(schedulingStore.selectedEstablishment) : undefined,
+    fk_especialidade: schedulingStore.selectedEspeciality ? parseInt(schedulingStore.selectedEspeciality) : undefined,
   })
 
   // Transform the data to match our UI needs
-  const establishments = tabelaPrecoData ? [
-    {
-      id: tabelaPrecoData.fk_pessoa_juridica,
-      name: tabelaPrecoData.nome_fantasia,
-      address: tabelaPrecoData.endereco,
-      rating: 5.0, // Mock rating since it's not in the API response
+  const transformEstablishmentData = useCallback((data: any): EstablishmentData => {
+    return {
+      id: data.fk_pessoa_juridica,
+      name: data.nome_fantasia,
+      address: data.endereco,
+      phone: data.telefone,
+      photo: data.foto,
+      price: `R$ ${data.valor_total.toFixed(2)}`,
+      availablePrice: `R$ ${data.valor_total_disponivel.toFixed(2)}`,
+      rating: 4.75, // Mock rating since it's not in the API response
       reviews: 332, // Mock reviews since it's not in the API response
-      price: `R$${tabelaPrecoData.valor_total.toFixed(2)}`,
-      onPress: () => handleEstablishmentPress(tabelaPrecoData.nome_fantasia),
+      items: data.itens?.map((item: any) => ({
+        name: item.nome,
+        price: item.valor_item,
+        available: item.disponivel,
+        observation: item.observacao,
+        information: item.informacao,
+        schedules: item.horarios_tabela_preco?.map((schedule: any) => ({
+          id: schedule.id,
+          date: schedule.data,
+          startTime: schedule.hora_inicial,
+          endTime: schedule.hora_final,
+          totalSlots: schedule.vagas_total,
+          availableSlots: schedule.vagas_disponiveis,
+        })) || [],
+      })) || [],
     }
-  ] : []
+  }, [])
 
-  const handleEstablishmentPress = (establishmentName: string) => {
-    schedulingStore.setEstablishment(establishmentName)
-    showToast.success("Estabelecimento selecionado", `${establishmentName} foi selecionado`)
-    console.log(`Selected establishment: ${establishmentName}`)
-  }
+  const establishments = tabelaPrecoData ? tabelaPrecoData.map(transformEstablishmentData) : []
 
-  const handleBackPress = () => {
+  // Filter establishments based on search text
+  const filteredEstablishments = establishments.filter(establishment =>
+    establishment.name.toLowerCase().includes(searchText.toLowerCase()) ||
+    establishment.address.toLowerCase().includes(searchText.toLowerCase())
+  )
+
+
+
+  const handleBackPress = useCallback(() => {
     navigation.goBack()
-  }
+  }, [navigation])
 
-  const handleInfoPress = (establishmentName: string) => {
+  const handleInfoPress = useCallback((establishmentName: string) => {
     showToast.info("Informações", `Mostrando informações de ${establishmentName}`)
     console.log(`Info for: ${establishmentName}`)
-  }
+  }, [])
+
+  const handleRefresh = useCallback(async () => {
+    try {
+      await refetch()
+      showToast.success("Atualizado", "Lista de estabelecimentos atualizada")
+    } catch (error) {
+      showToast.error("Erro", "Erro ao atualizar estabelecimentos")
+    }
+  }, [refetch])
 
   return (
     <View style={themed($container)}>
@@ -125,9 +202,19 @@ export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(func
         contentContainerStyle={themed($screenContentContainer)}
         safeAreaEdges={["top"]}
         systemBarStyle="light"
+        ScrollViewProps={{
+          refreshControl: (
+            <RefreshControl
+              refreshing={loading}
+              onRefresh={handleRefresh}
+              tintColor="#1E90FF"
+              colors={["#1E90FF"]}
+            />
+          ),
+        }}
       >
         {/* Header Section */}
-        <View style={themed($headerContainer)}>
+        <Animated.View entering={FadeInDown.springify()} style={themed($headerContainer)}>
           <View style={themed($headerTop)}>
             <TouchableOpacity style={themed($backButton)} onPress={handleBackPress}>
               <Icon icon="back" size={24} color="white" />
@@ -142,7 +229,7 @@ export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(func
               <Icon icon="view" size={20} color="#666" />
               <TextInput
                 style={themed($searchInput)}
-                placeholder="Pesquisar"
+                placeholder="Pesquisar estabelecimentos..."
                 placeholderTextColor="#666"
                 value={searchText}
                 onChangeText={setSearchText}
@@ -152,26 +239,41 @@ export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(func
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </Animated.View>
 
         {/* Establishments List */}
         <View style={themed($establishmentsContainer)}>
-          {loading ? (
-            <View style={themed($loadingContainer)}>
+          {loading && !tabelaPrecoData ? (
+            <Animated.View entering={FadeIn.springify()} style={themed($loadingContainer)}>
               <Text style={themed($loadingText)} text="Carregando estabelecimentos..." />
-            </View>
+            </Animated.View>
           ) : error ? (
-            <View style={themed($errorContainer)}>
+            <Animated.View entering={FadeIn.springify()} style={themed($errorContainer)}>
               <Text style={themed($errorText)} text={error} />
-            </View>
-          ) : establishments.length === 0 ? (
-            <View style={themed($emptyContainer)}>
-              <Text style={themed($emptyText)} text="Nenhum estabelecimento encontrado" />
-            </View>
-          ) : (
-            establishments.map((establishment) => (
-              <EstablishmentCard key={establishment.id} establishment={establishment} />
-            ))
+              <TouchableOpacity style={themed($retryButton)} onPress={handleRefresh}>
+                <Text style={themed($retryButtonText)} text="Tentar novamente" />
+              </TouchableOpacity>
+            </Animated.View>
+          ) : filteredEstablishments.length === 0 ? (
+            <Animated.View entering={FadeIn.springify()} style={themed($emptyContainer)}>
+              <Text style={themed($emptyText)} text={
+                searchText 
+                  ? "Nenhum estabelecimento encontrado para sua pesquisa" 
+                  : "Nenhum estabelecimento disponível no momento"
+              } />
+            </Animated.View>
+                      ) : (
+            filteredEstablishments.map((establishment, index) => {
+              const rawData = tabelaPrecoData?.find(data => data.fk_pessoa_juridica === establishment.id)
+              return (
+                <EstablishmentCard 
+                  key={establishment.id} 
+                  establishment={establishment} 
+                  establishmentRawData={rawData}
+                  index={index} 
+                />
+              )
+            })
           )}
         </View>
       </Screen>
@@ -331,6 +433,12 @@ const $clinicAddress: ThemedStyle<TextStyle> = () => ({
   lineHeight: 18,
 })
 
+const $clinicPhone: ThemedStyle<TextStyle> = () => ({
+  fontSize: 14,
+  color: "#666",
+  marginTop: 4,
+})
+
 const $ratingRow: ThemedStyle<ViewStyle> = () => ({
   flexDirection: "row",
   alignItems: "center",
@@ -384,6 +492,12 @@ const $priceValue: ThemedStyle<TextStyle> = () => ({
   color: "#1E90FF",
 })
 
+const $availablePriceValue: ThemedStyle<TextStyle> = () => ({
+  fontSize: 14,
+  color: "#4CAF50",
+  marginLeft: 8,
+})
+
 const $infoButton: ThemedStyle<ViewStyle> = () => ({
   flexDirection: "row",
   alignItems: "center",
@@ -395,6 +509,8 @@ const $infoButtonText: ThemedStyle<TextStyle> = () => ({
   fontWeight: "600",
   color: "#1E90FF",
 })
+
+
 
 const $helpContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   paddingHorizontal: spacing.lg,
@@ -456,4 +572,18 @@ const $emptyText: ThemedStyle<TextStyle> = () => ({
   fontSize: 16,
   color: "#666",
   textAlign: "center",
-}) 
+})
+
+const $retryButton: ThemedStyle<ViewStyle> = () => ({
+  marginTop: 10,
+  paddingVertical: 8,
+  paddingHorizontal: 15,
+  backgroundColor: "#1E90FF",
+  borderRadius: 8,
+})
+
+const $retryButtonText: ThemedStyle<TextStyle> = () => ({
+  color: "white",
+  fontSize: 14,
+  fontWeight: "600",
+})

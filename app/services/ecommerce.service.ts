@@ -3,7 +3,7 @@ import { ApiResponse } from "apisauce"
 import { api } from "./api"
 import { GeneralApiProblem, getGeneralApiProblem } from "./api/apiProblem"
 
-export interface TabelaPrecoResponse {
+export type TabelaPrecoResponse = Array<{
     fk_pessoa_juridica: number
     nome_fantasia: string
     endereco: string
@@ -35,124 +35,92 @@ export interface TabelaPrecoResponse {
             vagas_disponiveis: number
         }>
     }>
-}
+}>
 
-const mockTabelaPrecoResponse: TabelaPrecoResponse = {
-    "fk_pessoa_juridica": 12345,
-    "nome_fantasia": "HVisão",
-    "endereco": "Rua das Flores, 123 - Centro, São Paulo - SP",
-    "telefone": "(11) 3456-7890",
-    "foto": require("@assets/images/estabelecimentos/hvisao.webp"),
-    "valor_total": 850.00,
-    "valor_total_disponivel": 650.00,
-    "itens": [
-        {
-            "nome": "Consulta Cardiologista",
-            "subgrupo_codigo": null,
-            "subgrupo_descricao": null,
-            "disponivel": true,
-            "valor_item": 250.00,
-            "ordem": "1",
-            "fk_tabela_preco_item": 1001,
-            "observacao": "Trazer exames anteriores se houver",
-            "informacao": "Consulta com Dr. Carlos Silva - Cardiologista",
-            "venda_generica": true,
-            "venda_restrita": false,
-            "horario_marcado": true,
-            "exibir_horario_completo": true,
-            "tipo_agenda": "LIVRE_LIMITADO",
-            "horarios_tabela_preco": [
-                {
-                    "id": 2001,
-                    "data": "2024-01-15",
-                    "hora_inicial": "09:00:00",
-                    "hora_final": "09:30:00",
-                    "vagas_total": 1,
-                    "vagas_disponiveis": 1
-                },
-                {
-                    "id": 2002,
-                    "data": "2024-01-15",
-                    "hora_inicial": "14:00:00",
-                    "hora_final": "14:30:00",
-                    "vagas_total": 1,
-                    "vagas_disponiveis": 0
-                },
-                {
-                    "id": 2003,
-                    "data": "2024-01-16",
-                    "hora_inicial": "10:00:00",
-                    "hora_final": "10:30:00",
-                    "vagas_total": 1,
-                    "vagas_disponiveis": 1
-                }
-            ]
-        },
-        {
-            "nome": "Consulta Cardiologista",
-            "subgrupo_codigo": null,
-            "subgrupo_descricao": null,
-            "disponivel": true,
-            "valor_item": 180.00,
-            "ordem": "3",
-            "fk_tabela_preco_item": 1003,
-            "observacao": "Não usar cremes no dia do exame",
-            "informacao": "Consulta com Dra. Ana Costa - Dermatologista",
-            "venda_generica": true,
-            "venda_restrita": false,
-            "horario_marcado": true,
-            "exibir_horario_completo": true,
-            "tipo_agenda": "LIVRE_LIMITADO",
-            "horarios_tabela_preco": [
-                {
-                    "id": 2006,
-                    "data": "2024-01-17",
-                    "hora_inicial": "13:00:00",
-                    "hora_final": "13:30:00",
-                    "vagas_total": 1,
-                    "vagas_disponiveis": 1
-                },
-                {
-                    "id": 2007,
-                    "data": "2024-01-18",
-                    "hora_inicial": "16:00:00",
-                    "hora_final": "16:30:00",
-                    "vagas_total": 1,
-                    "vagas_disponiveis": 1
-                }
-            ]
-        },
-    ]
-}
+const mockTabelaPrecoResponse: TabelaPrecoResponse = [
+    {
+        "fk_pessoa_juridica": 12345,
+        "nome_fantasia": "HVisão",
+        "endereco": "Rua das Flores, 123 - Centro, São Paulo - SP",
+        "telefone": "(11) 3456-7890",
+        "foto": 'https://lh3.googleusercontent.com/p/AF1QipOSGiGTeyViY0RBgxfWrEvOl6PjL8XkLDY7qenz=s1360-w1360-h1020-rw',
+        "valor_total": 850.00,
+        "valor_total_disponivel": 650.00,
+        "itens": [
+            {
+                "nome": "Consulta Cardiologista",
+                "subgrupo_codigo": null,
+                "subgrupo_descricao": null,
+                "disponivel": true,
+                "valor_item": 250.00,
+                "ordem": "1",
+                "fk_tabela_preco_item": 1001,
+                "observacao": "Trazer exames anteriores se houver",
+                "informacao": "Consulta com Dr. Carlos Silva - Cardiologista",
+                "venda_generica": true,
+                "venda_restrita": false,
+                "horario_marcado": true,
+                "exibir_horario_completo": true,
+                "tipo_agenda": "LIVRE_LIMITADO",
+                "horarios_tabela_preco": [
+                    {
+                        "id": 2001,
+                        "data": "2025-07-15",
+                        "hora_inicial": "09:00:00",
+                        "hora_final": "09:30:00",
+                        "vagas_total": 1,
+                        "vagas_disponiveis": 1
+                    },
+                    {
+                        "id": 2002,
+                        "data": "2025-07-15",
+                        "hora_inicial": "14:00:00",
+                        "hora_final": "14:30:00",
+                        "vagas_total": 1,
+                        "vagas_disponiveis": 0
+                    },
+                    {
+                        "id": 2003,
+                        "data": "2025-07-16",
+                        "hora_inicial": "10:00:00",
+                        "hora_final": "10:30:00",
+                        "vagas_total": 1,
+                        "vagas_disponiveis": 1
+                    }
+                ]
+            },
+        ]
+    }
+]
 
 export interface Especialista {
-  id: number
-  usuario_criacao: string
-  usuario_edicao: string
-  usuario_delecao: string | null
-  data_criacao: string
-  data_edicao: string
-  data_delecao: string | null
-  nome: string
-  email: string
-  foto: string
-  situacao: string
-  tipo_conselho: string
-  numero_conselho: string
-  perfil: string
-  observacao: string
-  codigo_externo: number
-  uf_conselho: string
-  fk_pessoa_juridica: number
-  fk_pessoa_fisica: number
-  fk_especialidades: number[]
+    id: number
+    usuario_criacao: string
+    usuario_edicao: string
+    usuario_delecao: string | null
+    data_criacao: string
+    data_edicao: string
+    data_delecao: string | null
+    nome: string
+    email: string
+    foto: string
+    situacao: string
+    tipo_conselho: string
+    numero_conselho: string
+    perfil: string
+    observacao: string
+    codigo_externo: number
+    uf_conselho: string
+    fk_pessoa_juridica: number
+    fk_pessoa_fisica: number
+    fk_especialidades: number[]
 }
 
 export interface EspecialistasResponse {
-  count: number
-  next: string
-  previous: string | null
-  results: Especialista[]
+    count: number
+    next: string
+    previous: string | null
+    results: Especialista[]
 }
 
 const mockEspecialistasResponse: EspecialistasResponse = {
@@ -282,6 +250,7 @@ export const ecommerceService = {
         tipo_procedimento?: string,
         fk_especialista?: number,
         fk_estabelecimento?: number,
+        fk_especialidade?: number,
         fk_cidade?: number,
     ): Promise<
         { kind: "ok"; data: TabelaPrecoResponse } | (GeneralApiProblem & { error?: any })
