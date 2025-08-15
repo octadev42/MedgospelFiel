@@ -182,7 +182,7 @@ const $container: ThemedStyle<ViewStyle> = () => ({
 
 const $screenContentContainer: ThemedStyle<ViewStyle> = () => ({
   flexGrow: 1,
-  paddingBottom: 20,
+  paddingBottom: 120,
 })
 
 const $mainBlueContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
