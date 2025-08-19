@@ -1,12 +1,12 @@
 import React from "react"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
-import { Home, CreditCard, ShoppingCart, Heart, User } from "lucide-react-native"
+import { Home, CreditCard, ShoppingCart, Calendar, User } from "lucide-react-native"
 import { observer } from "mobx-react-lite"
 
 import { HomeScreen } from "@/screens/HomeScreen"
 import { CarteirinhaScreen } from "@/screens/CarteirinhaScreen"
 import { CarrinhoScreen } from "@/screens/CarrinhoScreen"
-import { FavoritosScreen } from "@/screens/FavoritosScreen"
+import { AgendaScreen } from "@/screens/AgendaScreen"
 import { ProfileScreen } from "@/screens/ProfileScreen"
 import { useAppTheme } from "@/theme/context"
 
@@ -14,7 +14,7 @@ export type BottomTabParamList = {
   Home: undefined
   Carteirinha: undefined
   Carrinho: undefined
-  Favoritos: undefined
+  Agenda: undefined
   Profile: undefined
 }
 
@@ -109,12 +109,12 @@ export const BottomTabsNavigator = observer(() => {
           ),
         }}
       />
-    {/*   <Tab.Screen
-        name="Favoritos"
-        component={FavoritosScreen}
+      <Tab.Screen
+        name="Agenda"
+        component={AgendaScreen}
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Heart 
+            <Calendar 
               color={color} 
               size={24} 
               style={{ 
@@ -125,7 +125,7 @@ export const BottomTabsNavigator = observer(() => {
             />
           ),
         }}
-      /> */}
+      />
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}

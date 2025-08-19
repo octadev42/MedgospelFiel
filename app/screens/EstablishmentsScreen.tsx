@@ -53,7 +53,8 @@ const EstablishmentCard: FC<{
   establishment: EstablishmentData;
   establishmentRawData: any;
   index: number;
-}> = ({ establishment, establishmentRawData, index }) => {
+  navigation: NativeStackNavigationProp<AppStackParamList>;
+}> = ({ establishment, establishmentRawData, index, navigation }) => {
   const { themed } = useAppTheme()
 
   return (
@@ -112,6 +113,10 @@ const EstablishmentCard: FC<{
       <ScheduleCalendar
         onDateSelect={(date) => console.log('Selected date:', date)}
         onTimeSelect={(time) => console.log('Selected time:', time)}
+        onTimeSlotPress={(timeSlot) => {
+          console.log('Time slot pressed:', timeSlot)
+          navigation.navigate("SelecionarPessoa")
+        }}
         horarios={establishmentRawData?.itens?.[0]?.horarios_tabela_preco || []}
       />
     </Animated.View>
@@ -244,6 +249,7 @@ export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(func
                   establishment={establishment}
                   establishmentRawData={rawData}
                   index={index}
+                  navigation={navigation}
                 />
               )
             })

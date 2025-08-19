@@ -15,6 +15,8 @@ import { ErrorBoundary } from "@/screens/ErrorScreen/ErrorBoundary"
 import { EspecialidadeScreen } from "@/screens/EspecialidadeScreen"
 import { EspecialistasScreen } from "@/screens/EspecialistasScreen"
 import { EstablishmentsScreen } from "@/screens/EstablishmentsScreen"
+import { SelecionarPessoaScreen } from "@/screens/SelecionarPessoaScreen"
+import { CarrinhoScreen } from "@/screens/CarrinhoScreen"
 import { useAppTheme } from "@/theme/context"
 import { useStores } from "@/models"
 
@@ -40,6 +42,8 @@ export type AppStackParamList = {
   Especialidade: undefined
   Especialistas: undefined
   Establishments: undefined
+  SelecionarPessoa: undefined
+  Carrinho: undefined
   // 🔥 Your screens go here
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
@@ -84,6 +88,8 @@ const AppStack = observer(() => {
       <Stack.Screen name="Especialistas" component={EspecialistasScreen} />
       <Stack.Screen name="Establishments" component={EstablishmentsScreen} />
       <Stack.Screen name="EscolherFluxoConsulta" component={EscolherFluxoConsultaScreen} />
+      <Stack.Screen name="SelecionarPessoa" component={SelecionarPessoaScreen} />
+      <Stack.Screen name="Carrinho" component={CarrinhoScreen} />
       {/** 🔥 Your screens go here */}
       {/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
     </Stack.Navigator>

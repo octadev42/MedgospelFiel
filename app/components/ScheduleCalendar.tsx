@@ -13,6 +13,7 @@ import type { ThemedStyle } from "@/theme/types"
 interface ScheduleCalendarProps {
   onDateSelect?: (date: string) => void
   onTimeSelect?: (time: string) => void
+  onTimeSlotPress?: (timeSlot: TimeSlot) => void
   horarios?: Array<{
     id: number
     data: string
@@ -42,6 +43,7 @@ const { width: screenWidth } = Dimensions.get('window')
 export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function ScheduleCalendar({
   onDateSelect,
   onTimeSelect,
+  onTimeSlotPress,
   horarios = [],
 }) {
   const { themed } = useAppTheme()
@@ -119,6 +121,8 @@ export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function Sch
       .find(t => t.id === timeId)
     if (time) {
       onTimeSelect?.(time.time)
+      // Call the navigation callback when a time slot is pressed
+      onTimeSlotPress?.(time)
     }
   }
 
