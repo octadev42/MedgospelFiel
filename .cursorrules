@@ -44,6 +44,7 @@ Best Practices:
 - Should not make fetch calls directly in components, always check if the request fit in one service in /services folder
 - Important messages should be send in toast
 - Im using mobx-state-tree
+- Use LucideIcons for icons
     
 Current Archtecture:
 - The project uses a boilerplate: the docs can be found here: https://docs.infinite.red/

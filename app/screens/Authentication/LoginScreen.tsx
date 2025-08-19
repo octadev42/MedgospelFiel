@@ -71,7 +71,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setAuthEmail("")
       showToast.success("Sucesso!", "Login realizado com sucesso!")
       // Navigate to home screen after successful login
-      navigate("Home")
+      navigate("MainTabs")
     } else {
       setIsSubmitted(false)
     }
