@@ -7,6 +7,7 @@ import { observer } from "mobx-react-lite"
 import { Icon } from "@/components/Icon"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
+import { SearchBar } from "@/components/SearchBar"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 import type { AppStackParamList } from "@/navigators/AppNavigator"
@@ -99,11 +100,27 @@ export const EspecialidadeScreen: FC<EspecialidadeScreenProps> = observer(functi
     navigation.goBack()
   }
 
-
-
   return (
     <View style={themed($container)}>
-      <Header title="Especialidade" backgroundColor="#1E90FF" titleStyle={{ color: "white" }} leftIcon="back" leftIconColor="white" onLeftPress={handleBackPress} />
+      <Header 
+        title="Especialidade" 
+        backgroundColor="#1E90FF" 
+        titleStyle={{ color: "white" }} 
+        leftIcon="back" 
+        leftIconColor="white" 
+        onLeftPress={handleBackPress} 
+      />
+      
+      {/* Search Bar */}
+      <View style={themed($searchBarContainer)}>
+        <SearchBar
+          value={searchText}
+          onChangeText={setSearchText}
+          placeholder="Pesquisar"
+          containerStyle={{ backgroundColor: "#1E90FF" }}
+        />
+      </View>
+
       <Screen
         preset="scroll"
         contentContainerStyle={themed($screenContentContainer)}
@@ -184,33 +201,8 @@ const $searchContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   marginBottom: spacing.lg,
 })
 
-const $searchBar: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  flexDirection: "row",
-  alignItems: "center",
-  backgroundColor: "white",
-  borderRadius: 12,
-  paddingHorizontal: spacing.md,
-  paddingVertical: spacing.sm,
-  shadowColor: "#000",
-  shadowOffset: {
-    width: 0,
-    height: 2,
-  },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-  elevation: 3,
-})
-
-const $searchInput: ThemedStyle<TextStyle> = ({ spacing }) => ({
-  flex: 1,
-  fontSize: 16,
-  color: "#333",
-  marginLeft: spacing.sm,
-  marginRight: spacing.sm,
-})
-
-const $filterButton: ThemedStyle<ViewStyle> = () => ({
-  padding: 4,
+const $searchBarContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  backgroundColor: "#1E90FF",
 })
 
 const $specialtiesContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
