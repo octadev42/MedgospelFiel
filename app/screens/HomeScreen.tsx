@@ -24,9 +24,11 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
 
   const serviceItems = [
     { icon: "homegrid_consultas", title: "Consultas", onPress: () => navigation.navigate("EscolherFluxoConsulta") },
-    { icon: "homegrid_exames_imagem", title: "Exames de Imagem", onPress: () => { } },
+    { icon: "homegrid_exames_imagem", title: "Exames de Imagem", onPress: () => { 
+      navigation.navigate("ExamesImagem")
+    } },
     { icon: "homegrid_exames_laboratoriais", title: "Exames Laboratoriais", onPress: () => { } },
-    { icon: "homegrid_procedimentos", title: "Procedimentos", onPress: () => { } },
+    { icon: "homegrid_procedimentos", title: "Procedimentos", onPress: () => { navigation.navigate("Procedimentos") } },
     { icon: "homegrid_cirurgias", title: "Cirurgias", onPress: () => { } },
     { icon: "homegrid_nossos_precos", title: "Nossos Preços", onPress: () => { } },
   ]
@@ -66,7 +68,7 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
                 <View style={themed($profileImage)} />
                 <View style={themed($profileTextContainer)}>
                   <Text style={themed($welcomeText)} text="Seja bem-vinda, Maria!" />
-                  <TouchableOpacity onPress={() => {}}>
+                  <TouchableOpacity onPress={() => { }}>
                     <Text style={themed($profileLink)} text="Acessar meu perfil" />
                   </TouchableOpacity>
                 </View>
@@ -86,8 +88,10 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
               </View>
             </View>
           </View>
+        </View>
 
-          {/* Service Grid */}
+        {/* Service Grid */}
+        <View style={{ padding: 8 }}>
           <View style={themed($serviceGridContainer)}>
             <View style={themed($serviceGrid)}>
               {serviceItems.map((item, index) => (
@@ -186,13 +190,13 @@ const $screenContentContainer: ThemedStyle<ViewStyle> = () => ({
 })
 
 const $mainBlueContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  backgroundColor: "#1E90FF",
+  backgroundColor: "#FEE501",
   marginTop: -50, // Extend into status bar area
   paddingTop: 70, // Add extra padding to account for status bar
   paddingHorizontal: spacing.lg,
-  paddingBottom: spacing.xl,
-  borderBottomLeftRadius: 20,
-  borderBottomRightRadius: 20,
+  paddingBottom: spacing.xxs,
+ /*  borderBottomLeftRadius: 20,
+  borderBottomRightRadius: 20, */
 })
 
 const $headerContainer: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
@@ -223,16 +227,16 @@ const $profileTextContainer: ThemedStyle<ViewStyle> = () => ({
   flex: 1,
 })
 
-const $welcomeText: ThemedStyle<TextStyle> = () => ({
+const $welcomeText: ThemedStyle<TextStyle> = ({ colors }) => ({
   fontSize: 16,
   fontWeight: "700",
-  color: "white",
+  color: colors.text,
   marginBottom: 4,
 })
 
-const $profileLink: ThemedStyle<TextStyle> = () => ({
+const $profileLink: ThemedStyle<TextStyle> = ({colors}) => ({
   fontSize: 14,
-  color: "#87CEEB",
+  color: colors.text,
   textDecorationLine: "underline",
 })
 

@@ -51,11 +51,20 @@ export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(functi
   const { schedulingStore } = useStores()
   const [searchText, setSearchText] = useState("")
 
+  // Debug logging
+  console.log('EspecialistasScreen Debug:', {
+    selectedEspeciality: schedulingStore.selectedEspeciality,
+    selectedEspecialityId: schedulingStore.selectedEspecialityId,
+  })
+
   const handleSpecialistPress = (specialistName: string) => {
     schedulingStore.setEspecialist(specialistName)
     console.log(`Selected specialist: ${specialistName}`)
 
-    navigation.navigate("Establishments")
+    // Navigate to Establishments with CO (Consultas) mode
+    navigation.navigate("Establishments", { 
+      mode: "CO"
+    })
   }
 
   const { loading, error, especialistas } = useEspecialists()

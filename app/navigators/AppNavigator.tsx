@@ -16,6 +16,7 @@ import { EspecialidadeScreen } from "@/screens/EspecialidadeScreen"
 import { EspecialistasScreen } from "@/screens/EspecialistasScreen"
 import { EstablishmentsScreen } from "@/screens/EstablishmentsScreen"
 import { SelecionarPessoaScreen } from "@/screens/SelecionarPessoaScreen"
+import { ExamesImagemScreen } from "@/screens/ExamesImagemScreen"
 import { CarrinhoScreen } from "@/screens/CarrinhoScreen"
 import { useAppTheme } from "@/theme/context"
 import { useStores } from "@/models"
@@ -24,6 +25,8 @@ import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 import { SignupScreen } from "@/screens/Authentication/SignupScreen"
 import { EscolherFluxoConsultaScreen } from "@/screens/Agendamento/EscolherFluxoConsulta"
 import { BottomTabsNavigator } from "./BottomTabsNavigator"
+import { ProcedimentosScreen } from "@/screens/ProcedimentosScreen"
+import { EditarPerfilScreen } from "@/screens/EditarPerfilScreen"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -41,9 +44,15 @@ export type AppStackParamList = {
   EscolherFluxoConsulta: undefined
   Especialidade: undefined
   Especialistas: undefined
-  Establishments: undefined
+  Establishments: {
+    mode: "EI" | "CO"
+    selectedExams?: any[]
+  }
   SelecionarPessoa: undefined
   Carrinho: undefined
+  ExamesImagem: undefined
+  Procedimentos: undefined
+  EditarPerfil: undefined
   // 🔥 Your screens go here
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
@@ -90,6 +99,9 @@ const AppStack = observer(() => {
       <Stack.Screen name="EscolherFluxoConsulta" component={EscolherFluxoConsultaScreen} />
       <Stack.Screen name="SelecionarPessoa" component={SelecionarPessoaScreen} />
       <Stack.Screen name="Carrinho" component={CarrinhoScreen} />
+      <Stack.Screen name="ExamesImagem" component={ExamesImagemScreen} />
+      <Stack.Screen name="Procedimentos" component={ProcedimentosScreen} />
+      <Stack.Screen name="EditarPerfil" component={EditarPerfilScreen} />
       {/** 🔥 Your screens go here */}
       {/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
     </Stack.Navigator>

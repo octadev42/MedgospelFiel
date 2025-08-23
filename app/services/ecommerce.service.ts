@@ -240,9 +240,40 @@ const mockEspecialistasResponse: EspecialistasResponse = {
         }
     ]
 }
+
+export interface Procedimento {
+    id: number
+    nome: string
+    codigo: string
+    status: boolean
+    subgrupos: string
+}
+
+export interface ProcedimentosResponse {
+    count: number
+    next: string | null
+    previous: string | null
+    results: Procedimento[]
+}
+
+export interface ProcedimentoEcommerce {
+    fk_procedimento: number
+    nome: string
+    tipo_procedimento: string
+    grupo: string
+    codigo: string
+    descricao: string
+    sigla: string
+    sinonimia: string
+    subgrupo_codigo: string
+    subgrupo_descricao: string
+    menor_preco: number
+    id?: string // Concatenated fk_procedimento.subgrupo_codigo
+}
+
 export const ecommerceService = {
     /**
-     * Logs in a user and returns a token.
+     * Show stablishments with pricing information
      */
     async tabelaPreco(
         app?: boolean,
@@ -255,9 +286,44 @@ export const ecommerceService = {
     ): Promise<
         { kind: "ok"; data: TabelaPrecoResponse } | (GeneralApiProblem & { error?: any })
     > {
-        // Simulate network delay and return mock data
-        await new Promise(resolve => setTimeout(resolve, 800))
-        return { kind: "ok", data: mockTabelaPrecoResponse }
+        try {
+            const response: ApiResponse<TabelaPrecoResponse> = await api.apisauce.get(
+                "/v1/tabela-precos/ecommerce/",
+                {
+                    app,
+                    fk_procedimento,
+                    tipo_procedimento,
+                    fk_especialista,
+                    fk_estabelecimento,
+                    fk_especialidade,
+                    fk_cidade,
+                }
+            )
+            console.log('params', {
+                app,
+                fk_procedimento,
+                tipo_procedimento,
+                fk_especialista,
+                fk_estabelecimento,
+                fk_especialidade,
+                fk_cidade,
+            })
+
+            if (!response.ok) {
+                const problem = getGeneralApiProblem(response)
+                return problem || { kind: "unknown", temporary: true }
+            }
+
+            const tabelaPreco = response.data
+
+            if (tabelaPreco) {
+                return { kind: "ok", data: tabelaPreco }
+            } else {
+                return { kind: "unknown", temporary: true }
+            }
+        } catch (e) {
+            return { kind: "unknown", temporary: true }
+        }
     },
     async especialistas(
         fk_procedimento?: string,
@@ -268,5 +334,97 @@ export const ecommerceService = {
         { kind: "ok"; data: EspecialistasResponse } | (GeneralApiProblem & { error?: any })
     > {
         return { kind: "ok", data: mockEspecialistasResponse }
+    },
+    /**
+     * List all procedures with pagination and search capabilities.
+     */
+    async procedimentos(
+        codigo?: string,
+        descricao?: string,
+        grupo?: string,
+        nome?: string,
+        ordering?: string,
+        page?: number,
+        search?: string,
+        sigla?: string,
+        sinonimia?: string,
+        situacao?: string,
+        status?: boolean,
+        tipo?: string,
+    ): Promise<
+        { kind: "ok"; data: ProcedimentosResponse } | (GeneralApiProblem & { error?: any })
+    > {
+        try {
+            const response: ApiResponse<ProcedimentosResponse> = await api.apisauce.get(
+                "/v1/procedimentos/",
+                {
+                    codigo,
+                    descricao,
+                    grupo,
+                    nome,
+                    ordering,
+                    page,
+                    search,
+                    sigla,
+                    sinonimia,
+                    situacao,
+                    status,
+                    tipo,
+                }
+            )
+
+            if (!response.ok) {
+                const problem = getGeneralApiProblem(response)
+                return problem || { kind: "unknown", temporary: true }
+            }
+
+            const procedures = response.data
+
+            if (procedures) {
+                return { kind: "ok", data: procedures }
+            } else {
+                return { kind: "unknown", temporary: true }
+            }
+        } catch (e) {
+            return { kind: "unknown", temporary: true }
+        }
+    },
+    /**
+     * List procedures for ecommerce with pricing information.
+     */
+    async procedimentosEcommerce(
+        fk_cidade: number,
+        tipo_procedimento: "EL" | "EI" | "PP",
+        app?: boolean,
+        nome?: string,
+    ): Promise<
+        { kind: "ok"; data: ProcedimentoEcommerce[] } | (GeneralApiProblem & { error?: any })
+    > {
+        try {
+            const response: ApiResponse<ProcedimentoEcommerce[]> = await api.apisauce.get(
+                "/v1/procedimentos/ecommerce/",
+                {
+                    app,
+                    fk_cidade,
+                    nome,
+                    tipo_procedimento,
+                }
+            )
+
+            if (!response.ok) {
+                const problem = getGeneralApiProblem(response)
+                return problem || { kind: "unknown", temporary: true }
+            }
+
+            const procedures = response.data
+
+            if (procedures) {
+                return { kind: "ok", data: procedures }
+            } else {
+                return { kind: "unknown", temporary: true }
+            }
+        } catch (e) {
+            return { kind: "unknown", temporary: true }
+        }
     }
 }

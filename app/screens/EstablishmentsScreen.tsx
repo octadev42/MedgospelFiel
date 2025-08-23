@@ -1,12 +1,11 @@
 import { FC, useState, useCallback } from "react"
-import { TextStyle, View, ViewStyle, TouchableOpacity, TextInput, ScrollView, Image, ImageStyle, RefreshControl } from "react-native"
-import { ChevronRight, Star, MapPin, FileText, Calendar, Clock, MessageCircle } from "lucide-react-native"
+import { TextStyle, View, ViewStyle, TouchableOpacity, ScrollView, Image, ImageStyle, RefreshControl, Modal } from "react-native"
+import { ChevronRight, Star } from "lucide-react-native"
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { observer } from "mobx-react-lite"
-import Animated, { FadeInUp, FadeInDown, FadeIn } from "react-native-reanimated"
+import Animated, { FadeInUp, FadeIn } from "react-native-reanimated"
 
-import { Icon } from "@/components/Icon"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { ScheduleCalendar } from "@/components/ScheduleCalendar"
@@ -20,6 +19,7 @@ import { Header } from "@/components/Header"
 
 type EstablishmentsScreenProps = {
   navigation: NativeStackNavigationProp<AppStackParamList, "Establishments">
+  route: any
 }
 
 interface EstablishmentData {
@@ -54,8 +54,11 @@ const EstablishmentCard: FC<{
   establishmentRawData: any;
   index: number;
   navigation: NativeStackNavigationProp<AppStackParamList>;
-}> = ({ establishment, establishmentRawData, index, navigation }) => {
+  mode: "CO" | "EI";
+}> = ({ establishment, establishmentRawData, index, navigation, mode }) => {
   const { themed } = useAppTheme()
+  const [isModalVisible, setIsModalVisible] = useState(false)
+  const [selectedItem, setSelectedItem] = useState<any>(null)
 
   return (
     <Animated.View
@@ -103,33 +106,121 @@ const EstablishmentCard: FC<{
           <Text style={themed($priceValue)} text={establishment.price} />
         </View>
 
-        <TouchableOpacity style={themed($infoButton)}>
+        <TouchableOpacity 
+          style={themed($infoButton)}
+          onPress={() => {
+            setSelectedItem(establishmentRawData?.itens?.[0])
+            setIsModalVisible(true)
+          }}
+        >
           <Text style={themed($infoButtonText)} text="Observações" />
           <ChevronRight size={16} color="#1E90FF" />
         </TouchableOpacity>
       </View>
 
       {/* Schedule Calendar Component */}
-      <ScheduleCalendar
-        onDateSelect={(date) => console.log('Selected date:', date)}
-        onTimeSelect={(time) => console.log('Selected time:', time)}
-        onTimeSlotPress={(timeSlot) => {
-          console.log('Time slot pressed:', timeSlot)
-          navigation.navigate("SelecionarPessoa")
-        }}
-        horarios={establishmentRawData?.itens?.[0]?.horarios_tabela_preco || []}
-      />
+      {mode === "CO" ? (
+        // CO Mode: Single item with horarios
+        <ScheduleCalendar
+          onDateSelect={(date) => console.log('Selected date:', date)}
+          onTimeSelect={(time) => console.log('Selected time:', time)}
+          onTimeSlotPress={(timeSlot) => {
+            console.log('Time slot pressed:', timeSlot)
+            navigation.navigate("SelecionarPessoa")
+          }}
+          horarios={establishmentRawData?.itens?.[0]?.horarios_tabela_preco || []}
+        />
+      ) : (
+        // EI Mode: Multiple items (profissionais) with their own horarios
+        <View>
+          {establishmentRawData?.itens?.map((item: any, itemIndex: number) => (
+            <View key={itemIndex} style={themed($profissionalSection)}>
+              <View style={themed($profissionalHeader)}>
+                <Text style={themed($profissionalName)} text={item.nome_profissional_saude || `Profissional ${itemIndex + 1}`} />
+                <Text style={themed($profissionalSpecialty)} text={item.nome_especialidade || ''} />
+              </View>
+              <ScheduleCalendar
+                onDateSelect={(date) => console.log('Selected date:', date)}
+                onTimeSelect={(time) => console.log('Selected time:', time)}
+                onTimeSlotPress={(timeSlot) => {
+                  console.log('Time slot pressed:', timeSlot)
+                  navigation.navigate("SelecionarPessoa")
+                }}
+                horarios={item.horarios_tabela_preco || []}
+              />
+            </View>
+          ))}
+        </View>
+      )}
+
+      {/* Observations Modal */}
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <View style={themed($modalOverlay)}>
+          <View style={themed($modalContent)}>
+            <View style={themed($modalHeader)}>
+              <Text style={themed($modalTitle)} text="Observações" />
+              <TouchableOpacity 
+                style={themed($modalCloseButton)}
+                onPress={() => setIsModalVisible(false)}
+              >
+                <Text style={themed($modalCloseText)} text="✕" />
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView style={themed($modalScrollView)} showsVerticalScrollIndicator={false}>
+              {selectedItem?.observacao && (
+                <View style={themed($modalSection)}>
+                  <Text style={themed($modalSectionTitle)} text="Observações" />
+                  <Text style={themed($modalSectionText)} text={selectedItem.observacao} />
+                </View>
+              )}
+              
+              {selectedItem?.informacao && (
+                <View style={themed($modalSection)}>
+                  <Text style={themed($modalSectionTitle)} text="Informações" />
+                  <Text style={themed($modalSectionText)} text={selectedItem.informacao} />
+                </View>
+              )}
+              
+              {!selectedItem?.observacao && !selectedItem?.informacao && (
+                <View style={themed($modalSection)}>
+                  <Text style={themed($modalSectionText)} text="Nenhuma observação disponível." />
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </Animated.View>
   )
 }
 
-export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(function EstablishmentsScreen() {
+export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(function EstablishmentsScreen({ route }) {
   const { themed } = useAppTheme()
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
-  const { schedulingStore } = useStores()
+  const { schedulingStore, examSchedulingStore } = useStores()
   const [searchText, setSearchText] = useState("")
 
-  // Use the tabelaPreco hook with proper parameters
+  // Get mode from navigation params
+  const mode = route?.params?.mode || "CO" // Default to CO (Consultas)
+  const selectedExams = route?.params?.selectedExams || []
+
+  // Debug logging
+  console.log('EstablishmentsScreen Debug:', {
+    mode,
+    selectedEspeciality: schedulingStore.selectedEspeciality,
+    selectedEspecialityId: schedulingStore.selectedEspecialityId,
+    selectedEspecialist: schedulingStore.selectedEspecialist,
+    selectedEstablishment: schedulingStore.selectedEstablishment,
+    storeKeys: Object.keys(schedulingStore),
+  })
+
+  // Use the tabelaPreco hook with proper parameters based on mode
   const {
     loading,
     error,
@@ -137,16 +228,18 @@ export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(func
     refetch
   } = useTabelaPreco({
     app: true,
-    fk_especialista: schedulingStore.selectedEspecialist ? parseInt(schedulingStore.selectedEspecialist) : undefined,
+    fk_especialista: mode === "CO" ? (schedulingStore.selectedEspecialist ? parseInt(schedulingStore.selectedEspecialist) : undefined) : undefined,
     fk_estabelecimento: schedulingStore.selectedEstablishment ? parseInt(schedulingStore.selectedEstablishment) : undefined,
-    fk_especialidade: schedulingStore.selectedEspeciality ? parseInt(schedulingStore.selectedEspeciality) : undefined,
+    fk_especialidade: mode === "CO" ? schedulingStore.selectedEspecialityId : undefined,
+    fk_procedimento: mode === "EI" ? selectedExams.map((exam: any) => exam.id).join(',') : undefined,
+    tipo_procedimento: mode === "EI" ? "EI" : "CO",
   })
 
   // Transform the data to match our UI needs
   const transformEstablishmentData = useCallback((data: any): EstablishmentData => {
     return {
       id: data.fk_pessoa_juridica,
-      name: data.nome_fantasia,
+      name: data.pessoa_juridica,
       address: data.endereco,
       phone: data.telefone,
       photo: data.foto,
@@ -202,7 +295,14 @@ export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(func
 
   return (
     <View style={themed($container)}>
-      <Header title="Locais de Atendimento" backgroundColor="#1E90FF" titleStyle={{ color: "white" }} leftIcon="back" leftIconColor="white" onLeftPress={handleBackPress} />
+      <Header 
+        title={mode === "EI" ? "Locais para Exames de Imagem" : "Locais de Atendimento"} 
+        backgroundColor="#1E90FF" 
+        titleStyle={{ color: "white" }} 
+        leftIcon="back" 
+        leftIconColor="white" 
+        onLeftPress={handleBackPress} 
+      />
       <Screen
         preset="scroll"
         contentContainerStyle={themed($screenContentContainer)}
@@ -250,6 +350,7 @@ export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(func
                   establishmentRawData={rawData}
                   index={index}
                   navigation={navigation}
+                  mode={mode}
                 />
               )
             })
@@ -553,4 +654,99 @@ const $retryButtonText: ThemedStyle<TextStyle> = () => ({
   color: "white",
   fontSize: 14,
   fontWeight: "600",
+})
+
+const $profissionalSection: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  marginTop: spacing.md,
+  paddingTop: spacing.md,
+  borderTopWidth: 1,
+  borderTopColor: "#F0F0F0",
+})
+
+const $profissionalHeader: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  marginBottom: spacing.sm,
+  paddingHorizontal: spacing.md,
+})
+
+const $profissionalName: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  fontWeight: "600",
+  color: "#333",
+  marginBottom: 2,
+})
+
+const $profissionalSpecialty: ThemedStyle<TextStyle> = () => ({
+  fontSize: 14,
+  color: "#666",
+  fontStyle: "italic",
+})
+
+// Modal Styles
+const $modalOverlay: ThemedStyle<ViewStyle> = () => ({
+  flex: 1,
+  backgroundColor: "rgba(0, 0, 0, 0.5)",
+  justifyContent: "center",
+  alignItems: "center",
+})
+
+const $modalContent: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  backgroundColor: "white",
+  borderRadius: 16,
+  margin: spacing.lg,
+  maxHeight: "80%",
+  width: "90%",
+  shadowColor: "#000",
+  shadowOffset: {
+    width: 0,
+    height: 4,
+  },
+  shadowOpacity: 0.25,
+  shadowRadius: 8,
+  elevation: 8,
+})
+
+const $modalHeader: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: spacing.lg,
+  borderBottomWidth: 1,
+  borderBottomColor: "#E0E0E0",
+})
+
+const $modalTitle: ThemedStyle<TextStyle> = () => ({
+  fontSize: 18,
+  fontWeight: "600",
+  color: "#333",
+})
+
+const $modalCloseButton: ThemedStyle<ViewStyle> = () => ({
+  padding: 4,
+})
+
+const $modalCloseText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 20,
+  color: "#666",
+  fontWeight: "600",
+})
+
+const $modalScrollView: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  padding: spacing.lg,
+})
+
+const $modalSection: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  marginBottom: spacing.lg,
+})
+
+const $modalSectionTitle: ThemedStyle<TextStyle> = ({ spacing }) => ({
+  fontSize: 16,
+  fontWeight: "600",
+  color: "#333",
+  marginBottom: spacing.sm,
+})
+
+const $modalSectionText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 14,
+  color: "#666",
+  lineHeight: 20,
 })

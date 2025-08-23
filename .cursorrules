@@ -45,6 +45,8 @@ Best Practices:
 - Important messages should be send in toast
 - Im using mobx-state-tree
 - Use LucideIcons for icons
+- Before integrate the api, always look in the schema for details: the file "api_schema.yaml" in root dir
+- Functions almost always receive a object as params, instead of args
     
 Current Archtecture:
 - The project uses a boilerplate: the docs can be found here: https://docs.infinite.red/

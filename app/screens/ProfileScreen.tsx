@@ -24,8 +24,10 @@ export const ProfileScreen: FC<ProfileScreenProps> = function ProfileScreen() {
     {
       icon: "check",
       title: "Editar Perfil",
-      onPress: () => { }
+      onPress: () => navigation.navigate("EditarPerfil")
     },
+    
+    /* 
     {
       icon: "settings",
       title: "Cartões de Crédito",
@@ -50,7 +52,7 @@ export const ProfileScreen: FC<ProfileScreenProps> = function ProfileScreen() {
       icon: "more",
       title: "Fale Conosco",
       onPress: () => { }
-    },
+    }, */
     {
       icon: "back",
       title: "Sair",

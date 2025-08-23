@@ -144,4 +144,48 @@ export const authService = {
       return { kind: "bad-data", error: "Erro ao buscar indicador" }
     }
   },
+
+  /**
+   * Get user profile data
+   */
+  async getUserProfile(pessoaFisicaId: number): Promise<
+    { kind: "ok"; data: any } | (GeneralApiProblem & { error?: any })
+  > {
+    try {
+      const response: ApiResponse<any> = await api.apisauce.get(`/v1/pessoa-fisica/${pessoaFisicaId}/`)
+      
+      if (!response.ok) {
+        return { kind: "rejected", error: response.data }
+      }
+      
+      return { kind: "ok", data: response.data! }
+    } catch (e) {
+      return { kind: "bad-data", error: "Erro ao buscar perfil do usuário" }
+    }
+  },
+
+  /**
+   * Update user profile
+   */
+  async updateUserProfile(pessoaFisicaId: number, profileData: {
+    nome: string
+    data_nascimento: string
+    cpf: string
+    sexo: string
+    telefone: string
+  }): Promise<
+    { kind: "ok"; data: any } | (GeneralApiProblem & { error?: any })
+  > {
+    try {
+      const response: ApiResponse<any> = await api.apisauce.put(`/v1/pessoa-fisica/${pessoaFisicaId}/`, profileData)
+      
+      if (!response.ok) {
+        return { kind: "rejected", error: response.data }
+      }
+      
+      return { kind: "ok", data: response.data! }
+    } catch (e) {
+      return { kind: "bad-data", error: "Erro ao atualizar perfil" }
+    }
+  },
 }

@@ -5,14 +5,16 @@ export const SchedulingStoreModel = types
   .props({
     selectedEspecialist: types.maybe(types.string),
     selectedEspeciality: types.maybe(types.string),
+    selectedEspecialityId: types.maybe(types.number),
     selectedEstablishment: types.maybe(types.string)
   })
   .views((store) => ({
 
   }))
   .actions((store) => ({
-    setEspeciality(especiality: string) {
+    setEspeciality(especiality: string, especialityId?: number) {
       store.selectedEspeciality = especiality
+      store.selectedEspecialityId = especialityId
     },
     setEspecialist(especialist: string) {
       store.selectedEspecialist = especialist
@@ -23,6 +25,7 @@ export const SchedulingStoreModel = types
     resetScheduling(){
       store.selectedEspecialist = undefined
       store.selectedEspeciality = undefined
+      store.selectedEspecialityId = undefined
       store.selectedEstablishment = undefined
     }
   }))

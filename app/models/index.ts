@@ -1,4 +1,5 @@
 export * from "./RootStore"
+export * from "./ExamSchedulingStore"
 export * from "./helpers/getRootStore"
 export * from "./helpers/setupRootStore"
 export * from "./helpers/useStores"

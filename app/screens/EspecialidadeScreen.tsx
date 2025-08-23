@@ -24,8 +24,34 @@ export const EspecialidadeScreen: FC<EspecialidadeScreenProps> = observer(functi
   const { schedulingStore } = useStores()
   const [searchText, setSearchText] = useState("")
 
+  // Specialty mapping with IDs (these should match your API)
+  const specialtyMapping = {
+    "Oftalmologia": 1,
+    "Cardiologia": 2,
+    "Ortopedia": 3,
+    "Ginecologia": 4,
+    "Endocrinologia": 5,
+    "Gastroenterologia": 6,
+    "Neurologia Clínica": 7,
+    "Dermatologia": 8,
+    "Angiologia": 9,
+    "Urologia": 10,
+    "Otorrinolaringologia": 11,
+    "Clínico Geral": 12,
+  }
+
   const handleSpecialtyPress = (specialtyTitle: string) => {
-    schedulingStore.setEspeciality(specialtyTitle)
+    const specialtyId = specialtyMapping[specialtyTitle as keyof typeof specialtyMapping]
+    console.log('EspecialidadeScreen Debug:', {
+      specialtyTitle,
+      specialtyId,
+      mapping: specialtyMapping
+    })
+    schedulingStore.setEspeciality(specialtyTitle, specialtyId)
+    console.log('After setEspeciality:', {
+      selectedEspeciality: schedulingStore.selectedEspeciality,
+      selectedEspecialityId: schedulingStore.selectedEspecialityId
+    })
     navigation.navigate("Especialistas")
   }
 
