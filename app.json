@@ -36,15 +36,7 @@
   "plugins": [
     "expo-localization",
     "expo-font",
-    [
-      "expo-splash-screen",
-      {
-        "image": "./assets/images/app-icon-android-adaptive-foreground.png",
-        "imageWidth": 300,
-        "resizeMode": "contain",
-        "backgroundColor": "#191015"
-      }
-    ],
+
     [
       "react-native-edge-to-edge",
       {
