@@ -57,9 +57,9 @@ export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(functi
     selectedEspecialityId: schedulingStore.selectedEspecialityId,
   })
 
-  const handleSpecialistPress = (specialistName: string) => {
-    schedulingStore.setEspecialist(specialistName)
-    console.log(`Selected specialist: ${specialistName}`)
+  const handleSpecialistPress = (specialistId: string) => {
+    schedulingStore.setEspecialist(specialistId)
+    console.log(`Selected specialist: ${specialistId}`)
 
     // Navigate to Establishments with CO (Consultas) mode
     navigation.navigate("Establishments", { 
@@ -72,7 +72,7 @@ export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(functi
   // Filter specialists based on search text
   const filteredSpecialists = especialistas.filter(specialist =>
     specialist.nome.toLowerCase().includes(searchText.toLowerCase()) ||
-    specialist.perfil.toLowerCase().includes(searchText.toLowerCase())
+    specialist.especialidades.some(especialidade => especialidade.toLowerCase().includes(searchText.toLowerCase()))
   )
 
   const handleBackPress = () => {
@@ -111,12 +111,12 @@ export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(functi
             <TouchableOpacity
               key={specialist.id}
               style={themed($specialistCard)}
-              onPress={() => handleSpecialistPress(specialist.nome)}
+              onPress={() => handleSpecialistPress(specialist.id.toString())}
             >
               <SpecialistImage />
               <View style={themed($specialistInfo)}>
                 <Text style={themed($specialistName)} text={specialist.nome} />
-                <Text style={themed($specialistDetails)} text={`${specialist.perfil} | ${specialist.observacao}`} />
+                <Text style={themed($specialistDetails)} text={`${specialist.especialidades.join(", ")}`} />
               </View>
               <TouchableOpacity style={themed($optionsButton)}>
                 <CheckCircle size={20} color="#666" />

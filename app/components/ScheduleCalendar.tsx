@@ -1,9 +1,9 @@
-import { FC, useState, useRef } from "react"
-import { TextStyle, View, ViewStyle, TouchableOpacity, Dimensions } from "react-native"
+import { FC, useState, useRef, useMemo } from "react"
+import { TextStyle, View, ViewStyle, TouchableOpacity, Dimensions, Alert } from "react-native"
 import { Calendar, Clock } from "lucide-react-native"
 import { observer } from "mobx-react-lite"
 import Carousel from "react-native-reanimated-carousel"
-import { format, isToday, parseISO } from "date-fns"
+import { format, isToday, parseISO, addDays, startOfWeek, getDay } from "date-fns"
 import { ptBR } from "date-fns/locale"
 
 import { Text } from "@/components/Text"
@@ -11,16 +11,19 @@ import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 
 interface ScheduleCalendarProps {
-  onDateSelect?: (date: string) => void
   onTimeSelect?: (time: string) => void
   onTimeSlotPress?: (timeSlot: TimeSlot) => void
+  tipo_agenda: 'AGENDA_CLINICA' | 'AGENDA_PROFISSIONAL' | 'LIVRE_LIMITADA' | 'AGENDA_LIVRE'
   horarios?: Array<{
-    id: number
-    data: string
+    id?: number
+    data?: string
     hora_inicial: string
     hora_final: string
-    vagas_total: number
-    vagas_disponiveis: number
+    vagas_disponiveis?: number
+    vagas?: number
+    dias_semana?: number[]
+    fk_tabela_preco_item_horario?: number
+    horario_completo?: boolean
   }>
 }
 
@@ -36,32 +39,142 @@ interface TimeSlot {
   id: string
   time: string
   available: boolean
+  vagas_disponiveis?: number
+  originalData?: any
 }
 
 const { width: screenWidth } = Dimensions.get('window')
 
+// Helper function to convert dias_semana to day names
+const getDayName = (dayNumber: number): string => {
+  const days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
+  return days[dayNumber] || 'Desconhecido'
+}
+
 export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function ScheduleCalendar({
-  onDateSelect,
   onTimeSelect,
   onTimeSlotPress,
+  tipo_agenda,
   horarios = [],
 }) {
   const { themed } = useAppTheme()
-  const [selectedDate, setSelectedDate] = useState<string>("")
   const [selectedTime, setSelectedTime] = useState<string>("")
   const [currentIndex, setCurrentIndex] = useState(0)
 
   const carouselRef = useRef<any>(null)
 
-  // Transform horarios data into day schedules
-  const transformHorariosToDaySchedules = (): DaySchedule[] => {
-    if (!horarios || horarios.length === 0) {
-      return []
+  // Helper functions for data transformation
+  const transformClinicSchedule = (): DaySchedule[] => {
+    // Generate next 14 days starting from today
+    const days: DaySchedule[] = []
+    const today = new Date()
+    
+    for (let i = 0; i < 14; i++) {
+      const currentDate = addDays(today, i)
+      const dayOfWeek = getDay(currentDate) // 0 = Sunday, 1 = Monday, etc.
+      
+      // Find horarios that match this day of the week
+      const matchingHorarios = horarios.filter(horario => 
+        horario.dias_semana?.includes(dayOfWeek)
+      )
+
+      if (matchingHorarios.length > 0) {
+        const timeSlots: TimeSlot[] = matchingHorarios.map(horario => ({
+          id: `${horario.fk_tabela_preco_item_horario || Math.random()}_${dayOfWeek}_${horario.hora_inicial}`,
+          time: `${horario.hora_inicial.slice(0, 5)} - ${horario.hora_final.slice(0, 5)}`,
+          available: true,
+          vagas_disponiveis: undefined, // No vagas limit for AGENDA_CLINICA
+          originalData: horario,
+        }))
+
+        days.push({
+          id: format(currentDate, 'yyyy-MM-dd'),
+          day: format(currentDate, 'EEE', { locale: ptBR }),
+          date: format(currentDate, 'dd/MM', { locale: ptBR }),
+          isToday: isToday(currentDate),
+          timeSlots,
+        })
+      }
+    }
+    return days
+  }
+
+  const transformLivreLimitadaSchedule = (): DaySchedule[] => {
+    // Generate next 14 days starting from today (similar to AGENDA_CLINICA but with vagas check)
+    const days: DaySchedule[] = []
+    const today = new Date()
+    
+    for (let i = 0; i < 14; i++) {
+      const currentDate = addDays(today, i)
+      const dayOfWeek = getDay(currentDate) // 0 = Sunday, 1 = Monday, etc.
+      
+      // Find horarios that match this day of the week
+      const matchingHorarios = horarios.filter(horario => 
+        horario.dias_semana?.includes(dayOfWeek)
+      )
+
+      if (matchingHorarios.length > 0) {
+        const timeSlots: TimeSlot[] = matchingHorarios.map(horario => ({
+          id: `${horario.fk_tabela_preco_item_horario || Math.random()}_${dayOfWeek}_${horario.hora_inicial}`,
+          time: `${horario.hora_inicial.slice(0, 5)} - ${horario.hora_final.slice(0, 5)}`,
+          available: !horario.horario_completo && (horario.vagas || 0) > 0, // For LIVRE_LIMITADA, check both schedule and vagas
+          vagas_disponiveis: horario.vagas || 0, // Show vagas for LIVRE_LIMITADA (uses 'vagas' field)
+          originalData: horario,
+        }))
+
+        days.push({
+          id: format(currentDate, 'yyyy-MM-dd'),
+          day: format(currentDate, 'EEE', { locale: ptBR }),
+          date: format(currentDate, 'dd/MM', { locale: ptBR }),
+          isToday: isToday(currentDate),
+          timeSlots,
+        })
+      }
     }
 
-    // Group horarios by date
+    return days
+  }
+
+  const transformAgendaLivreSchedule = (): DaySchedule[] => {
+    // Generate next 14 days starting from today (similar to AGENDA_CLINICA but with different availability logic)
+    const days: DaySchedule[] = []
+    const today = new Date()
+    
+    for (let i = 0; i < 14; i++) {
+      const currentDate = addDays(today, i)
+      const dayOfWeek = getDay(currentDate) // 0 = Sunday, 1 = Monday, etc.
+      
+      // Find horarios that match this day of the week
+      const matchingHorarios = horarios.filter(horario => 
+        horario.dias_semana?.includes(dayOfWeek)
+      )
+
+      if (matchingHorarios.length > 0) {
+        const timeSlots: TimeSlot[] = matchingHorarios.map(horario => ({
+          id: `${horario.fk_tabela_preco_item_horario || Math.random()}_${dayOfWeek}_${horario.hora_inicial}`,
+          time: `${horario.hora_inicial.slice(0, 5)} - ${horario.hora_final.slice(0, 5)}`,
+          available: true,
+          vagas_disponiveis: undefined, // No vagas display for AGENDA_LIVRE
+          originalData: horario,
+        }))
+
+        days.push({
+          id: format(currentDate, 'yyyy-MM-dd'),
+          day: format(currentDate, 'EEE', { locale: ptBR }),
+          date: format(currentDate, 'dd/MM', { locale: ptBR }),
+          isToday: isToday(currentDate),
+          timeSlots,
+        })
+      }
+    }
+    return days
+  }
+
+  const transformProfessionalSchedule = (): DaySchedule[] => {
+    // Group horarios by date (existing logic)
     const horariosByDate = horarios.reduce((acc, horario) => {
       const date = horario.data
+      if (!date) return acc
       if (!acc[date]) {
         acc[date] = []
       }
@@ -74,11 +187,11 @@ export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function Sch
       const dateObj = parseISO(date)
       
       const timeSlots: TimeSlot[] = horarios.map(horario => ({
-        id: `${horario.id}`,
+        id: `${horario.id || Math.random()}`,
         time: `${horario.hora_inicial.slice(0, 5)} - ${horario.hora_final.slice(0, 5)}`,
-        available: horario.vagas_disponiveis > 0,
-        vagas_disponiveis: horario.vagas_disponiveis,
-        vagas_total: horario.vagas_total,
+        available: (horario.vagas_disponiveis || 0) > 0,
+        vagas_disponiveis: horario.vagas_disponiveis || 0,
+        originalData: horario,
       }))
 
       return {
@@ -94,7 +207,28 @@ export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function Sch
     return daySchedules.sort((a, b) => parseISO(a.id).getTime() - parseISO(b.id).getTime())
   }
 
-  const daySchedules = transformHorariosToDaySchedules()
+  // Transform horarios data into day schedules based on tipo_agenda
+  const transformHorariosToDaySchedules = useMemo((): DaySchedule[] => {
+    if (!horarios || horarios.length === 0) {
+      return []
+    }
+
+    if (tipo_agenda === 'AGENDA_CLINICA') {
+      // Handle AGENDA_CLINICA format with dias_semana (unlimited slots)
+      return transformClinicSchedule()
+    } else if (tipo_agenda === 'LIVRE_LIMITADA') {
+      // Handle LIVRE_LIMITADA format with dias_semana (limited slots with vagas check)
+      return transformLivreLimitadaSchedule()
+    } else if (tipo_agenda === 'AGENDA_LIVRE') {
+      // Handle AGENDA_LIVRE format with dias_semana (no vagas limit, only horario_completo check)
+      return transformAgendaLivreSchedule()
+    } else {
+      // Handle AGENDA_PROFISSIONAL format with specific dates (limited slots)
+      return transformProfessionalSchedule()
+    }
+  }, [horarios, tipo_agenda])
+
+  const daySchedules = transformHorariosToDaySchedules
 
   // Group daySchedules into chunks of 2
   const groupedSchedules = daySchedules.reduce((result: DaySchedule[][], current, index) => {
@@ -106,14 +240,6 @@ export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function Sch
     return result
   }, [])
 
-  const handleDateSelect = (dateId: string) => {
-    setSelectedDate(dateId)
-    const day = daySchedules.find(d => d.id === dateId)
-    if (day) {
-      onDateSelect?.(day.date)
-    }
-  }
-
   const handleTimeSelect = (timeId: string) => {
     setSelectedTime(timeId)
     const time = daySchedules
@@ -123,22 +249,26 @@ export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function Sch
       onTimeSelect?.(time.time)
       // Call the navigation callback when a time slot is pressed
       onTimeSlotPress?.(time)
+      
+      // Show alert with fk_tabela_preco_item_horario
+      const fk_tabela_preco_item_horario = time.originalData?.fk_tabela_preco_item_horario
+      if (fk_tabela_preco_item_horario) {
+        Alert.alert(
+          "Horário Selecionado",
+          `fk_tabela_preco_item_horario: ${fk_tabela_preco_item_horario}`,
+          [{ text: "OK" }]
+        )
+      }
     }
   }
 
   const renderSingleDayColumn = (item: DaySchedule) => {
     return (
       <View style={themed($dateColumn)}>
-        <TouchableOpacity
-          style={[
-            themed($dateHeader),
-            selectedDate === item.id && themed($dateHeaderSelected)
-          ]}
-          onPress={() => handleDateSelect(item.id)}
-        >
+        <View style={themed($dateHeader)}>
           <Text style={themed($dateDayText)} text={item.day} />
           <Text style={themed($dateNumberText)} text={item.date} />
-        </TouchableOpacity>
+        </View>
 
         <View style={themed($timeSlotsColumn)}>
           {item.timeSlots.map((timeSlot) => (
@@ -146,15 +276,20 @@ export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function Sch
               key={timeSlot.id}
               style={[
                 themed($timeSlotButton),
-                selectedTime === timeSlot.id && themed($timeSlotButtonSelected)
+                selectedTime === timeSlot.id && themed($timeSlotButtonSelected),
+                !timeSlot.available && themed($timeSlotButtonDisabled)
               ]}
               onPress={() => handleTimeSelect(timeSlot.id)}
               disabled={!timeSlot.available}
             >
               <Text style={[
                 themed($timeSlotText),
-                selectedTime === timeSlot.id && themed($timeSlotTextSelected)
+                selectedTime === timeSlot.id && themed($timeSlotTextSelected),
+                !timeSlot.available && themed($timeSlotTextDisabled)
               ]} text={timeSlot.time} />
+              {timeSlot.vagas_disponiveis !== undefined && timeSlot.vagas_disponiveis > 0 && (
+                <Text style={themed($vagasText)} text={`${timeSlot.vagas_disponiveis} vaga${timeSlot.vagas_disponiveis > 1 ? 's' : ''}`} />
+              )}
             </TouchableOpacity>
           ))}
         </View>
@@ -282,12 +417,6 @@ const $dateHeader: ThemedStyle<ViewStyle> = () => ({
   backgroundColor: "#F8F9FA",
 })
 
-const $dateHeaderSelected: ThemedStyle<ViewStyle> = () => ({
-  backgroundColor: "#E0F2F1",
-  borderWidth: 2,
-  borderColor: "#1E90FF",
-})
-
 const $dateDayText: ThemedStyle<TextStyle> = () => ({
   fontSize: 14,
   fontWeight: "600",
@@ -354,6 +483,23 @@ const $paginationDot: ThemedStyle<ViewStyle> = () => ({
 const $paginationDotActive: ThemedStyle<ViewStyle> = () => ({
   backgroundColor: "#1E90FF",
   width: 24,
+})
+
+const $timeSlotButtonDisabled: ThemedStyle<ViewStyle> = () => ({
+  backgroundColor: "#F5F5F5",
+  borderColor: "#E0E0E0",
+  opacity: 0.6,
+})
+
+const $timeSlotTextDisabled: ThemedStyle<TextStyle> = () => ({
+  color: "#999999",
+})
+
+const $vagasText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 10,
+  fontWeight: "500",
+  color: "#666666",
+  marginTop: 2,
 })
 
 

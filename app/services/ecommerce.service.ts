@@ -95,151 +95,17 @@ const mockTabelaPrecoResponse: TabelaPrecoResponse = [
 
 export interface Especialista {
     id: number
-    usuario_criacao: string
-    usuario_edicao: string
-    usuario_delecao: string | null
-    data_criacao: string
-    data_edicao: string
-    data_delecao: string | null
-    nome: string
-    email: string
-    foto: string
     situacao: string
+    especialidades: string[]
+    foto: string
     tipo_conselho: string
     numero_conselho: string
-    perfil: string
-    observacao: string
-    codigo_externo: number
     uf_conselho: string
-    fk_pessoa_juridica: number
-    fk_pessoa_fisica: number
-    fk_especialidades: number[]
+    nome: string
 }
 
-export interface EspecialistasResponse {
-    count: number
-    next: string
-    previous: string | null
-    results: Especialista[]
-}
+export type EspecialistasResponse = Especialista[]
 
-const mockEspecialistasResponse: EspecialistasResponse = {
-    "count": 15,
-    "next": "http://api.example.org/accounts/?page=2",
-    "previous": null,
-    "results": [
-        {
-            "id": 1,
-            "usuario_criacao": "admin",
-            "usuario_edicao": "admin",
-            "usuario_delecao": null,
-            "data_criacao": "2023-01-15T10:30:00Z",
-            "data_edicao": "2024-01-10T14:20:00Z",
-            "data_delecao": null,
-            "nome": "Dr. Carlos Eduardo Silva",
-            "email": "carlos.silva@medgospel.com",
-            "foto": "https://avatar.iran.liara.run/public",
-            "situacao": "ATIVO",
-            "tipo_conselho": "CRM",
-            "numero_conselho": "12345",
-            "perfil": "Cardiologista",
-            "observacao": "Atende segundas, quartas e sextas das 8h às 17h",
-            "codigo_externo": 1001,
-            "uf_conselho": "SP",
-            "fk_pessoa_juridica": 1,
-            "fk_pessoa_fisica": 1,
-            "fk_especialidades": [1, 5]
-        },
-        {
-            "id": 2,
-            "usuario_criacao": "admin",
-            "usuario_edicao": "admin",
-            "usuario_delecao": null,
-            "data_criacao": "2023-02-20T09:15:00Z",
-            "data_edicao": "2024-01-12T16:45:00Z",
-            "data_delecao": null,
-            "nome": "Dra. Ana Paula Costa",
-            "email": "ana.costa@medgospel.com",
-            "foto": "https://avatar.iran.liara.run/public",
-            "situacao": "ATIVO",
-            "tipo_conselho": "CRM",
-            "numero_conselho": "23456",
-            "perfil": "Dermatologista",
-            "observacao": "Atende terças e quintas das 9h às 18h",
-            "codigo_externo": 1002,
-            "uf_conselho": "SP",
-            "fk_pessoa_juridica": 1,
-            "fk_pessoa_fisica": 2,
-            "fk_especialidades": [2]
-        },
-        {
-            "id": 3,
-            "usuario_criacao": "admin",
-            "usuario_edicao": "admin",
-            "usuario_delecao": null,
-            "data_criacao": "2023-03-10T11:00:00Z",
-            "data_edicao": "2024-01-08T13:30:00Z",
-            "data_delecao": null,
-            "nome": "Dr. Roberto Mendes",
-            "email": "roberto.mendes@medgospel.com",
-            "foto": "https://avatar.iran.liara.run/public",
-            "situacao": "ATIVO",
-            "tipo_conselho": "CRM",
-            "numero_conselho": "34567",
-            "perfil": "Ortopedista",
-            "observacao": "Atende segundas, quartas e sextas das 7h às 16h",
-            "codigo_externo": 1003,
-            "uf_conselho": "SP",
-            "fk_pessoa_juridica": 1,
-            "fk_pessoa_fisica": 3,
-            "fk_especialidades": [3]
-        },
-        {
-            "id": 4,
-            "usuario_criacao": "admin",
-            "usuario_edicao": "admin",
-            "usuario_delecao": null,
-            "data_criacao": "2023-04-05T14:20:00Z",
-            "data_edicao": "2024-01-15T10:15:00Z",
-            "data_delecao": null,
-            "nome": "Dra. Mariana Santos",
-            "email": "mariana.santos@medgospel.com",
-            "foto": "https://avatar.iran.liara.run/public",
-            "situacao": "ATIVO",
-            "tipo_conselho": "CRM",
-            "numero_conselho": "45678",
-            "perfil": "Ginecologista e obstetra",
-            "observacao": "Atende terças, quintas e sábados das 8h às 17h",
-            "codigo_externo": 1004,
-            "uf_conselho": "SP",
-            "fk_pessoa_juridica": 1,
-            "fk_pessoa_fisica": 4,
-            "fk_especialidades": [4]
-        },
-        {
-            "id": 5,
-            "usuario_criacao": "admin",
-            "usuario_edicao": "admin",
-            "usuario_delecao": null,
-            "data_criacao": "2023-05-12T16:30:00Z",
-            "data_edicao": "2024-01-11T11:45:00Z",
-            "data_delecao": null,
-            "nome": "Dr. Fernando Oliveira",
-            "email": "fernando.oliveira@medgospel.com",
-            "foto": "https://avatar.iran.liara.run/public",
-            "situacao": "ATIVO",
-            "tipo_conselho": "CRM",
-            "numero_conselho": "56789",
-            "perfil": "Neurologista",
-            "observacao": "Atende segundas, quartas e sextas das 9h às 18h",
-            "codigo_externo": 1005,
-            "uf_conselho": "SP",
-            "fk_pessoa_juridica": 1,
-            "fk_pessoa_fisica": 5,
-            "fk_especialidades": [6]
-        }
-    ]
-}
 
 export interface Procedimento {
     id: number
@@ -330,10 +196,41 @@ export const ecommerceService = {
         fk_especialidade?: string,
         fk_cidade?: number,
         fk_estabelecimento?: number,
+        ordering?: string,
+        page?: number,
+        search?: string,
     ): Promise<
         { kind: "ok"; data: EspecialistasResponse } | (GeneralApiProblem & { error?: any })
     > {
-        return { kind: "ok", data: mockEspecialistasResponse }
+        try {
+            const response: ApiResponse<EspecialistasResponse> = await api.apisauce.get(
+                "/v1/profissionais-saude/",
+                {
+                    fk_procedimento,
+                    fk_especialidade,
+                    fk_cidade,
+                    fk_estabelecimento,
+                    ordering,
+                    page,
+                    search,
+                }
+            )
+
+            if (!response.ok) {
+                const problem = getGeneralApiProblem(response)
+                return problem || { kind: "unknown", temporary: true }
+            }
+
+            const especialistas = response.data
+
+            if (especialistas) {
+                return { kind: "ok", data: especialistas }
+            } else {
+                return { kind: "unknown", temporary: true }
+            }
+        } catch (e) {
+            return { kind: "unknown", temporary: true }
+        }
     },
     /**
      * List all procedures with pagination and search capabilities.

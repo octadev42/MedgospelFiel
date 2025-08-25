@@ -23,7 +23,7 @@ export const useEspecialists = (): UseEspecialistsReturn => {
             setLoading(true)
             const result = await ecommerceService.especialistas()
             if (result.kind === "ok") {
-                setEspecialistas(result.data.results)
+                setEspecialistas(result.data)
             } else {
                 setError(result.error)
             }

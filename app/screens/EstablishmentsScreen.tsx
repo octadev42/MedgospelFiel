@@ -122,7 +122,7 @@ const EstablishmentCard: FC<{
       {mode === "CO" ? (
         // CO Mode: Single item with horarios
         <ScheduleCalendar
-          onDateSelect={(date) => console.log('Selected date:', date)}
+          tipo_agenda="AGENDA_CLINICA"
           onTimeSelect={(time) => console.log('Selected time:', time)}
           onTimeSlotPress={(timeSlot) => {
             console.log('Time slot pressed:', timeSlot)
@@ -133,23 +133,25 @@ const EstablishmentCard: FC<{
       ) : (
         // EI Mode: Multiple items (profissionais) with their own horarios
         <View>
-          {establishmentRawData?.itens?.map((item: any, itemIndex: number) => (
+          {establishmentRawData?.itens?.map((item: any, itemIndex: number) => {
+            console.log('item', item)
+            return (
             <View key={itemIndex} style={themed($profissionalSection)}>
               <View style={themed($profissionalHeader)}>
-                <Text style={themed($profissionalName)} text={item.nome_profissional_saude || `Profissional ${itemIndex + 1}`} />
+                <Text style={themed($profissionalName)} text={item.nome || `Profissional ${itemIndex + 1}`} />
                 <Text style={themed($profissionalSpecialty)} text={item.nome_especialidade || ''} />
               </View>
               <ScheduleCalendar
-                onDateSelect={(date) => console.log('Selected date:', date)}
                 onTimeSelect={(time) => console.log('Selected time:', time)}
                 onTimeSlotPress={(timeSlot) => {
                   console.log('Time slot pressed:', timeSlot)
                   navigation.navigate("SelecionarPessoa")
                 }}
-                horarios={item.horarios_tabela_preco || []}
+                tipo_agenda={item.tipo_agenda}
+                horarios={item.horarios_realizacao || []}
               />
             </View>
-          ))}
+          )})}
         </View>
       )}
 
