@@ -121,12 +121,7 @@ export interface PedidoItemDetail {
     fk_tabela_preco_item_horario: number
 }
 
-export interface PaginatedPedidoItemDetailList {
-    count: number
-    next: string | null
-    previous: string | null
-    results: PedidoItemDetail[]
-}
+export type PaginatedPedidoItemDetailList = PedidoItemDetail[]
 
 export const ecommerceService = {
     /**
@@ -144,6 +139,41 @@ export const ecommerceService = {
             const response: ApiResponse<PaginatedPedidoItemDetailList> = await api.apisauce.post(
                 "/v1/carrinho/adicionar-itens/",
                 params,
+                { headers }
+            )
+
+            if (!response.ok) {
+                const problem = getGeneralApiProblem(response)
+                return problem || { kind: "unknown", temporary: true }
+            }
+
+            const carrinhoData = response.data
+
+            if (carrinhoData) {
+                return { kind: "ok", data: carrinhoData }
+            } else {
+                return { kind: "unknown", temporary: true }
+            }
+        } catch (e) {
+            return { kind: "unknown", temporary: true }
+        }
+    },
+
+    /**
+     * Get cart items for the logged-in user
+     */
+    async getCarrinho(authToken?: string): Promise<
+        { kind: "ok"; data: PaginatedPedidoItemDetailList } | (GeneralApiProblem & { error?: any })
+    > {
+        try {
+            const headers: any = {}
+            if (authToken) {
+                headers.Authorization = `Bearer ${authToken}`
+            }
+            
+            const response: ApiResponse<PaginatedPedidoItemDetailList> = await api.apisauce.get(
+                "/v1/carrinho/itens/",
+                {},
                 { headers }
             )
 

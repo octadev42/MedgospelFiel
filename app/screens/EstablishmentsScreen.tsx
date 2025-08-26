@@ -126,7 +126,6 @@ const EstablishmentCard: FC<{
           onTimeSelect={(time) => console.log('Selected time:', time)}
           onTimeSlotPress={(timeSlot) => {
             console.log('Time slot pressed:', timeSlot)
-            navigation.navigate("SelecionarPessoa")
           }}
           horarios={establishmentRawData?.itens?.[0]?.horarios_realizacao || []}
           tabelaPrecoItemId={establishmentRawData?.itens?.[0]?.fk_tabela_preco_item}
@@ -148,7 +147,6 @@ const EstablishmentCard: FC<{
                 onTimeSelect={(time) => console.log('Selected time:', time)}
                 onTimeSlotPress={(timeSlot) => {
                   console.log('Time slot pressed:', timeSlot)
-                  navigation.navigate("SelecionarPessoa")
                 }}
                 tipo_agenda={item.tipo_agenda}
                 horarios={item.horarios_realizacao || []}

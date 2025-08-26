@@ -13,6 +13,7 @@ import type { ThemedStyle } from "@/theme/types"
 import type { AppStackParamList } from "@/navigators/AppNavigator"
 import { useStores } from "@/models"
 import { Header } from "@/components/Header"
+import { useCarrinho } from "@/hooks/useCarrinho"
 
 type CarrinhoScreenProps = {
   navigation: NativeStackNavigationProp<AppStackParamList, "MainTabs">
@@ -32,69 +33,51 @@ interface CartItem {
 export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function CarrinhoScreen() {
   const { themed } = useAppTheme()
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: "1",
-      name: "Dr. Jenny Wilson",
-      type: "Neurologista",
-      price: 120.00,
-      quantity: 1,
-      selected: false,
-      image: "https://via.placeholder.com/60x60"
-    },
-    {
-      id: "2",
-      name: "Exame de Imagem",
-      type: "Exame",
-      price: 36.00,
-      quantity: 1,
-      selected: false,
-      icon: "clipboard"
-    },
-    {
-      id: "3",
-      name: "Exame de Lab.",
-      type: "Exame",
-      price: 36.00,
-      quantity: 1,
-      selected: true,
-      icon: "microscope"
-    }
-  ])
-
+  const { cartItems, isLoading, error, getCarrinho } = useCarrinho()
+  
   const [selectAll, setSelectAll] = useState(false)
   const [useWalletCredits, setUseWalletCredits] = useState(false)
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
+
+  // Load cart items on component mount
+  useEffect(() => {
+    getCarrinho()
+  }, [getCarrinho])
 
 
 
   const toggleSelectAll = () => {
     const newSelectAll = !selectAll
     setSelectAll(newSelectAll)
-    setCartItems(items => items.map(item => ({ ...item, selected: newSelectAll })))
+    if (newSelectAll) {
+      setSelectedItems(new Set(cartItems.map(item => item.id.toString())))
+    } else {
+      setSelectedItems(new Set())
+    }
   }
-
+  
   const toggleItemSelection = (itemId: string) => {
-    setCartItems(items => items.map(item =>
-      item.id === itemId ? { ...item, selected: !item.selected } : item
-    ))
+    const newSelectedItems = new Set(selectedItems)
+    if (newSelectedItems.has(itemId)) {
+      newSelectedItems.delete(itemId)
+    } else {
+      newSelectedItems.add(itemId)
+    }
+    setSelectedItems(newSelectedItems)
   }
 
   const updateItemQuantity = (itemId: string, increment: boolean) => {
-    setCartItems(items => items.map(item => {
-      if (item.id === itemId) {
-        const newQuantity = increment ? item.quantity + 1 : Math.max(1, item.quantity - 1)
-        return { ...item, quantity: newQuantity }
-      }
-      return item
-    }))
+    // This would need to be implemented with API call to update quantity
+    console.log(`Update quantity for item ${itemId}, increment: ${increment}`)
   }
 
   const removeItem = (itemId: string) => {
-    setCartItems(items => items.filter(item => item.id !== itemId))
+    // This would need to be implemented with API call to remove item
+    console.log(`Remove item ${itemId}`)
   }
 
-  const selectedItems = cartItems.filter(item => item.selected)
-  const totalPrice = selectedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  const selectedCartItems = cartItems.filter(item => selectedItems.has(item.id.toString()))
+  const totalPrice = selectedCartItems.reduce((sum, item) => sum + (parseFloat(item.valor_total || '0')), 0)
 
   const handleBackPress = () => {
     navigation.goBack()
@@ -105,58 +88,56 @@ export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function Carrinh
     console.log("Going to payment with total:", totalPrice)
   }
 
-  const renderCartItem = (item: CartItem) => (
-    <View key={item.id} style={themed($cartItemContainer)}>
-      <TouchableOpacity
-        style={themed($checkboxContainer)}
-        onPress={() => toggleItemSelection(item.id)}
-      >
-        <View style={[
-          themed($checkbox),
-          item.selected && themed($checkboxSelected)
-        ]}>
-          {item.selected && <Icon icon="check" size={12} color="white" />}
-        </View>
-      </TouchableOpacity>
+  const renderCartItem = (item: any) => {
+    const isSelected = selectedItems.has(item.id.toString())
+    
+    return (
+      <View key={item.id} style={themed($cartItemContainer)}>
+        <TouchableOpacity
+          style={themed($checkboxContainer)}
+          onPress={() => toggleItemSelection(item.id.toString())}
+        >
+          <View style={[
+            themed($checkbox),
+            isSelected && themed($checkboxSelected)
+          ]}>
+            {isSelected && <Icon icon="check" size={12} color="white" />}
+          </View>
+        </TouchableOpacity>
 
-      <View style={themed($itemImageContainer)}>
-        {item.image ? (
-          <Image source={{ uri: item.image }} style={themed($itemImage)} />
-        ) : (
+        <View style={themed($itemImageContainer)}>
           <View style={themed($itemIconContainer)}>
             <Icon icon="view" size={24} color="#666" />
           </View>
-        )}
-      </View>
+        </View>
 
-      <View style={themed($itemInfoContainer)}>
-        <Text style={themed($itemName)} text={item.name} />
-        <Text style={themed($itemType)} text={item.type} />
-        <Text style={themed($itemPrice)} text={`R$ ${item.price.toFixed(2).replace('.', ',')}`} />
-      </View>
+        <View style={themed($itemInfoContainer)}>
+          <Text style={themed($itemName)} text={typeof item.fk_procedimento === 'object' ? item.fk_procedimento?.nome || "Item" : item.fk_procedimento || "Item"} />
+          <Text style={themed($itemType)} text="Procedimento" />
+          <Text style={themed($itemPrice)} text={`R$ ${parseFloat(item.valor_total || '0').toFixed(2).replace('.', ',')}`} />
+        </View>
 
-      <View style={themed($itemActionsContainer)}>
-        <TouchableOpacity
-          style={themed($removeButton)}
-          onPress={() => removeItem(item.id)}
-        >
-          <Trash2 size={16} color="#FF6B6B" />
-        </TouchableOpacity>
+        <View style={themed($itemActionsContainer)}>
+          <TouchableOpacity
+            style={themed($removeButton)}
+            onPress={() => removeItem(item.id.toString())}
+          >
+            <Trash2 size={16} color="#FF6B6B" />
+          </TouchableOpacity>
 
-        {item.type === "Exame" && (
           <View style={themed($quantityContainer)}>
-            <Text style={themed($quantityText)} text={item.quantity.toString()} />
+            <Text style={themed($quantityText)} text={item.quantidade?.toString() || "1"} />
             <TouchableOpacity
               style={themed($quantityButton)}
-              onPress={() => updateItemQuantity(item.id, true)}
+              onPress={() => updateItemQuantity(item.id.toString(), true)}
             >
               <Plus size={16} color="#1E90FF" />
             </TouchableOpacity>
           </View>
-        )}
+        </View>
       </View>
-    </View>
-  )
+    )
+  }
 
   return (
     <View style={themed($container)}>
@@ -180,8 +161,31 @@ export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function Carrinh
             <Text style={themed($selectAllText)} text="Selecionar todos" />
           </TouchableOpacity>
 
-          {/* Cart Items */}
-          {cartItems.map(renderCartItem)}
+                  {/* Loading State */}
+        {isLoading && (
+          <View style={themed($loadingContainer)}>
+            <Text style={themed($loadingText)} text="Carregando carrinho..." />
+          </View>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <View style={themed($errorContainer)}>
+            <Text style={themed($errorText)} text={error} />
+            <TouchableOpacity style={themed($retryButton)} onPress={getCarrinho}>
+              <Text style={themed($retryButtonText)} text="Tentar novamente" />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Cart Items */}
+        {!isLoading && !error && cartItems.length === 0 && (
+          <View style={themed($emptyContainer)}>
+            <Text style={themed($emptyText)} text="Seu carrinho está vazio" />
+          </View>
+        )}
+
+        {!isLoading && !error && cartItems.map(renderCartItem)}
 
           {/* Payment Summary */}
           <View style={themed($paymentSummaryContainer)}>
@@ -492,5 +496,51 @@ const $paymentButtonText: ThemedStyle<TextStyle> = () => ({
   fontSize: 18,
   fontWeight: "700",
   color: "white",
+})
+
+const $loadingContainer: ThemedStyle<ViewStyle> = () => ({
+  alignItems: "center",
+  paddingVertical: 32,
+})
+
+const $loadingText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  color: "#666",
+})
+
+const $errorContainer: ThemedStyle<ViewStyle> = () => ({
+  alignItems: "center",
+  paddingVertical: 32,
+})
+
+const $errorText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  color: "#FF6B6B",
+  textAlign: "center",
+  marginBottom: 16,
+})
+
+const $retryButton: ThemedStyle<ViewStyle> = () => ({
+  backgroundColor: "#1E90FF",
+  paddingHorizontal: 24,
+  paddingVertical: 8,
+  borderRadius: 8,
+})
+
+const $retryButtonText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 14,
+  fontWeight: "600",
+  color: "white",
+})
+
+const $emptyContainer: ThemedStyle<ViewStyle> = () => ({
+  alignItems: "center",
+  paddingVertical: 32,
+})
+
+const $emptyText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  color: "#666",
+  textAlign: "center",
 })
 
