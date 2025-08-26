@@ -6,5 +6,5 @@
  * https://reactnative.dev/docs/security#storing-sensitive-info
  */
 export default {
-  API_URL: "https://98.84.138.10.nip.io/",
+  API_URL: "https://3.90.12.94.nip.io/",
 }

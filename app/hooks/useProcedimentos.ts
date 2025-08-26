@@ -77,7 +77,7 @@ export const useProcedimentosEcommerce = () => {
 
         try {
             const result = await ecommerceService.procedimentosEcommerce(
-                params.fk_cidade ?? 818,
+                params.fk_cidade ?? 883,
                 params.tipo_procedimento,
                 params.app ?? true,
                 params.nome,

@@ -18,6 +18,7 @@ import type { ThemedStyle } from "@/theme/types"
 import type { AppStackParamList } from "@/navigators/AppNavigator"
 import { useStores } from "@/models"
 import { useProcedimentosEcommerce } from "@/hooks/useProcedimentos"
+import { colors } from "@/theme/colors"
 
 type ProcedimentosProps = {
   navigation: NativeStackNavigationProp<AppStackParamList, "MainTabs">
@@ -180,7 +181,6 @@ export const ProcedimentosScreen: FC<ProcedimentosProps> = observer(function Pro
     <View style={themed($container)}>
       <Header 
         title="Procedimentos" 
-        backgroundColor="#1E90FF" 
         titleStyle={{ color: "white" }} 
         leftIcon="back" 
         leftIconColor="white" 
@@ -194,7 +194,7 @@ export const ProcedimentosScreen: FC<ProcedimentosProps> = observer(function Pro
           onChangeText={handleSearch}
           placeholder="Pesquisar"
           onFilterPress={handleFilter}
-          containerStyle={{ backgroundColor: "#1E90FF" }}
+          containerStyle={{ backgroundColor: colors.palette.secondary500 }}
         />
       </View>
 

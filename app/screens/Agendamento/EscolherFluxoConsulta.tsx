@@ -53,10 +53,10 @@ export const EscolherFluxoConsultaScreen: FC<EscolherFluxoConsultaScreenProps> =
 
     return (
       <View style={themed($container)}>
-        <Header title="Como deseja agendar?" backgroundColor="#1E90FF" titleStyle={{ color: "white" }} leftIcon="back" leftIconColor="white" onLeftPress={handleBack} />
+        <Header title="Como deseja agendar?" titleStyle={{ color: "white" }} leftIcon="back" leftIconColor="white" onLeftPress={handleBack} />
         <Screen
           preset="auto"
-          backgroundColor={colors.palette.primary600}
+          backgroundColor={colors.palette.neutral200}
           style={themed($screenBackground)}
           contentContainerStyle={themed($screenContentContainer)}
         >
@@ -131,7 +131,7 @@ const $container: ThemedStyle<ViewStyle> = () => ({
 // Screen Styles
 const $screenBackground: ThemedStyle<ViewStyle> = ({ colors }) => ({
   flex: 1,
-  backgroundColor: colors.palette.primary600,
+  backgroundColor: colors.palette.neutral200,
 })
 
 const $screenContentContainer: ThemedStyle<ViewStyle> = () => ({
@@ -145,7 +145,7 @@ const $header: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
   justifyContent: "space-between",
   paddingHorizontal: spacing.lg,
   paddingVertical: spacing.md,
-  backgroundColor: colors.palette.primary600,
+  backgroundColor: colors.palette.neutral200,
 })
 
 const $backButton: ThemedStyle<ViewStyle> = ({ spacing }) => ({
@@ -179,12 +179,12 @@ const $buttonsContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
 
 // Button Styles
 const $actionButton: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
-  backgroundColor: colors.palette.primary600,
+  backgroundColor: colors.background,
   borderRadius: 12,
   paddingVertical: spacing.lg,
   paddingHorizontal: spacing.lg,
   borderWidth: 1,
-  borderColor: colors.palette.primary600,
+  borderColor: colors.background,
 })
 
 const $actionButtonGreen: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({

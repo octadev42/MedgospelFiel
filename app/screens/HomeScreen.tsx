@@ -29,7 +29,7 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
     } },
     { icon: "homegrid_exames_laboratoriais", title: "Exames Laboratoriais", onPress: () => { } },
     { icon: "homegrid_procedimentos", title: "Procedimentos", onPress: () => { navigation.navigate("Procedimentos") } },
-    { icon: "homegrid_cirurgias", title: "Cirurgias", onPress: () => { } },
+    { icon: "homegrid_cirurgias", title: "Cirurgias", onPress: () => { navigation.navigate("Cirurgias") } },
     { icon: "homegrid_nossos_precos", title: "Nossos Preços", onPress: () => { } },
   ]
 

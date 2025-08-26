@@ -13,6 +13,7 @@ import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 import type { AppStackParamList } from "@/navigators/AppNavigator"
 import { useStores } from "@/models"
+import { colors } from "@/theme/colors"
 
 type SelecionarPessoaScreenProps = {
   navigation: NativeStackNavigationProp<AppStackParamList, "SelecionarPessoa">
@@ -123,7 +124,6 @@ export const SelecionarPessoaScreen: FC<SelecionarPessoaScreenProps> = observer(
     <View style={themed($container)}>
       <Header 
         title="Selecione o paciente" 
-        backgroundColor="#1E90FF" 
         titleStyle={{ color: "white" }} 
         leftIcon="back" 
         leftIconColor="white" 
@@ -136,7 +136,7 @@ export const SelecionarPessoaScreen: FC<SelecionarPessoaScreenProps> = observer(
           value={searchText}
           onChangeText={setSearchText}
           placeholder="Pesquisar"
-          containerStyle={{ backgroundColor: "#1E90FF" }}
+          containerStyle={{ backgroundColor: colors.palette.secondary500 }}
         />
       </View>
 

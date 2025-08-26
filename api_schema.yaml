@@ -779,6 +779,18 @@ paths:
         - Permissões: IsAuthenticated
       summary: Listar Campo Atuação
       parameters:
+      - in: query
+        name: descricao
+        schema:
+          type: string
+      - in: query
+        name: fk_especialidade
+        schema:
+          type: integer
+      - in: query
+        name: nome
+        schema:
+          type: string
       - name: ordering
         required: false
         in: query
@@ -797,6 +809,14 @@ paths:
         description: A search term.
         schema:
           type: string
+      - in: query
+        name: situacao
+        schema:
+          type: string
+      - in: query
+        name: slug
+        schema:
+          type: string
       tags:
       - Campo Atuação
       responses:
@@ -804,7 +824,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedCampoAtuacaoDefaultList'
+                $ref: '#/components/schemas/PaginatedCampoAtuacaoList'
           description: ''
     post:
       operationId: createCampo Atuação
@@ -819,22 +839,19 @@ paths:
       - Campo Atuação
       requestBody:
         content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CampoAtuacaoCreate'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CampoAtuacaoCreate'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CampoAtuacaoCreate'
+              $ref: '#/components/schemas/CampoAtuacao'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CampoAtuacao'
         required: true
       responses:
         '201':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CampoAtuacaoCreate'
+                $ref: '#/components/schemas/CampoAtuacao'
           description: ''
   /v1/campos-atuacao/{id}/:
     get:
@@ -860,7 +877,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CampoAtuacaoDefault'
+                $ref: '#/components/schemas/CampoAtuacao'
           description: ''
     put:
       operationId: updateCampo Atuação
@@ -882,22 +899,19 @@ paths:
       - Campo Atuação
       requestBody:
         content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CampoAtuacaoDefault'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CampoAtuacaoDefault'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CampoAtuacaoDefault'
+              $ref: '#/components/schemas/CampoAtuacao'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CampoAtuacao'
         required: true
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CampoAtuacaoDefault'
+                $ref: '#/components/schemas/CampoAtuacao'
           description: ''
     patch:
       operationId: partial_updateCampo Atuação
@@ -919,21 +933,18 @@ paths:
       - Campo Atuação
       requestBody:
         content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedCampoAtuacaoPatch'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedCampoAtuacaoPatch'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedCampoAtuacaoPatch'
+              $ref: '#/components/schemas/PatchedCampoAtuacao'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCampoAtuacao'
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CampoAtuacaoPatch'
+                $ref: '#/components/schemas/CampoAtuacao'
           description: ''
     delete:
       operationId: destroyCampo Atuação
@@ -1108,6 +1119,108 @@ paths:
           description: Itens removidos com sucesso.
         '400':
           description: Erro de validação.
+  /v1/cartoes-pessoa-fisica/:
+    get:
+      operationId: v1_cartoes_pessoa_fisica_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Cartão Pessoa Física
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CartaoPFResponse'
+          description: ''
+    post:
+      operationId: v1_cartoes_pessoa_fisica_create
+      tags:
+      - Cartão Pessoa Física
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartaoPFRequestValidacao'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CartaoPFRequestValidacao'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CartaoPFRequestValidacao'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartaoPessoaFisicaCreate'
+          description: ''
+  /v1/cartoes-pessoa-fisica/{id}/:
+    get:
+      operationId: v1_cartoes_pessoa_fisica_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Cartão e Pessoa Física.
+        required: true
+      tags:
+      - v1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartaoPessoaFisicaCreate'
+          description: ''
+    delete:
+      operationId: v1_cartoes_pessoa_fisica_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Cartão e Pessoa Física.
+        required: true
+      tags:
+      - Cartão Pessoa Física
+      responses:
+        '204':
+          description: No response body
+  /v1/cartoes-pessoa-fisica/{id}/obter-parcelas/:
+    get:
+      operationId: v1_cartoes_pessoa_fisica_obter_parcelas_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Cartão e Pessoa Física.
+        required: true
+      tags:
+      - Parcelas
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmissorParcelamentoResponse'
+          description: ''
   /v1/cidades/:
     get:
       operationId: listCidade
@@ -1189,6 +1302,170 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CidadeList'
+          description: ''
+  /v1/debito-credito/:
+    get:
+      operationId: listDébito Crédito
+      description: |-
+        Listar Débito Crédito.
+
+        ### Autorização
+        - Recurso: `DebitoCredito`
+        - Permissões: IsAuthenticated
+      summary: Listar Débito Crédito
+      parameters:
+      - in: query
+        name: cpf
+        schema:
+          type: string
+      - in: query
+        name: data_final
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: data_inicial
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: nome_pessoa_fisica
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: origem
+        schema:
+          type: string
+      - in: query
+        name: paciente
+        schema:
+          type: integer
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: situacao
+        schema:
+          type: string
+      - in: query
+        name: tipo
+        schema:
+          type: string
+      tags:
+      - Débito Crédito
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDebitoCreditoListList'
+          description: ''
+    post:
+      operationId: createDébito Crédito
+      description: |-
+        Criar Débito Crédito.
+
+        ### Autorização
+        - Recurso: `DebitoCredito`
+        - Permissões: IsAuthenticated
+      summary: Criar Débito Crédito
+      tags:
+      - Débito Crédito
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DebitoCreditoCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DebitoCreditoCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DebitoCreditoCreate'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebitoCreditoCreate'
+          description: ''
+  /v1/debito-credito/{id}/:
+    get:
+      operationId: retrieveDébito Crédito
+      description: |-
+        Detalhar Débito Crédito.
+
+        ### Autorização
+        - Recurso: `DebitoCredito`
+        - Permissões: IsAuthenticated
+      summary: Detalhar Débito Crédito
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this debito credito.
+        required: true
+      tags:
+      - Débito Crédito
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebitoCreditoList'
+          description: ''
+    patch:
+      operationId: partial_updateDébito Crédito
+      description: |-
+        Atualizar Parcialmente Débito Crédito.
+
+        ### Autorização
+        - Recurso: `DebitoCredito`
+        - Permissões: IsAuthenticated
+      summary: Atualizar Parcialmente Débito Crédito
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this debito credito.
+        required: true
+      tags:
+      - Débito Crédito
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDebitoCreditoPatch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDebitoCreditoPatch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDebitoCreditoPatch'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebitoCreditoPatch'
           description: ''
   /v1/dominios/:
     get:
@@ -1742,8 +2019,24 @@ paths:
         ### Autorização
         - Recurso: `Especialidade`
         - Permissões: IsAuthenticated
+
+        ### Campos disponíveis para busca (`search`):
+        - descricao
+        - cbo
       summary: Listar Especialidade
       parameters:
+      - in: query
+        name: cbo
+        schema:
+          type: integer
+      - in: query
+        name: descricao
+        schema:
+          type: string
+      - in: query
+        name: detalhes
+        schema:
+          type: string
       - name: ordering
         required: false
         in: query
@@ -1762,14 +2055,28 @@ paths:
         description: A search term.
         schema:
           type: string
+      - in: query
+        name: situacao
+        schema:
+          type: string
+      - in: query
+        name: slug
+        schema:
+          type: string
+      - in: query
+        name: tipo
+        schema:
+          type: string
       tags:
       - Especialidade
+      security:
+      - {}
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedEspecialidadeDefaultList'
+                $ref: '#/components/schemas/PaginatedEspecialidadeList'
           description: ''
     post:
       operationId: createEspecialidade
@@ -1784,22 +2091,19 @@ paths:
       - Especialidade
       requestBody:
         content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EspecialidadeCreate'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/EspecialidadeCreate'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/EspecialidadeCreate'
+              $ref: '#/components/schemas/Especialidade'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Especialidade'
         required: true
       responses:
         '201':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EspecialidadeCreate'
+                $ref: '#/components/schemas/Especialidade'
           description: ''
   /v1/especialidades/{id}/:
     get:
@@ -1825,44 +2129,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EspecialidadeDefault'
-          description: ''
-    put:
-      operationId: updateEspecialidade
-      description: |-
-        Atualizar Especialidade.
-
-        ### Autorização
-        - Recurso: `Especialidade`
-        - Permissões: IsAuthenticated
-      summary: Atualizar Especialidade
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this Especialidade.
-        required: true
-      tags:
-      - Especialidade
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EspecialidadeDefault'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/EspecialidadeDefault'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/EspecialidadeDefault'
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EspecialidadeDefault'
+                $ref: '#/components/schemas/Especialidade'
           description: ''
     patch:
       operationId: partial_updateEspecialidade
@@ -1884,21 +2151,18 @@ paths:
       - Especialidade
       requestBody:
         content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedEspecialidadePatch'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedEspecialidadePatch'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedEspecialidadePatch'
+              $ref: '#/components/schemas/PatchedEspecialidade'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEspecialidade'
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EspecialidadePatch'
+                $ref: '#/components/schemas/Especialidade'
           description: ''
     delete:
       operationId: destroyEspecialidade
@@ -1937,6 +2201,10 @@ paths:
         schema:
           type: integer
       - in: query
+        name: mercado_pago_token
+        schema:
+          type: string
+      - in: query
         name: nome
         schema:
           type: string
@@ -1972,6 +2240,8 @@ paths:
           type: string
       tags:
       - Estabelecimento
+      security:
+      - {}
       responses:
         '200':
           content:
@@ -2131,14 +2401,14 @@ paths:
           description: No response body
   /v1/favoritos/profissionais-saude/:
     get:
-      operationId: listFavoritar Especialista
+      operationId: listProfissional Saúde Favoritar
       description: |-
-        Listar Favoritar Especialista.
+        Listar Profissional Saúde Favoritar.
 
         ### Autorização
         - Recurso: `ProfissionalSaudeFavorito`
         - Permissões: IsAuthenticated
-      summary: Listar Favoritar Especialista
+      summary: Listar Profissional Saúde Favoritar
       parameters:
       - name: ordering
         required: false
@@ -2159,7 +2429,7 @@ paths:
         schema:
           type: string
       tags:
-      - Favoritar Especialista
+      - Profissional Saúde Favoritar
       responses:
         '200':
           content:
@@ -2168,16 +2438,16 @@ paths:
                 $ref: '#/components/schemas/PaginatedProfissionalSaudeFavoritoListList'
           description: ''
     post:
-      operationId: createFavoritar Especialista
+      operationId: createProfissional Saúde Favoritar
       description: |-
-        Criar Favoritar Especialista.
+        Criar Profissional Saúde Favoritar.
 
         ### Autorização
         - Recurso: `ProfissionalSaudeFavorito`
         - Permissões: IsAuthenticated
-      summary: Criar Favoritar Especialista
+      summary: Criar Profissional Saúde Favoritar
       tags:
-      - Favoritar Especialista
+      - Profissional Saúde Favoritar
       requestBody:
         content:
           application/json:
@@ -2199,14 +2469,14 @@ paths:
           description: ''
   /v1/favoritos/profissionais-saude/{id}/:
     get:
-      operationId: retrieveFavoritar Especialista
+      operationId: retrieveProfissional Saúde Favoritar
       description: |-
-        Detalhar Favoritar Especialista.
+        Detalhar Profissional Saúde Favoritar.
 
         ### Autorização
         - Recurso: `ProfissionalSaudeFavorito`
         - Permissões: IsAuthenticated
-      summary: Detalhar Favoritar Especialista
+      summary: Detalhar Profissional Saúde Favoritar
       parameters:
       - in: path
         name: id
@@ -2216,7 +2486,7 @@ paths:
           Favorito.
         required: true
       tags:
-      - Favoritar Especialista
+      - Profissional Saúde Favoritar
       responses:
         '200':
           content:
@@ -2225,14 +2495,14 @@ paths:
                 $ref: '#/components/schemas/ProfissionalSaudeFavoritoList'
           description: ''
     put:
-      operationId: updateFavoritar Especialista
+      operationId: updateProfissional Saúde Favoritar
       description: |-
-        Atualizar Favoritar Especialista.
+        Atualizar Profissional Saúde Favoritar.
 
         ### Autorização
         - Recurso: `ProfissionalSaudeFavorito`
         - Permissões: IsAuthenticated
-      summary: Atualizar Favoritar Especialista
+      summary: Atualizar Profissional Saúde Favoritar
       parameters:
       - in: path
         name: id
@@ -2242,7 +2512,7 @@ paths:
           Favorito.
         required: true
       tags:
-      - Favoritar Especialista
+      - Profissional Saúde Favoritar
       requestBody:
         content:
           application/json:
@@ -2263,14 +2533,14 @@ paths:
                 $ref: '#/components/schemas/ProfissionalSaudeFavoritoList'
           description: ''
     patch:
-      operationId: partial_updateFavoritar Especialista
+      operationId: partial_updateProfissional Saúde Favoritar
       description: |-
-        Atualizar Parcialmente Favoritar Especialista.
+        Atualizar Parcialmente Profissional Saúde Favoritar.
 
         ### Autorização
         - Recurso: `ProfissionalSaudeFavorito`
         - Permissões: IsAuthenticated
-      summary: Atualizar Parcialmente Favoritar Especialista
+      summary: Atualizar Parcialmente Profissional Saúde Favoritar
       parameters:
       - in: path
         name: id
@@ -2280,7 +2550,7 @@ paths:
           Favorito.
         required: true
       tags:
-      - Favoritar Especialista
+      - Profissional Saúde Favoritar
       requestBody:
         content:
           application/json:
@@ -2300,14 +2570,14 @@ paths:
                 $ref: '#/components/schemas/ProfissionalSaudeFavoritoList'
           description: ''
     delete:
-      operationId: destroyFavoritar Especialista
+      operationId: destroyProfissional Saúde Favoritar
       description: |-
-        Excluir Favoritar Especialista.
+        Excluir Profissional Saúde Favoritar.
 
         ### Autorização
         - Recurso: `ProfissionalSaudeFavorito`
         - Permissões: IsAuthenticated
-      summary: Excluir Favoritar Especialista
+      summary: Excluir Profissional Saúde Favoritar
       parameters:
       - in: path
         name: id
@@ -2317,7 +2587,7 @@ paths:
           Favorito.
         required: true
       tags:
-      - Favoritar Especialista
+      - Profissional Saúde Favoritar
       responses:
         '204':
           description: No response body
@@ -2503,6 +2773,114 @@ paths:
       responses:
         '204':
           description: No response body
+  /v1/importacao/:
+    get:
+      operationId: listImportar Documentos
+      description: |-
+        Listar Importar Documentos.
+
+        ### Autorização
+        - Recurso: `DocumentoImportacao`
+        - Permissões: IsAuthenticated
+      summary: Listar Importar Documentos
+      parameters:
+      - in: query
+        name: descricao
+        schema:
+          type: string
+      - in: query
+        name: estrutura
+        schema:
+          type: string
+      - in: query
+        name: extensao
+        schema:
+          type: string
+      - in: query
+        name: log_erro
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: situacao
+        schema:
+          type: string
+      tags:
+      - Importar Documentos
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedImportacaoList'
+          description: ''
+    post:
+      operationId: createImportar Documentos
+      description: |-
+        Criar Importar Documentos.
+
+        ### Autorização
+        - Recurso: `DocumentoImportacao`
+        - Permissões: IsAuthenticated
+      summary: Criar Importar Documentos
+      tags:
+      - Importar Documentos
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Importacao'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Importacao'
+          description: ''
+  /v1/importacao/{id}/:
+    get:
+      operationId: retrieveImportar Documentos
+      description: |-
+        Detalhar Importar Documentos.
+
+        ### Autorização
+        - Recurso: `DocumentoImportacao`
+        - Permissões: IsAuthenticated
+      summary: Detalhar Importar Documentos
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this importacao.
+        required: true
+      tags:
+      - Importar Documentos
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Importacao'
+          description: ''
   /v1/infos/:
     get:
       operationId: v1_infos_list
@@ -2850,6 +3228,36 @@ paths:
       responses:
         '200':
           description: No response body
+  /v1/parcelas-mercado-pago/:
+    get:
+      operationId: v1_parcelas_mercado_pago_list
+      parameters:
+      - in: query
+        name: bandeira
+        schema:
+          type: string
+        description: 'Bandeira do cartão (ex: ''visa'', ''mastercard'')'
+      - in: query
+        name: emissor
+        schema:
+          type: string
+        description: 'Nome do emissor do cartão (ex: ''Nubank'')'
+      - in: query
+        name: valor
+        schema:
+          type: number
+        description: 'Valor da transação (ex: 1509.00)'
+      tags:
+      - Parcelas
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmissorParcelamentoResponse'
+          description: ''
   /v1/pedidos/:
     get:
       operationId: listPedido
@@ -3286,6 +3694,10 @@ paths:
           type: string
       - in: query
         name: longitude
+        schema:
+          type: string
+      - in: query
+        name: mercado_pago_id
         schema:
           type: string
       - in: query
@@ -4074,15 +4486,62 @@ paths:
           description: ''
   /v1/profissionais-saude/:
     get:
-      operationId: listEspecialista
+      operationId: listProfissional Saúde
       description: |-
-        Listar Especialista.
+        Listar Profissional Saúde.
 
         ### Autorização
         - Recurso: `ProfissionalSaude`
         - Permissões: IsAuthenticated
-      summary: Listar Especialista
+
+        ### Campos disponíveis para busca (`search`):
+        - tipo_conselho
+        - uf_conselho
+        - numero_conselho
+      summary: Listar Profissional Saúde
       parameters:
+      - in: query
+        name: codigo_externo
+        schema:
+          type: integer
+      - in: query
+        name: fk_especialidade
+        schema:
+          type: array
+          items:
+            type: string
+        description: Valores múltiplos podem ser separados por vírgulas.
+        explode: false
+        style: form
+      - in: query
+        name: fk_pessoa_fisica
+        schema:
+          type: integer
+      - in: query
+        name: fk_pessoa_juridica
+        schema:
+          type: array
+          items:
+            type: integer
+        description: Valores múltiplos podem ser separados por vírgulas.
+        explode: false
+        style: form
+      - in: query
+        name: formacao
+        schema:
+          type: string
+      - in: query
+        name: nome
+        schema:
+          type: string
+      - in: query
+        name: numero_conselho
+        schema:
+          type: string
+      - in: query
+        name: observacao
+        schema:
+          type: string
       - name: ordering
         required: false
         in: query
@@ -4095,61 +4554,80 @@ paths:
         description: A page number within the paginated result set.
         schema:
           type: integer
+      - in: query
+        name: perfil
+        schema:
+          type: string
+      - in: query
+        name: plantonista
+        schema:
+          type: boolean
       - name: search
         required: false
         in: query
         description: A search term.
         schema:
           type: string
+      - in: query
+        name: situacao
+        schema:
+          type: string
+      - in: query
+        name: tipo_conselho
+        schema:
+          type: string
+      - in: query
+        name: uf_conselho
+        schema:
+          type: string
       tags:
-      - Especialista
+      - Profissional Saúde
+      security:
+      - {}
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedProfissionalSaudeDefaultList'
+                $ref: '#/components/schemas/PaginatedProfissionalSaudeList'
           description: ''
     post:
-      operationId: createEspecialista
+      operationId: createProfissional Saúde
       description: |-
-        Criar Especialista.
+        Criar Profissional Saúde.
 
         ### Autorização
         - Recurso: `ProfissionalSaude`
         - Permissões: IsAuthenticated
-      summary: Criar Especialista
+      summary: Criar Profissional Saúde
       tags:
-      - Especialista
+      - Profissional Saúde
       requestBody:
         content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProfissionalSaudeCreate'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ProfissionalSaudeCreate'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ProfissionalSaudeCreate'
+              $ref: '#/components/schemas/ProfissionalSaudeDoc'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProfissionalSaudeDoc'
         required: true
       responses:
         '201':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProfissionalSaudeCreate'
+                $ref: '#/components/schemas/ProfissionalSaude'
           description: ''
   /v1/profissionais-saude/{id}/:
     get:
-      operationId: retrieveEspecialista
+      operationId: retrieveProfissional Saúde
       description: |-
-        Detalhar Especialista.
+        Detalhar Profissional Saúde.
 
         ### Autorização
         - Recurso: `ProfissionalSaude`
         - Permissões: IsAuthenticated
-      summary: Detalhar Especialista
+      summary: Detalhar Profissional Saúde
       parameters:
       - in: path
         name: id
@@ -4158,60 +4636,23 @@ paths:
         description: A unique integer value identifying this Profissional da Saúde.
         required: true
       tags:
-      - Especialista
+      - Profissional Saúde
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProfissionalSaudeDefault'
-          description: ''
-    put:
-      operationId: updateEspecialista
-      description: |-
-        Atualizar Especialista.
-
-        ### Autorização
-        - Recurso: `ProfissionalSaude`
-        - Permissões: IsAuthenticated
-      summary: Atualizar Especialista
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this Profissional da Saúde.
-        required: true
-      tags:
-      - Especialista
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProfissionalSaudeDefault'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ProfissionalSaudeDefault'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ProfissionalSaudeDefault'
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProfissionalSaudeDefault'
+                $ref: '#/components/schemas/ProfissionalSaude'
           description: ''
     patch:
-      operationId: partial_updateEspecialista
+      operationId: partial_updateProfissional Saúde
       description: |-
-        Atualizar Parcialmente Especialista.
+        Atualizar Parcialmente Profissional Saúde.
 
         ### Autorização
         - Recurso: `ProfissionalSaude`
         - Permissões: IsAuthenticated
-      summary: Atualizar Parcialmente Especialista
+      summary: Atualizar Parcialmente Profissional Saúde
       parameters:
       - in: path
         name: id
@@ -4220,34 +4661,31 @@ paths:
         description: A unique integer value identifying this Profissional da Saúde.
         required: true
       tags:
-      - Especialista
+      - Profissional Saúde
       requestBody:
         content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedProfissionalSaudePatch'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedProfissionalSaudePatch'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedProfissionalSaudePatch'
+              $ref: '#/components/schemas/PatchedProfissionalSaudeDoc'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProfissionalSaudeDoc'
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProfissionalSaudePatch'
+                $ref: '#/components/schemas/ProfissionalSaude'
           description: ''
     delete:
-      operationId: destroyEspecialista
+      operationId: destroyProfissional Saúde
       description: |-
-        Excluir Especialista.
+        Excluir Profissional Saúde.
 
         ### Autorização
         - Recurso: `ProfissionalSaude`
         - Permissões: IsAuthenticated
-      summary: Excluir Especialista
+      summary: Excluir Profissional Saúde
       parameters:
       - in: path
         name: id
@@ -4256,7 +4694,7 @@ paths:
         description: A unique integer value identifying this Profissional da Saúde.
         required: true
       tags:
-      - Especialista
+      - Profissional Saúde
       responses:
         '204':
           description: No response body
@@ -4450,6 +4888,79 @@ paths:
       responses:
         '204':
           description: No response body
+  /v1/saldo-virtual/:
+    get:
+      operationId: v1_saldo_virtual_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Saldo Virtual
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSaldoVirtualListList'
+          description: ''
+    post:
+      operationId: v1_saldo_virtual_create
+      tags:
+      - Saldo Virtual
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaldoVirtualCreateValidacao'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SaldoVirtualCreateValidacao'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SaldoVirtualCreateValidacao'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagamentoCreate'
+          description: ''
+  /v1/saldo-virtual/{id}/:
+    get:
+      operationId: v1_saldo_virtual_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this credito resgate.
+        required: true
+      tags:
+      - v1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaldoVirtualList'
+          description: ''
   /v1/subgrupos/:
     get:
       operationId: listSubgrupo
@@ -4765,6 +5276,10 @@ paths:
         name: tipo_agenda
         schema:
           type: string
+      - in: query
+        name: vagas_retorno
+        schema:
+          type: integer
       - in: query
         name: vigentes
         schema:
@@ -6064,7 +6579,7 @@ components:
       - codigo
       - id
       - nome
-    CampoAtuacaoCreate:
+    CampoAtuacao:
       type: object
       description: |-
         Serializer base para modelos que herdam de BaseModel.
@@ -6073,61 +6588,12 @@ components:
         id:
           type: integer
           readOnly: true
-        situacao:
-          type: string
-          maxLength: 20
         usuario_criacao:
           type: string
-          maxLength: 60
-        data_criacao:
-          type: string
-          format: date-time
           readOnly: true
-        nome:
-          type: string
-          maxLength: 180
-        descricao:
-          type: string
-          title: Descrição
-          maxLength: 180
-        slug:
-          type: string
-          maxLength: 180
-        foto:
-          type: string
-          format: uri
-        fk_especialidade:
-          type: integer
-          title: Especialidade
-      required:
-      - data_criacao
-      - descricao
-      - fk_especialidade
-      - foto
-      - id
-      - nome
-      - usuario_criacao
-    CampoAtuacaoDefault:
-      type: object
-      description: |-
-        Serializer base para modelos que herdam de BaseModel.
-        Automatiza preenchimento dos campos de usuário e datas.
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        situacao:
-          type: string
-          maxLength: 20
-        usuario_criacao:
-          type: string
-          maxLength: 60
         usuario_edicao:
           type: string
-          maxLength: 60
-        usuario_delecao:
-          type: string
-          maxLength: 60
+          readOnly: true
         data_criacao:
           type: string
           format: date-time
@@ -6135,10 +6601,7 @@ components:
         data_edicao:
           type: string
           format: date-time
-          nullable: true
-        data_delecao:
-          type: string
-          format: date-time
+          readOnly: true
           nullable: true
         nome:
           type: string
@@ -6153,67 +6616,17 @@ components:
         foto:
           type: string
           format: uri
+          description: Deve ser enviado uma imagem.
         fk_especialidade:
           type: integer
-          title: Especialidade
-      required:
-      - data_criacao
-      - descricao
-      - fk_especialidade
-      - foto
-      - id
-      - nome
-      - usuario_criacao
-    CampoAtuacaoPatch:
-      type: object
-      description: |-
-        Serializer base para modelos que herdam de BaseModel.
-        Automatiza preenchimento dos campos de usuário e datas.
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        situacao:
-          type: string
-          maxLength: 20
-        usuario_criacao:
-          type: string
-          maxLength: 60
-        usuario_edicao:
-          type: string
-          maxLength: 60
-        data_criacao:
-          type: string
-          format: date-time
-          readOnly: true
-        data_edicao:
-          type: string
-          format: date-time
           nullable: true
-        nome:
-          type: string
-          maxLength: 180
-        descricao:
-          type: string
-          title: Descrição
-          maxLength: 180
-        slug:
-          type: string
-          maxLength: 180
-        foto:
-          type: string
-          format: uri
-        fk_especialidade:
-          type: integer
-          title: Especialidade
       required:
       - data_criacao
-      - descricao
-      - fk_especialidade
-      - foto
+      - data_edicao
       - id
       - nome
       - usuario_criacao
+      - usuario_edicao
     CarrinhoAddItens:
       type: object
       properties:
@@ -6258,6 +6671,97 @@ components:
       required:
       - detail
       - itens_removidos
+    CartaoPFRequestValidacao:
+      type: object
+      properties:
+        token:
+          type: string
+      required:
+      - token
+    CartaoPFResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        card_id:
+          type: string
+        payment_method:
+          type: string
+        last_four_digits:
+          type: string
+        expiration_month:
+          type: string
+        expiration_year:
+          type: string
+        cardholder_name:
+          type: string
+      required:
+      - card_id
+      - cardholder_name
+      - expiration_month
+      - expiration_year
+      - id
+      - last_four_digits
+      - payment_method
+    CartaoPessoaFisicaCreate:
+      type: object
+      description: |-
+        Serializer base para modelos que herdam de BaseModel.
+        Automatiza preenchimento dos campos de usuário e datas.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        situacao:
+          type: string
+          maxLength: 20
+        usuario_criacao:
+          type: string
+          maxLength: 60
+        usuario_edicao:
+          type: string
+          maxLength: 60
+        data_criacao:
+          type: string
+          format: date-time
+          readOnly: true
+        data_edicao:
+          type: string
+          format: date-time
+          nullable: true
+        padrao_padrao:
+          type: boolean
+          title: É o cartão padrão?
+        cartao_mercado_pago_id:
+          type: string
+          title: ID do cartão no mercado pago
+          maxLength: 150
+        ultimos_digitos:
+          type: string
+          title: Últimos 4 dígitos
+          maxLength: 4
+        tipo_cartao:
+          type: string
+          title: Tipo de cartão
+          maxLength: 20
+        fk_bandeira:
+          type: string
+          description: Domínio `BANDEIRAS_MP`.
+        fk_banco:
+          type: string
+          description: Domínio `EMISSORES_MP`.
+        fk_pessoa_fisica:
+          type: integer
+      required:
+      - cartao_mercado_pago_id
+      - data_criacao
+      - fk_banco
+      - fk_bandeira
+      - fk_pessoa_fisica
+      - id
+      - tipo_cartao
+      - ultimos_digitos
+      - usuario_criacao
     CidadeList:
       type: object
       properties:
@@ -6309,6 +6813,135 @@ components:
       required:
       - tipo
       - valor
+    DebitoCreditoCreate:
+      type: object
+      description: |-
+        Serializer base para modelos que herdam de BaseModel.
+        Automatiza preenchimento dos campos de usuário e datas.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        data:
+          type: string
+          format: date
+          nullable: true
+        informacoes:
+          type: string
+          title: Informações
+        situacao:
+          type: string
+          description: Domínio `SITUACAO_DC`.
+        tipo:
+          type: string
+          description: Domínio `TIPO_DEBITO_CREDITO`.
+        valor:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+        forma_pagamento:
+          type: string
+          description: Domínio `FORMA_PGMTO`.
+        fk_pessoa_fisica:
+          type: integer
+        usuario_criacao:
+          type: string
+          maxLength: 60
+      required:
+      - fk_pessoa_fisica
+      - forma_pagamento
+      - id
+      - informacoes
+      - situacao
+      - tipo
+      - usuario_criacao
+      - valor
+    DebitoCreditoList:
+      type: object
+      description: |-
+        Serializer base para modelos que herdam de BaseModel.
+        Automatiza preenchimento dos campos de usuário e datas.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        data:
+          type: string
+          format: date
+          nullable: true
+        informacoes:
+          type: string
+          title: Informações
+        origem:
+          type: string
+          description: Domínio `ORIGEM_DC`.
+        forma_pagamento:
+          type: string
+          description: Domínio `FORMA_PGMTO`.
+        situacao:
+          type: string
+          description: Domínio `SITUACAO_DC`.
+        valor:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,13}(?:\.\d{0,2})?$
+          nullable: true
+        fk_pessoa_juridica:
+          type: string
+          readOnly: true
+        fk_pessoa_fisica:
+          type: string
+          readOnly: true
+        fk_pessoa_fisica_indicador:
+          type: string
+          readOnly: true
+        data_criacao:
+          type: string
+          format: date-time
+          readOnly: true
+        data_edicao:
+          type: string
+          format: date-time
+          nullable: true
+        usuario_edicao:
+          type: string
+          maxLength: 60
+        usuario_criacao:
+          type: string
+          maxLength: 60
+      required:
+      - data_criacao
+      - fk_pessoa_fisica
+      - fk_pessoa_fisica_indicador
+      - fk_pessoa_juridica
+      - forma_pagamento
+      - id
+      - informacoes
+      - origem
+      - situacao
+      - usuario_criacao
+    DebitoCreditoPatch:
+      type: object
+      description: |-
+        Serializer base para modelos que herdam de BaseModel.
+        Automatiza preenchimento dos campos de usuário e datas.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        situacao:
+          type: string
+          description: Domínio `SITUACAO_DC`.
+        data_edicao:
+          type: string
+          format: date-time
+          nullable: true
+        usuario_edicao:
+          type: string
+          maxLength: 60
+      required:
+      - id
+      - situacao
     Dominio:
       type: object
       description: |-
@@ -6705,6 +7338,21 @@ components:
       - status
       - tipo_acesso
       - valor
+    EmissorParcelamentoResponse:
+      type: object
+      properties:
+        emissor:
+          type: string
+        id:
+          type: string
+        parcelas:
+          type: array
+          items:
+            $ref: '#/components/schemas/Parcela'
+      required:
+      - emissor
+      - id
+      - parcelas
     EnderecoWrite:
       type: object
       properties:
@@ -6745,7 +7393,7 @@ components:
       - logradouro
       - numero
       - tipo_logradouro
-    EspecialidadeCreate:
+    Especialidade:
       type: object
       description: |-
         Serializer base para modelos que herdam de BaseModel.
@@ -6754,61 +7402,12 @@ components:
         id:
           type: integer
           readOnly: true
-        situacao:
-          type: string
-          maxLength: 20
         usuario_criacao:
           type: string
-          maxLength: 60
-        data_criacao:
-          type: string
-          format: date-time
           readOnly: true
-        descricao:
-          type: string
-          title: Descrição
-          maxLength: 180
-        detalhes:
-          type: string
-        foto:
-          type: string
-          format: uri
-        cbo:
-          type: integer
-          maximum: 2147483647
-          minimum: -2147483648
-          nullable: true
-          title: Classificação Brasileira de Ocupações
-        slug:
-          type: string
-          maxLength: 180
-      required:
-      - data_criacao
-      - descricao
-      - foto
-      - id
-      - usuario_criacao
-    EspecialidadeDefault:
-      type: object
-      description: |-
-        Serializer base para modelos que herdam de BaseModel.
-        Automatiza preenchimento dos campos de usuário e datas.
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        situacao:
-          type: string
-          maxLength: 20
-        usuario_criacao:
-          type: string
-          maxLength: 60
         usuario_edicao:
           type: string
-          maxLength: 60
-        usuario_delecao:
-          type: string
-          maxLength: 60
+          readOnly: true
         data_criacao:
           type: string
           format: date-time
@@ -6816,10 +7415,7 @@ components:
         data_edicao:
           type: string
           format: date-time
-          nullable: true
-        data_delecao:
-          type: string
-          format: date-time
+          readOnly: true
           nullable: true
         descricao:
           type: string
@@ -6827,9 +7423,13 @@ components:
           maxLength: 180
         detalhes:
           type: string
+        tipo:
+          type: string
+          description: Domínio `TIPO_ESPECIALIDADE`.
         foto:
           type: string
           format: uri
+          description: Deve ser enviado uma imagem.
         cbo:
           type: integer
           maximum: 2147483647
@@ -6841,60 +7441,11 @@ components:
           maxLength: 180
       required:
       - data_criacao
+      - data_edicao
       - descricao
-      - foto
       - id
       - usuario_criacao
-    EspecialidadePatch:
-      type: object
-      description: |-
-        Serializer base para modelos que herdam de BaseModel.
-        Automatiza preenchimento dos campos de usuário e datas.
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        situacao:
-          type: string
-          maxLength: 20
-        usuario_criacao:
-          type: string
-          maxLength: 60
-        usuario_edicao:
-          type: string
-          maxLength: 60
-        data_criacao:
-          type: string
-          format: date-time
-          readOnly: true
-        data_edicao:
-          type: string
-          format: date-time
-          nullable: true
-        descricao:
-          type: string
-          title: Descrição
-          maxLength: 180
-        detalhes:
-          type: string
-        foto:
-          type: string
-          format: uri
-        cbo:
-          type: integer
-          maximum: 2147483647
-          minimum: -2147483648
-          nullable: true
-          title: Classificação Brasileira de Ocupações
-        slug:
-          type: string
-          maxLength: 180
-      required:
-      - data_criacao
-      - descricao
-      - foto
-      - id
-      - usuario_criacao
+      - usuario_edicao
     EstabelecimentoRead:
       type: object
       properties:
@@ -6915,6 +7466,9 @@ components:
         whatsapp_cliente:
           type: string
           readOnly: true
+        foto:
+          type: string
+          readOnly: true
         situacao:
           type: string
           maxLength: 20
@@ -6935,10 +7489,6 @@ components:
         nome:
           type: string
           maxLength: 200
-        foto:
-          type: string
-          format: uri
-          nullable: true
         observacao:
           type: string
         prioridade:
@@ -6953,6 +7503,7 @@ components:
       - email
       - endereco
       - fk_pessoa_juridica
+      - foto
       - id
       - nome
       - telefone
@@ -6971,10 +7522,6 @@ components:
           allOf:
           - $ref: '#/components/schemas/EnderecoWrite'
           writeOnly: true
-        foto:
-          type: string
-          format: uri
-          nullable: true
         email:
           type: string
           writeOnly: true
@@ -6990,6 +7537,9 @@ components:
         nome:
           type: string
           maxLength: 200
+        foto:
+          type: string
+          format: uri
         observacao:
           type: string
         prioridade:
@@ -7017,6 +7567,55 @@ components:
       required:
       - id
       - name
+    Importacao:
+      type: object
+      description: |-
+        Serializer base para modelos que herdam de BaseModel.
+        Automatiza preenchimento dos campos de usuário e datas.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        usuario_criacao:
+          type: string
+          readOnly: true
+        usuario_edicao:
+          type: string
+          readOnly: true
+        data_criacao:
+          type: string
+          format: date-time
+          readOnly: true
+        data_edicao:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        descricao:
+          type: string
+          maxLength: 255
+        situacao:
+          type: string
+          description: Domínio `TIPO_SITUACAO`.
+        estrutura:
+          type: string
+          description: Domínio `TIPO_ESTRUTURA`.
+        extensao:
+          type: string
+          maxLength: 10
+        log_erro:
+          type: string
+        arquivo:
+          type: string
+          format: uri
+      required:
+      - arquivo
+      - data_criacao
+      - data_edicao
+      - estrutura
+      - id
+      - usuario_criacao
+      - usuario_edicao
     ImportarPermissoesResponse:
       type: object
       properties:
@@ -7132,6 +7731,113 @@ components:
           default: 1
       required:
       - fk_tabela_preco_item
+    PagamentoCreate:
+      type: object
+      properties:
+        fk_pessoa_fisica:
+          type: integer
+          title: Pessoa física
+        valor_cupom:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,24}(?:\.\d{0,6})?$
+          title: Valor do cupom
+        valor_transacao_reembolsado:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,24}(?:\.\d{0,6})?$
+          title: Valor da transação reembolsado
+        data_expiracao:
+          type: string
+          format: date-time
+          nullable: true
+          title: Data de expiração
+        codigo_autorizacao:
+          type: string
+          title: Código de autorização
+          maxLength: 10
+        collector_id:
+          type: string
+          maxLength: 20
+        valor_transacao:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,24}(?:\.\d{0,6})?$
+          title: Valor da transação
+        taxas:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,24}(?:\.\d{0,6})?$
+        metodo_pagamento:
+          type: string
+          title: Método de pagamento
+          maxLength: 50
+        metodo_pagamento_cielo:
+          type: string
+          title: Método de pagamento na cielo
+          maxLength: 50
+        data_aprovacao:
+          type: string
+          format: date-time
+          nullable: true
+          title: Data de aprovação
+        mercado_pago_id:
+          type: string
+          title: ID do mercado pago
+          maxLength: 255
+        status:
+          type: string
+          title: Status do mercado pago
+          maxLength: 20
+        status_detail:
+          type: string
+          title: Status detalhado do mercado pago
+          maxLength: 50
+        status_motivo:
+          type: string
+          title: Motivo do status
+          maxLength: 150
+        informacao_adicional:
+          nullable: true
+          title: Informações adicionais
+        qr_code_base64:
+          type: string
+          title: Qrcode 64
+        qr_code:
+          type: string
+          title: Qrcode
+        url_pagamento:
+          type: string
+          format: uri
+          title: URL de pagamento
+          maxLength: 500
+        usuario_criacao:
+          type: string
+          maxLength: 60
+        parcelas:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          title: Quantidade de parcelas
+        ultimos_digitos:
+          type: string
+          title: Últimos digitos do cartão
+          maxLength: 4
+        data_criacao:
+          type: string
+          format: date-time
+          readOnly: true
+        fk_credito_resgate:
+          type: integer
+          nullable: true
+          title: Crédito de resgate
+      required:
+      - data_criacao
+      - fk_pessoa_fisica
+      - mercado_pago_id
+      - metodo_pagamento
+      - status
+      - usuario_criacao
     PaginatedAcaoSimpleList:
       type: object
       required:
@@ -7201,7 +7907,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Banco'
-    PaginatedCampoAtuacaoDefaultList:
+    PaginatedCampoAtuacaoList:
       type: object
       required:
       - count
@@ -7223,7 +7929,7 @@ components:
         results:
           type: array
           items:
-            $ref: '#/components/schemas/CampoAtuacaoDefault'
+            $ref: '#/components/schemas/CampoAtuacao'
     PaginatedCidadeListList:
       type: object
       required:
@@ -7247,6 +7953,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CidadeList'
+    PaginatedDebitoCreditoListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DebitoCreditoList'
     PaginatedDominioSimpleList:
       type: object
       required:
@@ -7293,7 +8022,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DominioValorSimple'
-    PaginatedEspecialidadeDefaultList:
+    PaginatedEspecialidadeList:
       type: object
       required:
       - count
@@ -7315,7 +8044,7 @@ components:
         results:
           type: array
           items:
-            $ref: '#/components/schemas/EspecialidadeDefault'
+            $ref: '#/components/schemas/Especialidade'
     PaginatedEstabelecimentoReadList:
       type: object
       required:
@@ -7362,6 +8091,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Grupo'
+    PaginatedImportacaoList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Importacao'
     PaginatedPacoteList:
       type: object
       required:
@@ -7523,29 +8275,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProcedimentoSimple'
-    PaginatedProfissionalSaudeDefaultList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProfissionalSaudeDefault'
     PaginatedProfissionalSaudeFavoritoListList:
       type: object
       required:
@@ -7569,6 +8298,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProfissionalSaudeFavoritoList'
+    PaginatedProfissionalSaudeList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProfissionalSaude'
     PaginatedRecursoSimpleList:
       type: object
       required:
@@ -7592,6 +8344,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RecursoSimple'
+    PaginatedSaldoVirtualListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SaldoVirtualList'
     PaginatedSubgrupoList:
       type: object
       required:
@@ -7707,6 +8482,25 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ValorSimple'
+    Parcela:
+      type: object
+      properties:
+        parcelas:
+          type: integer
+        parcelas_taxa:
+          type: number
+          format: double
+        parcelas_valor:
+          type: number
+          format: double
+        valor_total:
+          type: number
+          format: double
+      required:
+      - parcelas
+      - parcelas_taxa
+      - parcelas_valor
+      - valor_total
     PatchedAcao:
       type: object
       description: |-
@@ -7807,7 +8601,7 @@ components:
           type: boolean
         motivo_bloqueio:
           type: string
-    PatchedCampoAtuacaoPatch:
+    PatchedCampoAtuacao:
       type: object
       description: |-
         Serializer base para modelos que herdam de BaseModel.
@@ -7816,15 +8610,12 @@ components:
         id:
           type: integer
           readOnly: true
-        situacao:
-          type: string
-          maxLength: 20
         usuario_criacao:
           type: string
-          maxLength: 60
+          readOnly: true
         usuario_edicao:
           type: string
-          maxLength: 60
+          readOnly: true
         data_criacao:
           type: string
           format: date-time
@@ -7832,6 +8623,7 @@ components:
         data_edicao:
           type: string
           format: date-time
+          readOnly: true
           nullable: true
         nome:
           type: string
@@ -7846,9 +8638,29 @@ components:
         foto:
           type: string
           format: uri
+          description: Deve ser enviado uma imagem.
         fk_especialidade:
           type: integer
-          title: Especialidade
+          nullable: true
+    PatchedDebitoCreditoPatch:
+      type: object
+      description: |-
+        Serializer base para modelos que herdam de BaseModel.
+        Automatiza preenchimento dos campos de usuário e datas.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        situacao:
+          type: string
+          description: Domínio `SITUACAO_DC`.
+        data_edicao:
+          type: string
+          format: date-time
+          nullable: true
+        usuario_edicao:
+          type: string
+          maxLength: 60
     PatchedDominio:
       type: object
       description: |-
@@ -7955,7 +8767,7 @@ components:
           type: integer
         fk_valor:
           type: integer
-    PatchedEspecialidadePatch:
+    PatchedEspecialidade:
       type: object
       description: |-
         Serializer base para modelos que herdam de BaseModel.
@@ -7964,15 +8776,12 @@ components:
         id:
           type: integer
           readOnly: true
-        situacao:
-          type: string
-          maxLength: 20
         usuario_criacao:
           type: string
-          maxLength: 60
+          readOnly: true
         usuario_edicao:
           type: string
-          maxLength: 60
+          readOnly: true
         data_criacao:
           type: string
           format: date-time
@@ -7980,6 +8789,7 @@ components:
         data_edicao:
           type: string
           format: date-time
+          readOnly: true
           nullable: true
         descricao:
           type: string
@@ -7987,9 +8797,13 @@ components:
           maxLength: 180
         detalhes:
           type: string
+        tipo:
+          type: string
+          description: Domínio `TIPO_ESPECIALIDADE`.
         foto:
           type: string
           format: uri
+          description: Deve ser enviado uma imagem.
         cbo:
           type: integer
           maximum: 2147483647
@@ -8012,10 +8826,6 @@ components:
           allOf:
           - $ref: '#/components/schemas/EnderecoWrite'
           writeOnly: true
-        foto:
-          type: string
-          format: uri
-          nullable: true
         email:
           type: string
           writeOnly: true
@@ -8031,6 +8841,9 @@ components:
         nome:
           type: string
           maxLength: 200
+        foto:
+          type: string
+          format: uri
         observacao:
           type: string
         prioridade:
@@ -8224,6 +9037,9 @@ components:
         cpf:
           type: string
           maxLength: 14
+        foto:
+          type: string
+          format: uri
         data_nascimento:
           type: string
           format: date
@@ -8359,6 +9175,81 @@ components:
           description: Domínio `GRUPO_PROCEDIMENTO`.
         status:
           type: boolean
+    PatchedProfissionalSaudeDoc:
+      type: object
+      properties:
+        email:
+          type: string
+          writeOnly: true
+        telefone:
+          type: string
+          writeOnly: true
+        id:
+          type: integer
+          readOnly: true
+        situacao:
+          type: string
+          maxLength: 20
+        usuario_criacao:
+          type: string
+          readOnly: true
+        usuario_edicao:
+          type: string
+          readOnly: true
+        data_criacao:
+          type: string
+          format: date-time
+          readOnly: true
+        data_edicao:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        nome:
+          type: string
+          maxLength: 255
+        foto:
+          type: string
+          format: uri
+          description: Deve ser enviado uma imagem.
+        perfil:
+          type: string
+        plantonista:
+          type: boolean
+        formacao:
+          type: string
+          title: Formação
+        observacao:
+          type: string
+          title: Observação
+        codigo_externo:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          title: Código externo
+        numero_conselho:
+          type: string
+          title: Número do conselho
+          maxLength: 10
+        tipo_conselho:
+          type: string
+          description: Domínio `TIPO_CONSELHO`.
+        uf_conselho:
+          type: string
+          description: Domínio `ESTADO`.
+        fk_pessoa_juridica:
+          type: integer
+          nullable: true
+          title: Pessoa jurídica
+        fk_pessoa_fisica:
+          type: integer
+          nullable: true
+          title: Pessoa física
+        pj_especialidades:
+          type: array
+          items:
+            $ref: '#/components/schemas/PjEspecialidadeDoc'
     PatchedProfissionalSaudeFavoritoList:
       type: object
       description: |-
@@ -8396,83 +9287,13 @@ components:
           type: string
           description: Domínio `TIPO_FAVORITO`.
         telemedicina:
-          type: string
-          description: Domínio `TELEMEDICINA`.
+          type: boolean
         fk_pessoa_fisica:
           type: integer
           title: Pessoa física
         fk_profissional_saude:
           type: integer
           title: Profissional da Saúde
-    PatchedProfissionalSaudePatch:
-      type: object
-      description: |-
-        Serializer base para modelos que herdam de BaseModel.
-        Automatiza preenchimento dos campos de usuário e datas.
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        usuario_criacao:
-          type: string
-          maxLength: 60
-        usuario_edicao:
-          type: string
-          maxLength: 60
-        data_criacao:
-          type: string
-          format: date-time
-          readOnly: true
-        data_edicao:
-          type: string
-          format: date-time
-          nullable: true
-        nome:
-          type: string
-          maxLength: 100
-        email:
-          type: string
-          format: email
-          title: E-mail
-          maxLength: 255
-        foto:
-          type: string
-          format: uri
-        situacao:
-          type: string
-          description: Domínio `SITUACAO_PROFISSIONAL`.
-        tipo_conselho:
-          type: string
-          description: Domínio `TIPO_CONSELHO`.
-        numero_conselho:
-          type: string
-          title: Número do conselho
-          maxLength: 10
-        perfil:
-          type: string
-          format: email
-          title: E-mail
-          maxLength: 255
-        observacao:
-          type: string
-          title: Observação
-        codigo_externo:
-          type: integer
-          maximum: 2147483647
-          minimum: -2147483648
-          nullable: true
-          title: Código externo
-        uf_conselho:
-          type: string
-          description: Domínio `ESTADOS`.
-        fk_pessoa_juridica:
-          type: integer
-          nullable: true
-          title: Pessoa jurídica
-        fk_pessoa_fisica:
-          type: integer
-          nullable: true
-          title: Pessoa física
     PatchedRecurso:
       type: object
       description: |-
@@ -8617,6 +9438,11 @@ components:
         id:
           type: integer
           readOnly: true
+        horarios_realizacao:
+          type: array
+          items:
+            $ref: '#/components/schemas/TabelaPrecoItemHorario'
+          writeOnly: true
         usuario_criacao:
           type: string
           readOnly: true
@@ -8654,6 +9480,10 @@ components:
         permite_retorno:
           type: boolean
         quantidade_dia_retorno:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        vagas_retorno:
           type: integer
           maximum: 2147483647
           minimum: 0
@@ -8790,7 +9620,7 @@ components:
           nullable: true
         valor:
           type: string
-          maxLength: 30
+          maxLength: 35
         descricao:
           type: string
           maxLength: 255
@@ -8878,6 +9708,9 @@ components:
       properties:
         fk_tabela_preco_item:
           type: integer
+        fk_tabela_preco_item_horario:
+          type: integer
+          writeOnly: true
         quantidade:
           type: integer
           minimum: 1
@@ -8948,6 +9781,9 @@ components:
           maximum: 2147483647
           minimum: -2147483648
         fk_pedido:
+          type: integer
+          nullable: true
+        fk_tabela_preco_item_horario:
           type: integer
           nullable: true
       required:
@@ -9206,6 +10042,9 @@ components:
         cpf:
           type: string
           maxLength: 14
+        foto:
+          type: string
+          format: uri
         data_nascimento:
           type: string
           format: date
@@ -9352,6 +10191,18 @@ components:
       - id
       - razao_social
       - tipo
+    PjEspecialidadeDoc:
+      type: object
+      properties:
+        fk_pessoa_juridica:
+          type: integer
+        fk_especialidade:
+          type: array
+          items:
+            type: integer
+      required:
+      - fk_especialidade
+      - fk_pessoa_juridica
     Procedimento:
       type: object
       description: |-
@@ -9418,7 +10269,6 @@ components:
       - data_criacao
       - data_delecao
       - data_edicao
-      - grupo
       - id
       - nome
       - tipo
@@ -9450,7 +10300,7 @@ components:
       - id
       - nome
       - subgrupos
-    ProfissionalSaudeCreate:
+    ProfissionalSaude:
       type: object
       description: |-
         Serializer base para modelos que herdam de BaseModel.
@@ -9459,86 +10309,23 @@ components:
         id:
           type: integer
           readOnly: true
-        usuario_criacao:
-          type: string
-          maxLength: 60
-        data_criacao:
-          type: string
-          format: date-time
-          readOnly: true
-        nome:
-          type: string
-          maxLength: 100
         email:
           type: string
-          format: email
-          title: E-mail
-          maxLength: 255
-        foto:
+          writeOnly: true
+        telefone:
           type: string
-          format: uri
+          writeOnly: true
+        pj_especialidades:
+          writeOnly: true
         situacao:
           type: string
-          description: Domínio `SITUACAO_PROFISSIONAL`.
-        tipo_conselho:
-          type: string
-          description: Domínio `TIPO_CONSELHO`.
-        numero_conselho:
-          type: string
-          title: Número do conselho
-          maxLength: 10
-        perfil:
-          type: string
-          format: email
-          title: E-mail
-          maxLength: 255
-        observacao:
-          type: string
-          title: Observação
-        codigo_externo:
-          type: integer
-          maximum: 2147483647
-          minimum: -2147483648
-          nullable: true
-          title: Código externo
-        uf_conselho:
-          type: string
-          description: Domínio `ESTADOS`.
-        fk_pessoa_juridica:
-          type: integer
-          nullable: true
-          title: Pessoa jurídica
-        fk_pessoa_fisica:
-          type: integer
-          nullable: true
-          title: Pessoa física
-      required:
-      - data_criacao
-      - foto
-      - id
-      - nome
-      - situacao
-      - tipo_conselho
-      - uf_conselho
-      - usuario_criacao
-    ProfissionalSaudeDefault:
-      type: object
-      description: |-
-        Serializer base para modelos que herdam de BaseModel.
-        Automatiza preenchimento dos campos de usuário e datas.
-      properties:
-        id:
-          type: integer
-          readOnly: true
+          maxLength: 20
         usuario_criacao:
           type: string
-          maxLength: 60
+          readOnly: true
         usuario_edicao:
           type: string
-          maxLength: 60
-        usuario_delecao:
-          type: string
-          maxLength: 60
+          readOnly: true
         data_criacao:
           type: string
           format: date-time
@@ -9546,37 +10333,22 @@ components:
         data_edicao:
           type: string
           format: date-time
-          nullable: true
-        data_delecao:
-          type: string
-          format: date-time
+          readOnly: true
           nullable: true
         nome:
           type: string
-          maxLength: 100
-        email:
-          type: string
-          format: email
-          title: E-mail
           maxLength: 255
         foto:
           type: string
           format: uri
-        situacao:
-          type: string
-          description: Domínio `SITUACAO_PROFISSIONAL`.
-        tipo_conselho:
-          type: string
-          description: Domínio `TIPO_CONSELHO`.
-        numero_conselho:
-          type: string
-          title: Número do conselho
-          maxLength: 10
+          description: Deve ser enviado uma imagem.
         perfil:
           type: string
-          format: email
-          title: E-mail
-          maxLength: 255
+        plantonista:
+          type: boolean
+        formacao:
+          type: string
+          title: Formação
         observacao:
           type: string
           title: Observação
@@ -9586,9 +10358,16 @@ components:
           minimum: -2147483648
           nullable: true
           title: Código externo
+        numero_conselho:
+          type: string
+          title: Número do conselho
+          maxLength: 10
+        tipo_conselho:
+          type: string
+          description: Domínio `TIPO_CONSELHO`.
         uf_conselho:
           type: string
-          description: Domínio `ESTADOS`.
+          description: Domínio `ESTADO`.
         fk_pessoa_juridica:
           type: integer
           nullable: true
@@ -9599,13 +10378,95 @@ components:
           title: Pessoa física
       required:
       - data_criacao
-      - foto
+      - data_edicao
       - id
       - nome
-      - situacao
-      - tipo_conselho
-      - uf_conselho
+      - pj_especialidades
       - usuario_criacao
+      - usuario_edicao
+    ProfissionalSaudeDoc:
+      type: object
+      properties:
+        email:
+          type: string
+          writeOnly: true
+        telefone:
+          type: string
+          writeOnly: true
+        id:
+          type: integer
+          readOnly: true
+        situacao:
+          type: string
+          maxLength: 20
+        usuario_criacao:
+          type: string
+          readOnly: true
+        usuario_edicao:
+          type: string
+          readOnly: true
+        data_criacao:
+          type: string
+          format: date-time
+          readOnly: true
+        data_edicao:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        nome:
+          type: string
+          maxLength: 255
+        foto:
+          type: string
+          format: uri
+          description: Deve ser enviado uma imagem.
+        perfil:
+          type: string
+        plantonista:
+          type: boolean
+        formacao:
+          type: string
+          title: Formação
+        observacao:
+          type: string
+          title: Observação
+        codigo_externo:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          title: Código externo
+        numero_conselho:
+          type: string
+          title: Número do conselho
+          maxLength: 10
+        tipo_conselho:
+          type: string
+          description: Domínio `TIPO_CONSELHO`.
+        uf_conselho:
+          type: string
+          description: Domínio `ESTADO`.
+        fk_pessoa_juridica:
+          type: integer
+          nullable: true
+          title: Pessoa jurídica
+        fk_pessoa_fisica:
+          type: integer
+          nullable: true
+          title: Pessoa física
+        pj_especialidades:
+          type: array
+          items:
+            $ref: '#/components/schemas/PjEspecialidadeDoc'
+      required:
+      - data_criacao
+      - data_edicao
+      - id
+      - nome
+      - pj_especialidades
+      - usuario_criacao
+      - usuario_edicao
     ProfissionalSaudeFavoritoCreate:
       type: object
       description: |-
@@ -9629,8 +10490,7 @@ components:
           type: string
           description: Domínio `TIPO_FAVORITO`.
         telemedicina:
-          type: string
-          description: Domínio `TELEMEDICINA`.
+          type: boolean
         fk_pessoa_fisica:
           type: integer
           title: Pessoa física
@@ -9642,7 +10502,6 @@ components:
       - fk_pessoa_fisica
       - fk_profissional_saude
       - id
-      - telemedicina
       - tipo_favorito
       - usuario_criacao
     ProfissionalSaudeFavoritoList:
@@ -9682,8 +10541,7 @@ components:
           type: string
           description: Domínio `TIPO_FAVORITO`.
         telemedicina:
-          type: string
-          description: Domínio `TELEMEDICINA`.
+          type: boolean
         fk_pessoa_fisica:
           type: integer
           title: Pessoa física
@@ -9695,86 +10553,7 @@ components:
       - fk_pessoa_fisica
       - fk_profissional_saude
       - id
-      - telemedicina
       - tipo_favorito
-      - usuario_criacao
-    ProfissionalSaudePatch:
-      type: object
-      description: |-
-        Serializer base para modelos que herdam de BaseModel.
-        Automatiza preenchimento dos campos de usuário e datas.
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        usuario_criacao:
-          type: string
-          maxLength: 60
-        usuario_edicao:
-          type: string
-          maxLength: 60
-        data_criacao:
-          type: string
-          format: date-time
-          readOnly: true
-        data_edicao:
-          type: string
-          format: date-time
-          nullable: true
-        nome:
-          type: string
-          maxLength: 100
-        email:
-          type: string
-          format: email
-          title: E-mail
-          maxLength: 255
-        foto:
-          type: string
-          format: uri
-        situacao:
-          type: string
-          description: Domínio `SITUACAO_PROFISSIONAL`.
-        tipo_conselho:
-          type: string
-          description: Domínio `TIPO_CONSELHO`.
-        numero_conselho:
-          type: string
-          title: Número do conselho
-          maxLength: 10
-        perfil:
-          type: string
-          format: email
-          title: E-mail
-          maxLength: 255
-        observacao:
-          type: string
-          title: Observação
-        codigo_externo:
-          type: integer
-          maximum: 2147483647
-          minimum: -2147483648
-          nullable: true
-          title: Código externo
-        uf_conselho:
-          type: string
-          description: Domínio `ESTADOS`.
-        fk_pessoa_juridica:
-          type: integer
-          nullable: true
-          title: Pessoa jurídica
-        fk_pessoa_fisica:
-          type: integer
-          nullable: true
-          title: Pessoa física
-      required:
-      - data_criacao
-      - foto
-      - id
-      - nome
-      - situacao
-      - tipo_conselho
-      - uf_conselho
       - usuario_criacao
     Recurso:
       type: object
@@ -9838,6 +10617,65 @@ components:
       required:
       - id
       - nome
+    SaldoVirtualCreateValidacao:
+      type: object
+      properties:
+        valor:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,13}(?:\.\d{0,2})?$
+        metodo_pagamento:
+          type: string
+          title: Método de pagamento
+      required:
+      - metodo_pagamento
+      - valor
+    SaldoVirtualList:
+      type: object
+      description: |-
+        Serializer base para modelos que herdam de BaseModel.
+        Automatiza preenchimento dos campos de usuário e datas.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        qr_code:
+          type: string
+        url:
+          type: string
+        data_criacao:
+          type: string
+          format: date-time
+          readOnly: true
+        data_edicao:
+          type: string
+          format: date-time
+          nullable: true
+        forma_pagamento:
+          type: string
+          description: Domínio `FORMA_PGMTO`.
+        comprovante:
+          type: string
+          format: uri
+          maxLength: 500
+        observacao:
+          type: string
+          title: Observação
+        valor:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,18}(?:\.\d{0,2})?$
+          nullable: true
+        situacao:
+          type: string
+          description: Domínio `SITUACAO_CR`.
+      required:
+      - data_criacao
+      - forma_pagamento
+      - id
+      - qr_code
+      - situacao
+      - url
     Subgrupo:
       type: object
       description: |-
@@ -9935,7 +10773,6 @@ components:
       - data_edicao
       - fk_pessoa_juridica
       - fk_procedimento
-      - grupo_procedimento
       - id
       - tipo_procedimento
       - usuario_criacao
@@ -9958,6 +10795,11 @@ components:
           type: array
           items:
             type: integer
+        horarios_realizacao:
+          type: array
+          items:
+            $ref: '#/components/schemas/TabelaPrecoItemHorario'
+          writeOnly: true
         taxas:
           type: array
           items:
@@ -9998,6 +10840,10 @@ components:
           type: integer
           maximum: 2147483647
           minimum: 0
+        vagas_retorno:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
         cortesia:
           type: boolean
         status:
@@ -10019,6 +10865,52 @@ components:
       - taxas
       - usuario_criacao
       - usuario_edicao
+    TabelaPrecoItemHorario:
+      type: object
+      description: |-
+        Serializer base para modelos que herdam de BaseModel.
+        Automatiza preenchimento dos campos de usuário e datas.
+      properties:
+        id:
+          type: integer
+        usuario_criacao:
+          type: string
+          readOnly: true
+        usuario_edicao:
+          type: string
+          readOnly: true
+        data_criacao:
+          type: string
+          format: date-time
+          readOnly: true
+        data_edicao:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        hora_inicial:
+          type: string
+          format: time
+        hora_final:
+          type: string
+          format: time
+        dias_semana:
+          type: array
+          items:
+            type: integer
+            maximum: 2147483647
+            minimum: -2147483648
+        vagas:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+      required:
+      - data_criacao
+      - data_edicao
+      - hora_final
+      - hora_inicial
+      - usuario_criacao
+      - usuario_edicao
     TabelaPrecoItemTaxa:
       type: object
       properties:
@@ -10030,6 +10922,7 @@ components:
           type: string
           format: date-time
           writeOnly: true
+          nullable: true
         valores:
           type: array
           items:
@@ -10063,6 +10956,11 @@ components:
         id:
           type: integer
           readOnly: true
+        horarios_realizacao:
+          type: array
+          items:
+            $ref: '#/components/schemas/TabelaPrecoItemHorario'
+          writeOnly: true
         usuario_criacao:
           type: string
           readOnly: true
@@ -10100,6 +10998,10 @@ components:
         permite_retorno:
           type: boolean
         quantidade_dia_retorno:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        vagas_retorno:
           type: integer
           maximum: 2147483647
           minimum: 0
@@ -10281,7 +11183,7 @@ components:
           nullable: true
         valor:
           type: string
-          maxLength: 30
+          maxLength: 35
         descricao:
           type: string
           maxLength: 255
@@ -10304,7 +11206,7 @@ components:
       properties:
         valor:
           type: string
-          maxLength: 30
+          maxLength: 35
         descricao:
           type: string
           maxLength: 255
@@ -10324,7 +11226,7 @@ components:
           readOnly: true
         valor:
           type: string
-          maxLength: 30
+          maxLength: 35
         descricao:
           type: string
           maxLength: 255

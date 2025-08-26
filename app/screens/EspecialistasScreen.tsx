@@ -1,6 +1,15 @@
-import { FC, useState } from "react"
-import { TextStyle, View, ViewStyle, TouchableOpacity, TextInput, ScrollView, Image, ImageStyle } from "react-native"
-import { CheckCircle } from "lucide-react-native"
+import React, { FC, useState } from "react"
+import { TextStyle, View, ViewStyle, TouchableOpacity, TextInput, ScrollView, Image, ImageStyle, Modal, Pressable } from "react-native"
+import { CheckCircle, X } from "lucide-react-native"
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withSpring, 
+  withTiming,
+  runOnJS,
+  interpolate,
+  Extrapolate
+} from "react-native-reanimated"
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { observer } from "mobx-react-lite"
@@ -16,6 +25,7 @@ import { useStores } from "@/models"
 import { showToast } from "@/components/Toast"
 import { useEspecialists } from "@/hooks/useEspecialists"
 import { Header } from "@/components/Header"
+import { colors } from "@/theme/colors"
 
 type EspecialistasScreenProps = {
   navigation: NativeStackNavigationProp<AppStackParamList, "Especialistas">
@@ -45,11 +55,105 @@ const SpecialistImage: FC = () => {
   )
 }
 
+
+
+interface SpecialtySelectionModalProps {
+  visible: boolean
+  onClose: () => void
+  specialist: any
+  onSpecialtySelect: (specialty: { id: number; descricao: string }) => void
+}
+
+const SpecialtySelectionModal: FC<SpecialtySelectionModalProps> = ({ 
+  visible, 
+  onClose, 
+  specialist, 
+  onSpecialtySelect 
+}) => {
+  const { themed } = useAppTheme()
+  const scale = useSharedValue(0)
+  const opacity = useSharedValue(0)
+  const translateY = useSharedValue(50)
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { scale: scale.value },
+        { translateY: translateY.value }
+      ],
+      opacity: opacity.value,
+    }
+  })
+
+  const overlayStyle = useAnimatedStyle(() => {
+    return {
+      opacity: opacity.value,
+    }
+  })
+
+  React.useEffect(() => {
+    if (visible) {
+      scale.value = withSpring(1, { damping: 15, stiffness: 150 })
+      opacity.value = withTiming(1, { duration: 200 })
+      translateY.value = withSpring(0, { damping: 15, stiffness: 150 })
+    } else {
+      scale.value = withSpring(0, { damping: 15, stiffness: 150 })
+      opacity.value = withTiming(0, { duration: 200 })
+      translateY.value = withSpring(50, { damping: 15, stiffness: 150 })
+    }
+  }, [visible])
+
+  if (!specialist) return null
+
+  return (
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="none"
+      onRequestClose={onClose}
+    >
+      <Animated.View style={[$modalOverlay, overlayStyle]}>
+        <Animated.View style={[themed($modalContent), animatedStyle]}>
+          <View style={themed($modalHeader)}>
+            <Text text="Escolher Especialidade" style={themed($modalTitle)} />
+            <TouchableOpacity onPress={onClose} style={themed($closeButton)}>
+              <X size={24} color="#666" />
+            </TouchableOpacity>
+          </View>
+          
+          <View style={themed($modalBody)}>
+            <Text text={`Dr. ${specialist.nome}`} style={themed($specialistNameModal)} />
+            <Text text="Selecione a especialidade desejada:" style={themed($modalSubtitle)} />
+            
+            <ScrollView style={themed($specialtiesList)} showsVerticalScrollIndicator={false}>
+              {specialist.especialidades.map((especialidade: any) => (
+                <TouchableOpacity
+                  key={especialidade.id}
+                  style={themed($specialtyOption)}
+                  onPress={() => {
+                    onSpecialtySelect(especialidade)
+                    onClose()
+                  }}
+                >
+                  <Text text={especialidade.descricao} style={themed($specialtyText)} />
+                  <CheckCircle size={20} color="#1E90FF" />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </Animated.View>
+      </Animated.View>
+    </Modal>
+  )
+}
+
 export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(function EspecialistasScreen() {
   const { themed } = useAppTheme()
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
   const { schedulingStore } = useStores()
   const [searchText, setSearchText] = useState("")
+  const [selectedSpecialist, setSelectedSpecialist] = useState<any>(null)
+  const [showSpecialtyModal, setShowSpecialtyModal] = useState(false)
 
   // Debug logging
   console.log('EspecialistasScreen Debug:', {
@@ -57,22 +161,44 @@ export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(functi
     selectedEspecialityId: schedulingStore.selectedEspecialityId,
   })
 
-  const handleSpecialistPress = (specialistId: string) => {
-    schedulingStore.setEspecialist(specialistId)
-    console.log(`Selected specialist: ${specialistId}`)
+  const handleSpecialistPress = (specialist: any) => {
+    if (specialist.especialidades.length === 1) {
+      // If only one specialty, proceed directly
+      const especialidade = specialist.especialidades[0]
+      schedulingStore.setEspecialist(specialist.id.toString())
+      schedulingStore.setEspeciality(especialidade.descricao, especialidade.id)
+      console.log(`Selected specialist: ${specialist.id} with specialty: ${especialidade.descricao}`)
 
-    // Navigate to Establishments with CO (Consultas) mode
-    navigation.navigate("Establishments", { 
-      mode: "CO"
-    })
+      // Navigate to Establishments with CO (Consultas) mode
+      navigation.navigate("Establishments", { 
+        mode: "CO"
+      })
+    } else {
+      // If multiple specialties, show selection modal
+      setSelectedSpecialist(specialist)
+      setShowSpecialtyModal(true)
+    }
   }
 
-  const { loading, error, especialistas } = useEspecialists()
+  const handleSpecialtySelect = (specialty: { id: number; descricao: string }) => {
+    if (selectedSpecialist) {
+      schedulingStore.setEspecialist(selectedSpecialist.id.toString())
+      schedulingStore.setEspeciality(specialty.descricao, specialty.id)
+      console.log(`Selected specialist: ${selectedSpecialist.id} with specialty: ${specialty.descricao}`)
+
+      // Navigate to Establishments with CO (Consultas) mode
+      navigation.navigate("Establishments", { 
+        mode: "CO"
+      })
+    }
+  }
+
+  const { loading, error, especialistas } = useEspecialists(schedulingStore.selectedEspecialityId)
   
   // Filter specialists based on search text
   const filteredSpecialists = especialistas.filter(specialist =>
     specialist.nome.toLowerCase().includes(searchText.toLowerCase()) ||
-    specialist.especialidades.some(especialidade => especialidade.toLowerCase().includes(searchText.toLowerCase()))
+    specialist.especialidades.some(especialidade => especialidade.descricao.toLowerCase().includes(searchText.toLowerCase()))
   )
 
   const handleBackPress = () => {
@@ -83,7 +209,6 @@ export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(functi
     <View style={themed($container)}>
       <Header 
         title={schedulingStore.selectedEspeciality || "Especialistas"} 
-        backgroundColor="#1E90FF" 
         titleStyle={{ color: "white" }} 
         leftIcon="back" 
         leftIconColor="white" 
@@ -96,7 +221,7 @@ export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(functi
           value={searchText}
           onChangeText={setSearchText}
           placeholder="Pesquisar especialistas"
-          containerStyle={{ backgroundColor: "#1E90FF" }}
+          containerStyle={{ backgroundColor: colors.palette.secondary500 }}
         />
       </View>
 
@@ -107,24 +232,49 @@ export const EspecialistasScreen: FC<EspecialistasScreenProps> = observer(functi
       >
         {/* Specialists List */}
         <View style={themed($specialistsContainer)}>
-          {filteredSpecialists.map((specialist) => (
-            <TouchableOpacity
-              key={specialist.id}
-              style={themed($specialistCard)}
-              onPress={() => handleSpecialistPress(specialist.id.toString())}
-            >
-              <SpecialistImage />
-              <View style={themed($specialistInfo)}>
-                <Text style={themed($specialistName)} text={specialist.nome} />
-                <Text style={themed($specialistDetails)} text={`${specialist.especialidades.join(", ")}`} />
-              </View>
-              <TouchableOpacity style={themed($optionsButton)}>
-                <CheckCircle size={20} color="#666" />
+          {loading ? (
+            <View style={themed($loadingContainer)}>
+              <Text style={themed($loadingText)} text="Carregando especialistas..." />
+            </View>
+          ) : error ? (
+            <View style={themed($errorContainer)}>
+              <Text style={themed($errorText)} text={error} />
+            </View>
+          ) : filteredSpecialists.length === 0 ? (
+            <View style={themed($emptyContainer)}>
+              <Text style={themed($emptyText)} text="Nenhum especialista encontrado" />
+            </View>
+          ) : (
+            filteredSpecialists.map((specialist) => (
+              <TouchableOpacity
+                key={specialist.id}
+                style={themed($specialistCard)}
+                onPress={() => handleSpecialistPress(specialist)}
+              >
+                <SpecialistImage />
+                <View style={themed($specialistInfo)}>
+                  <Text style={themed($specialistName)} text={specialist.nome} />
+                  <Text style={themed($specialistDetails)} text={`${specialist.especialidades.map(especialidade => especialidade.descricao).join(", ")}`} />
+                </View>
+                <TouchableOpacity style={themed($optionsButton)}>
+                  <CheckCircle size={20} color="#666" />
+                </TouchableOpacity>
               </TouchableOpacity>
-            </TouchableOpacity>
-          ))}
+            ))
+          )}
         </View>
       </Screen>
+
+      {/* Specialty Selection Modal */}
+      <SpecialtySelectionModal
+        visible={showSpecialtyModal}
+        onClose={() => {
+          setShowSpecialtyModal(false)
+          setSelectedSpecialist(null)
+        }}
+        specialist={selectedSpecialist}
+        onSpecialtySelect={handleSpecialtySelect}
+      />
     </View>
   )
 })
@@ -278,4 +428,116 @@ const $ratingText: ThemedStyle<TextStyle> = () => ({
 
 const $optionsButton: ThemedStyle<ViewStyle> = () => ({
   padding: 8,
+}) 
+
+const $modalOverlay: ViewStyle = {
+  flex: 1,
+  backgroundColor: "rgba(0, 0, 0, 0.5)",
+  justifyContent: "center",
+  alignItems: "center",
+}
+
+const $modalContent: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  backgroundColor: "white",
+  borderRadius: 16,
+  margin: spacing.lg,
+  maxHeight: "80%",
+  width: "90%",
+  shadowColor: "#000",
+  shadowOffset: {
+    width: 0,
+    height: 4,
+  },
+  shadowOpacity: 0.25,
+  shadowRadius: 8,
+  elevation: 8,
+})
+
+const $modalHeader: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: spacing.lg,
+  borderBottomWidth: 1,
+  borderBottomColor: "#E0E0E0",
+})
+
+const $modalTitle: ThemedStyle<TextStyle> = () => ({
+  fontSize: 18,
+  fontWeight: "700",
+  color: "#333",
+})
+
+const $closeButton: ThemedStyle<ViewStyle> = () => ({
+  padding: 4,
+})
+
+const $modalBody: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  padding: spacing.lg,
+})
+
+const $specialistNameModal: ThemedStyle<TextStyle> = ({ spacing }) => ({
+  fontSize: 16,
+  fontWeight: "600",
+  color: "#333",
+  marginBottom: spacing.sm,
+})
+
+const $modalSubtitle: ThemedStyle<TextStyle> = ({ spacing }) => ({
+  fontSize: 14,
+  color: "#666",
+  marginBottom: spacing.md,
+})
+
+const $specialtiesList: ThemedStyle<ViewStyle> = () => ({
+  maxHeight: 300,
+})
+
+const $specialtyOption: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  paddingVertical: spacing.md,
+  paddingHorizontal: spacing.sm,
+  borderBottomWidth: 1,
+  borderBottomColor: "#F0F0F0",
+})
+
+const $specialtyText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  color: "#333",
+  flex: 1,
+}) 
+
+const $loadingContainer: ThemedStyle<ViewStyle> = () => ({
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+})
+
+const $loadingText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  color: "#666",
+})
+
+const $errorContainer: ThemedStyle<ViewStyle> = () => ({
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+})
+
+const $errorText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  color: "#666",
+})
+
+const $emptyContainer: ThemedStyle<ViewStyle> = () => ({
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+})
+
+const $emptyText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  color: "#666",
 }) 

@@ -153,7 +153,6 @@ export const AgendaScreen: FC<AgendaScreenProps> = observer(function AgendaScree
     <View style={themed($container)}>
       <Header 
         title="Agenda" 
-        backgroundColor="#1E90FF" 
         titleStyle={{ color: "white" }} 
         leftIcon="back" 
         leftIconColor="white" 

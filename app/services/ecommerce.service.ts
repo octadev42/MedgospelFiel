@@ -26,7 +26,7 @@ export type TabelaPrecoResponse = Array<{
         horario_marcado: boolean
         exibir_horario_completo: boolean
         tipo_agenda: string
-        horarios_tabela_preco: Array<{
+        horarios_realizacao: Array<{
             id: number
             data: string
             hora_inicial: string
@@ -37,66 +37,13 @@ export type TabelaPrecoResponse = Array<{
     }>
 }>
 
-const mockTabelaPrecoResponse: TabelaPrecoResponse = [
-    {
-        "fk_pessoa_juridica": 12345,
-        "nome_fantasia": "HVisão",
-        "endereco": "Rua das Flores, 123 - Centro, São Paulo - SP",
-        "telefone": "(11) 3456-7890",
-        "foto": 'https://lh3.googleusercontent.com/p/AF1QipOSGiGTeyViY0RBgxfWrEvOl6PjL8XkLDY7qenz=s1360-w1360-h1020-rw',
-        "valor_total": 850.00,
-        "valor_total_disponivel": 650.00,
-        "itens": [
-            {
-                "nome": "Consulta Cardiologista",
-                "subgrupo_codigo": null,
-                "subgrupo_descricao": null,
-                "disponivel": true,
-                "valor_item": 250.00,
-                "ordem": "1",
-                "fk_tabela_preco_item": 1001,
-                "observacao": "Trazer exames anteriores se houver",
-                "informacao": "Consulta com Dr. Carlos Silva - Cardiologista",
-                "venda_generica": true,
-                "venda_restrita": false,
-                "horario_marcado": true,
-                "exibir_horario_completo": true,
-                "tipo_agenda": "LIVRE_LIMITADO",
-                "horarios_tabela_preco": [
-                    {
-                        "id": 2001,
-                        "data": "2025-07-15",
-                        "hora_inicial": "09:00:00",
-                        "hora_final": "09:30:00",
-                        "vagas_total": 1,
-                        "vagas_disponiveis": 1
-                    },
-                    {
-                        "id": 2002,
-                        "data": "2025-07-15",
-                        "hora_inicial": "14:00:00",
-                        "hora_final": "14:30:00",
-                        "vagas_total": 1,
-                        "vagas_disponiveis": 0
-                    },
-                    {
-                        "id": 2003,
-                        "data": "2025-07-16",
-                        "hora_inicial": "10:00:00",
-                        "hora_final": "10:30:00",
-                        "vagas_total": 1,
-                        "vagas_disponiveis": 1
-                    }
-                ]
-            },
-        ]
-    }
-]
-
 export interface Especialista {
     id: number
     situacao: string
-    especialidades: string[]
+    especialidades: {
+        id: number
+        descricao: string
+    }[]
     foto: string
     tipo_conselho: string
     numero_conselho: string
@@ -137,43 +84,106 @@ export interface ProcedimentoEcommerce {
     id?: string // Concatenated fk_procedimento.subgrupo_codigo
 }
 
+// Carrinho types
+export interface PedidoItemCreate {
+    fk_tabela_preco_item: number
+    fk_tabela_preco_item_horario?: number
+    quantidade?: number
+    data_agendada?: string
+    valor: string
+}
+
+export interface CarrinhoAddItensRequest {
+    fk_paciente: number
+    itens: PedidoItemCreate[]
+}
+
+export interface PedidoItemDetail {
+    id: number
+    fk_paciente: {
+        id: number
+        nome: string
+        // Add other PessoaFisica properties as needed
+    }
+    fk_procedimento: string
+    valor_unitario: string
+    valor_total: string
+    situacao: string
+    usuario_criacao: string
+    usuario_edicao: string
+    data_criacao: string
+    data_edicao: string
+    data_expiracao: string
+    valor_final: string
+    data_agendada: string
+    quantidade: number
+    fk_pedido: number
+    fk_tabela_preco_item_horario: number
+}
+
+export interface PaginatedPedidoItemDetailList {
+    count: number
+    next: string | null
+    previous: string | null
+    results: PedidoItemDetail[]
+}
+
 export const ecommerceService = {
+    /**
+     * Add items to the user's cart
+     */
+    async addAoCarrinho(params: CarrinhoAddItensRequest, authToken?: string): Promise<
+        { kind: "ok"; data: PaginatedPedidoItemDetailList } | (GeneralApiProblem & { error?: any })
+    > {
+        try {
+            const headers: any = {}
+            if (authToken) {
+                headers.Authorization = `Bearer ${authToken}`
+            }
+            
+            const response: ApiResponse<PaginatedPedidoItemDetailList> = await api.apisauce.post(
+                "/v1/carrinho/adicionar-itens/",
+                params,
+                { headers }
+            )
+
+            if (!response.ok) {
+                const problem = getGeneralApiProblem(response)
+                return problem || { kind: "unknown", temporary: true }
+            }
+
+            const carrinhoData = response.data
+
+            if (carrinhoData) {
+                return { kind: "ok", data: carrinhoData }
+            } else {
+                return { kind: "unknown", temporary: true }
+            }
+        } catch (e) {
+            return { kind: "unknown", temporary: true }
+        }
+    },
+
     /**
      * Show stablishments with pricing information
      */
-    async tabelaPreco(
-        app?: boolean,
-        fk_procedimento?: string,
-        tipo_procedimento?: string,
-        fk_especialista?: number,
-        fk_estabelecimento?: number,
-        fk_especialidade?: number,
-        fk_cidade?: number,
-    ): Promise<
+    async tabelaPreco(params: {
+        app?: boolean
+        fk_procedimento?: string
+        tipo_procedimento?: string
+        fk_especialista?: number
+        fk_estabelecimento?: number
+        fk_especialidade?: number
+        fk_cidade?: number
+    } = {}): Promise<
         { kind: "ok"; data: TabelaPrecoResponse } | (GeneralApiProblem & { error?: any })
     > {
         try {
             const response: ApiResponse<TabelaPrecoResponse> = await api.apisauce.get(
                 "/v1/tabela-precos/ecommerce/",
-                {
-                    app,
-                    fk_procedimento,
-                    tipo_procedimento,
-                    fk_especialista,
-                    fk_estabelecimento,
-                    fk_especialidade,
-                    fk_cidade,
-                }
+                params
             )
-            console.log('params', {
-                app,
-                fk_procedimento,
-                tipo_procedimento,
-                fk_especialista,
-                fk_estabelecimento,
-                fk_especialidade,
-                fk_cidade,
-            })
+            console.log('params', params)
 
             if (!response.ok) {
                 const problem = getGeneralApiProblem(response)

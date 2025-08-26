@@ -122,13 +122,16 @@ const EstablishmentCard: FC<{
       {mode === "CO" ? (
         // CO Mode: Single item with horarios
         <ScheduleCalendar
-          tipo_agenda="AGENDA_CLINICA"
+          tipo_agenda={establishmentRawData?.itens?.[0]?.tipo_agenda}
           onTimeSelect={(time) => console.log('Selected time:', time)}
           onTimeSlotPress={(timeSlot) => {
             console.log('Time slot pressed:', timeSlot)
             navigation.navigate("SelecionarPessoa")
           }}
-          horarios={establishmentRawData?.itens?.[0]?.horarios_tabela_preco || []}
+          horarios={establishmentRawData?.itens?.[0]?.horarios_realizacao || []}
+          tabelaPrecoItemId={establishmentRawData?.itens?.[0]?.fk_tabela_preco_item}
+          valor={establishmentRawData?.itens?.[0]?.valor_item}
+          enableCartIntegration={true}
         />
       ) : (
         // EI Mode: Multiple items (profissionais) with their own horarios
@@ -149,6 +152,9 @@ const EstablishmentCard: FC<{
                 }}
                 tipo_agenda={item.tipo_agenda}
                 horarios={item.horarios_realizacao || []}
+                tabelaPrecoItemId={item.fk_tabela_preco_item}
+                valor={item.valor_item}
+                enableCartIntegration={true}
               />
             </View>
           )})}
@@ -255,7 +261,7 @@ export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(func
         available: item.disponivel,
         observation: item.observacao,
         information: item.informacao,
-        schedules: item.horarios_tabela_preco?.map((schedule: any) => ({
+        schedules: item.horarios_realizacao?.map((schedule: any) => ({
           id: schedule.id,
           date: schedule.data,
           startTime: schedule.hora_inicial,
@@ -299,7 +305,6 @@ export const EstablishmentsScreen: FC<EstablishmentsScreenProps> = observer(func
     <View style={themed($container)}>
       <Header 
         title={mode === "EI" ? "Locais para Exames de Imagem" : "Locais de Atendimento"} 
-        backgroundColor="#1E90FF" 
         titleStyle={{ color: "white" }} 
         leftIcon="back" 
         leftIconColor="white" 

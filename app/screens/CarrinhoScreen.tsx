@@ -160,7 +160,7 @@ export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function Carrinh
 
   return (
     <View style={themed($container)}>
-      <Header title="Carrinho" backgroundColor="#1E90FF" titleStyle={{ color: "white" }} leftIcon="back" leftIconColor="white" onLeftPress={handleBackPress} />
+      <Header title="Carrinho" titleStyle={{ color: "white" }} leftIcon="back" leftIconColor="white" onLeftPress={handleBackPress} />
 
       <Screen
         preset="scroll"

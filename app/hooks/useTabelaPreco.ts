@@ -28,19 +28,16 @@ export const useTabelaPreco = (params: UseTabelaPrecoParams = {}): UseTabelaPrec
     try {
       setLoading(true)
       setError(null)
-      
-      console.log('useTabelaPreco Debug - params:', params)
-      
-      const response = await ecommerceService.tabelaPreco(
-        params.app ?? true,
-        params.fk_procedimento,
-        params.tipo_procedimento,
-        params.fk_especialista,
-        params.fk_especialidade,
-        params.fk_estabelecimento,
-        params.fk_cidade ?? 818,
-      )
-      console.log('response', response)
+            
+      const response = await ecommerceService.tabelaPreco({
+        app: params.app ?? true,
+        fk_procedimento: params.fk_procedimento,
+        tipo_procedimento: params.tipo_procedimento,
+        fk_especialista: params.fk_especialista,
+        fk_especialidade: params.fk_especialidade,
+        fk_estabelecimento: params.fk_estabelecimento,
+        fk_cidade: params.fk_cidade ?? 883,
+      })
       if (response.kind === "ok") {
         setData(response.data)
       } else {

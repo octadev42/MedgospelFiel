@@ -13,6 +13,7 @@ import type { ThemedStyle } from "@/theme/types"
 import type { AppStackParamList } from "@/navigators/AppNavigator"
 import { useStores } from "@/models"
 import { Header } from "@/components/Header"
+import { colors } from "@/theme/colors"
 
 type EspecialidadeScreenProps = {
   navigation: NativeStackNavigationProp<AppStackParamList, "Especialidade">
@@ -130,7 +131,6 @@ export const EspecialidadeScreen: FC<EspecialidadeScreenProps> = observer(functi
     <View style={themed($container)}>
       <Header 
         title="Especialidade" 
-        backgroundColor="#1E90FF" 
         titleStyle={{ color: "white" }} 
         leftIcon="back" 
         leftIconColor="white" 
@@ -143,7 +143,7 @@ export const EspecialidadeScreen: FC<EspecialidadeScreenProps> = observer(functi
           value={searchText}
           onChangeText={setSearchText}
           placeholder="Pesquisar"
-          containerStyle={{ backgroundColor: "#1E90FF" }}
+          containerStyle={{ backgroundColor: colors.palette.secondary500 }}
         />
       </View>
 
