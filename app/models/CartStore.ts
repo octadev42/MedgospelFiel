@@ -62,6 +62,9 @@ export const CartStoreModel = types
     setSelectedValor(valor: string) {
       self.selectedValor = valor
     },
+    clearSelectedTimeSlot() {
+      self.selectedTimeSlot = undefined
+    },
     async addToCart() {
       if (!self.hasRequiredFieldsForCart) {
         showToast.error("Erro", "Informações incompletas para adicionar ao carrinho")

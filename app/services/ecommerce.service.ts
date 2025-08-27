@@ -98,6 +98,15 @@ export interface CarrinhoAddItensRequest {
     itens: PedidoItemCreate[]
 }
 
+export interface CarrinhoRemoverItensRequest {
+    itens: number[]
+}
+
+export interface CarrinhoRemoverItensResponse {
+    detail: string
+    itens_removidos: number[]
+}
+
 export interface PedidoItemDetail {
     id: number
     fk_paciente: {
@@ -186,6 +195,41 @@ export const ecommerceService = {
 
             if (carrinhoData) {
                 return { kind: "ok", data: carrinhoData }
+            } else {
+                return { kind: "unknown", temporary: true }
+            }
+        } catch (e) {
+            return { kind: "unknown", temporary: true }
+        }
+    },
+
+    /**
+     * Remove items from the user's cart
+     */
+    async removerItensCarrinho(params: CarrinhoRemoverItensRequest, authToken?: string): Promise<
+        { kind: "ok"; data: CarrinhoRemoverItensResponse } | (GeneralApiProblem & { error?: any })
+    > {
+        try {
+            const headers: any = {}
+            if (authToken) {
+                headers.Authorization = `Bearer ${authToken}`
+            }
+            
+            const response: ApiResponse<CarrinhoRemoverItensResponse> = await api.apisauce.post(
+                "/v1/carrinho/remover-itens/",
+                params,
+                { headers }
+            )
+
+            if (!response.ok) {
+                const problem = getGeneralApiProblem(response)
+                return problem || { kind: "unknown", temporary: true }
+            }
+
+            const removeData = response.data
+
+            if (removeData) {
+                return { kind: "ok", data: removeData }
             } else {
                 return { kind: "unknown", temporary: true }
             }

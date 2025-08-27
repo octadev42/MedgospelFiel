@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from "react"
-import { TextStyle, View, ViewStyle, TouchableOpacity, Image, ImageStyle } from "react-native"
+import { TextStyle, View, ViewStyle, TouchableOpacity } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { observer } from "mobx-react-lite"
@@ -33,7 +33,7 @@ interface CartItem {
 export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function CarrinhoScreen() {
   const { themed } = useAppTheme()
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
-  const { cartItems, isLoading, error, getCarrinho } = useCarrinho()
+  const { cartItems, isLoading, error, getCarrinho, removeFromCarrinho } = useCarrinho()
   
   const [selectAll, setSelectAll] = useState(false)
   const [useWalletCredits, setUseWalletCredits] = useState(false)
@@ -71,9 +71,20 @@ export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function Carrinh
     console.log(`Update quantity for item ${itemId}, increment: ${increment}`)
   }
 
-  const removeItem = (itemId: string) => {
-    // This would need to be implemented with API call to remove item
-    console.log(`Remove item ${itemId}`)
+  const removeItem = async (itemId: string) => {
+    const itemIdNumber = parseInt(itemId, 10)
+    if (isNaN(itemIdNumber)) {
+      console.error("Invalid item ID:", itemId)
+      return
+    }
+    
+    const result = await removeFromCarrinho([itemIdNumber])
+    if (result.success) {
+      // Item was successfully removed, cart will be refreshed automatically
+      console.log("Item removed successfully")
+    } else {
+      console.error("Failed to remove item:", result.error)
+    }
   }
 
   const selectedCartItems = cartItems.filter(item => selectedItems.has(item.id.toString()))
@@ -86,6 +97,20 @@ export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function Carrinh
   const handlePaymentPress = () => {
     // Navigate to payment screen
     console.log("Going to payment with total:", totalPrice)
+  }
+
+  const handleRemoveSelected = async () => {
+    if (selectedItems.size === 0) {
+      return
+    }
+    
+    const itemIds = Array.from(selectedItems).map(id => parseInt(id, 10))
+    const result = await removeFromCarrinho(itemIds)
+    if (result.success) {
+      // Clear selected items after successful removal
+      setSelectedItems(new Set())
+      setSelectAll(false)
+    }
   }
 
   const renderCartItem = (item: any) => {
@@ -105,15 +130,9 @@ export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function Carrinh
           </View>
         </TouchableOpacity>
 
-        <View style={themed($itemImageContainer)}>
-          <View style={themed($itemIconContainer)}>
-            <Icon icon="view" size={24} color="#666" />
-          </View>
-        </View>
-
         <View style={themed($itemInfoContainer)}>
-          <Text style={themed($itemName)} text={typeof item.fk_procedimento === 'object' ? item.fk_procedimento?.nome || "Item" : item.fk_procedimento || "Item"} />
-          <Text style={themed($itemType)} text="Procedimento" />
+          <Text style={themed($itemName)} text={typeof item.fk_procedimento === 'object' ? item.fk_procedimento?.nome || "Procedimento" : item.fk_procedimento || "Procedimento"} />
+          <Text style={themed($itemPatientName)} text={item.fk_paciente?.nome || "Paciente não informado"} />
           <Text style={themed($itemPrice)} text={`R$ ${parseFloat(item.valor_total || '0').toFixed(2).replace('.', ',')}`} />
         </View>
 
@@ -125,7 +144,7 @@ export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function Carrinh
             <Trash2 size={16} color="#FF6B6B" />
           </TouchableOpacity>
 
-          <View style={themed($quantityContainer)}>
+          {/* <View style={themed($quantityContainer)}>
             <Text style={themed($quantityText)} text={item.quantidade?.toString() || "1"} />
             <TouchableOpacity
               style={themed($quantityButton)}
@@ -133,7 +152,7 @@ export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function Carrinh
             >
               <Plus size={16} color="#1E90FF" />
             </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
       </View>
     )
@@ -151,15 +170,23 @@ export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function Carrinh
         {/* Cart Content */}
         <View style={themed($cartContentContainer)}>
           {/* Select All */}
-          <TouchableOpacity style={themed($selectAllContainer)} onPress={toggleSelectAll}>
-            <View style={[
-              themed($checkbox),
-              selectAll && themed($checkboxSelected)
-            ]}>
-              {selectAll && <Icon icon="check" size={12} color="white" />}
-            </View>
-            <Text style={themed($selectAllText)} text="Selecionar todos" />
-          </TouchableOpacity>
+          <View style={themed($selectAllRow)}>
+            <TouchableOpacity style={themed($selectAllContainer)} onPress={toggleSelectAll}>
+              <View style={[
+                themed($checkbox),
+                selectAll && themed($checkboxSelected)
+              ]}>
+                {selectAll && <Icon icon="check" size={12} color="white" />}
+              </View>
+              <Text style={themed($selectAllText)} text="Selecionar todos" />
+            </TouchableOpacity>
+            
+            {selectedItems.size > 0 && (
+              <TouchableOpacity style={themed($removeSelectedButton)} onPress={handleRemoveSelected}>
+                <Text style={themed($removeSelectedText)} text={`Remover (${selectedItems.size})`} />
+              </TouchableOpacity>
+            )}
+          </View>
 
                   {/* Loading State */}
         {isLoading && (
@@ -270,10 +297,16 @@ const $cartContentContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   flex: 1,
 })
 
-const $selectAllContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+const $selectAllRow: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   flexDirection: "row",
   alignItems: "center",
+  justifyContent: "space-between",
   marginBottom: spacing.lg,
+})
+
+const $selectAllContainer: ThemedStyle<ViewStyle> = () => ({
+  flexDirection: "row",
+  alignItems: "center",
 })
 
 const $checkboxContainer: ThemedStyle<ViewStyle> = () => ({
@@ -303,6 +336,19 @@ const $selectAllText: ThemedStyle<TextStyle> = () => ({
   marginLeft: 12,
 })
 
+const $removeSelectedButton: ThemedStyle<ViewStyle> = () => ({
+  paddingVertical: 8,
+  paddingHorizontal: 12,
+  backgroundColor: "#FF6B6B",
+  borderRadius: 8,
+})
+
+const $removeSelectedText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 14,
+  fontWeight: "600",
+  color: "white",
+})
+
 const $cartItemContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   flexDirection: "row",
   alignItems: "center",
@@ -311,29 +357,9 @@ const $cartItemContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   borderBottomColor: "#F0F0F0",
 })
 
-const $itemImageContainer: ThemedStyle<ViewStyle> = () => ({
-  marginLeft: 12,
-  marginRight: 16,
-})
-
-const $itemImage: ThemedStyle<ImageStyle> = () => ({
-  width: 60,
-  height: 60,
-  borderRadius: 8,
-  backgroundColor: "#F0F0F0",
-})
-
-const $itemIconContainer: ThemedStyle<ViewStyle> = () => ({
-  width: 60,
-  height: 60,
-  borderRadius: 8,
-  backgroundColor: "#F0F0F0",
-  alignItems: "center",
-  justifyContent: "center",
-})
-
-const $itemInfoContainer: ThemedStyle<ViewStyle> = () => ({
+const $itemInfoContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   flex: 1,
+  marginLeft: spacing.md,
 })
 
 const $itemName: ThemedStyle<TextStyle> = () => ({
@@ -343,8 +369,8 @@ const $itemName: ThemedStyle<TextStyle> = () => ({
   marginBottom: 4,
 })
 
-const $itemType: ThemedStyle<TextStyle> = () => ({
-  fontSize: 14,
+const $itemPatientName: ThemedStyle<TextStyle> = () => ({
+  fontSize: 12,
   color: "#666",
   marginBottom: 8,
 })

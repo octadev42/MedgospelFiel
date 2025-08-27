@@ -23,6 +23,7 @@ export const useCart = () => {
     setSelectedPacienteId: cartStore.setSelectedPacienteId,
     setSelectedTabelaPrecoItem: cartStore.setSelectedTabelaPrecoItem,
     setSelectedValor: cartStore.setSelectedValor,
+    clearSelectedTimeSlot: cartStore.clearSelectedTimeSlot,
     addToCart: cartStore.addToCart,
     resetSelection: cartStore.resetSelection,
     clearCart: cartStore.clearCart,

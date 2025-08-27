@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react"
 import { useStores } from "@/models"
-import { ecommerceService, CarrinhoAddItensRequest } from "@/services/ecommerce.service"
+import { ecommerceService, CarrinhoAddItensRequest, CarrinhoRemoverItensRequest } from "@/services/ecommerce.service"
 import { showToast } from "@/components/Toast"
 
 export const useCarrinho = () => {
@@ -76,12 +76,53 @@ export const useCarrinho = () => {
     }
   }, [authenticationStore.authToken, getCarrinho])
 
+  const removeFromCarrinho = useCallback(async (itemIds: number[]) => {
+    if (!authenticationStore.authToken) {
+      setError("Usuário não autenticado")
+      showToast.error("Erro", "Usuário não autenticado")
+      return { success: false, error: "Usuário não autenticado" }
+    }
+
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const params: CarrinhoRemoverItensRequest = {
+        itens: itemIds
+      }
+      
+      const response = await ecommerceService.removerItensCarrinho(params, authenticationStore.authToken)
+      
+      if (response.kind === "ok") {
+        showToast.success("Sucesso", "Itens removidos do carrinho!")
+        
+        // Refresh cart items after removing
+        await getCarrinho()
+        
+        return { success: true, data: response.data }
+      } else {
+        const errorMessage = response.error?.message || "Erro ao remover itens do carrinho"
+        setError(errorMessage)
+        showToast.error("Erro", errorMessage)
+        return { success: false, error: errorMessage }
+      }
+    } catch (err) {
+      const errorMessage = "Erro inesperado ao remover itens do carrinho"
+      setError(errorMessage)
+      showToast.error("Erro", errorMessage)
+      return { success: false, error: errorMessage }
+    } finally {
+      setIsLoading(false)
+    }
+  }, [authenticationStore.authToken, getCarrinho])
+
   return {
     cartItems,
     isLoading,
     error,
     getCarrinho,
     addToCarrinho,
+    removeFromCarrinho,
     isAuthenticated: !!authenticationStore.authToken,
   }
 }

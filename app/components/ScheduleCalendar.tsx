@@ -1,4 +1,4 @@
-import { FC, useState, useRef, useMemo } from "react"
+import { FC, useState, useRef, useMemo, useEffect } from "react"
 import { TextStyle, View, ViewStyle, TouchableOpacity, Dimensions, Alert } from "react-native"
 import { Calendar, Clock } from "lucide-react-native"
 import { observer } from "mobx-react-lite"
@@ -80,6 +80,8 @@ const parseAndValidateDate = (dateString: string): Date | null => {
   }
 }
 
+
+
 export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function ScheduleCalendar({
   onTimeSelect,
   onTimeSlotPress,
@@ -100,27 +102,35 @@ export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function Sch
     setSelectedValor, 
     setSelectedPacienteId,
     selectedTimeSlot,
-    selectedDate
+    selectedDate,
+    clearSelectedTimeSlot
   } = useCart()
   const { authenticationStore } = useStores()
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
 
   const carouselRef = useRef<any>(null)
 
+  // Clear time selection when component mounts
+  useEffect(() => {
+    clearSelectedTimeSlot()
+  }, [clearSelectedTimeSlot])
+
   // Function to add item to cart and navigate
-  const handleAddToCartAndNavigate = async () => {
+  const handleAddToCartAndNavigate = async (timeSlot: any) => {
     if (!authenticationStore.pessoa_fisica_id) {
       showToast.error("Erro", "Usuário não autenticado")
       return
     }
 
+    const fk_tabela_preco_item_horario = timeSlot?.originalData?.fk_tabela_preco_item_horario
+
     const cartItem = {
       fk_paciente: authenticationStore.pessoa_fisica_id,
       itens: [{
         fk_tabela_preco_item: tabelaPrecoItemId!,
-        fk_tabela_preco_item_horario: selectedTimeSlot?.originalData?.fk_tabela_preco_item_horario,
+        fk_tabela_preco_item_horario: fk_tabela_preco_item_horario,
         quantidade: 1,
-        data_agendada: selectedDate,
+        data_agendada: timeSlot?.originalData?.data || selectedDate,
         valor: valor!,
       }]
     }
@@ -156,13 +166,21 @@ export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function Sch
       )
 
       if (matchingHorarios.length > 0) {
-        const timeSlots: TimeSlot[] = matchingHorarios.map(horario => ({
-          id: `${horario.fk_tabela_preco_item_horario || Math.random()}`,
-          time: formatTimeRange(horario.hora_inicial, horario.hora_final),
-          available: true,
-          vagas_disponiveis: undefined, // No vagas limit for AGENDA_CLINICA
-          originalData: horario,
-        }))
+        const timeSlots: TimeSlot[] = matchingHorarios.map(horario => {
+          // Ensure fk_tabela_preco_item_horario is available
+          if (!horario.fk_tabela_preco_item_horario) {
+            console.error('fk_tabela_preco_item_horario is missing from horario:', horario)
+            return null
+          }
+          
+          return {
+            id: `${format(currentDate, 'yyyy-MM-dd')}_${horario.fk_tabela_preco_item_horario}`,
+            time: formatTimeRange(horario.hora_inicial, horario.hora_final),
+            available: true,
+            vagas_disponiveis: undefined, // No vagas limit for AGENDA_CLINICA
+            originalData: horario,
+          }
+        }).filter(Boolean) as TimeSlot[]
 
         days.push({
           id: format(currentDate, 'yyyy-MM-dd'),
@@ -177,14 +195,12 @@ export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function Sch
   }
 
   const transformLivreLimitadaSchedule = (): DaySchedule[] => {
-    console.log('transformLivreLimitadaSchedule called with horarios:', horarios)
     
     // For LIVRE_LIMITADA, horarios come with specific dates from API (not dias_semana)
     // Each horario has a 'data' field with the specific date
     // Group horarios by date
     const horariosByDate = horarios.reduce((acc, horario) => {
       const date = horario.data
-      console.log('Processing horario:', horario, 'with date:', date)
       if (!date) return acc
       if (!acc[date]) {
         acc[date] = []
@@ -193,8 +209,6 @@ export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function Sch
       return acc
     }, {} as Record<string, typeof horarios>)
     
-    console.log('horariosByDate:', horariosByDate)
-
     // Convert to DaySchedule format
     const daySchedules: DaySchedule[] = Object.entries(horariosByDate).map(([date, horarios]) => {
       const dateObj = parseAndValidateDate(date)
@@ -203,13 +217,17 @@ export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function Sch
         return null
       }
       
-      const timeSlots: TimeSlot[] = horarios.map(horario => ({
-        id: `${horario.fk_tabela_preco_item_horario || Math.random()}`,
-        time: formatTimeRange(horario.hora_inicial, horario.hora_final),
-        available: (horario.vagas_disponiveis || 0) > 0,
-        vagas_disponiveis: horario.vagas_disponiveis || 0,
-        originalData: horario,
-      }))
+      const timeSlots: TimeSlot[] = horarios.map(horario => {
+    
+        
+        return {
+          id: `${date}_${horario.fk_tabela_preco_item_horario}`,
+          time: formatTimeRange(horario.hora_inicial, horario.hora_final),
+          available: (horario.vagas_disponiveis || 0) > 0,
+          vagas_disponiveis: horario.vagas_disponiveis || 0,
+          originalData: horario,
+        }
+      }).filter(Boolean) as TimeSlot[]
 
       return {
         id: date,
@@ -222,7 +240,6 @@ export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function Sch
 
     // Sort by date
     const sortedDaySchedules = daySchedules.sort((a, b) => parseISO(a.id).getTime() - parseISO(b.id).getTime())
-    console.log('transformLivreLimitadaSchedule result:', sortedDaySchedules)
     return sortedDaySchedules
   }
 
@@ -241,13 +258,21 @@ export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function Sch
       )
 
       if (matchingHorarios.length > 0) {
-        const timeSlots: TimeSlot[] = matchingHorarios.map(horario => ({
-          id: `${horario.fk_tabela_preco_item_horario || Math.random()}`,
-          time: formatTimeRange(horario.hora_inicial, horario.hora_final),
-          available: true,
-          vagas_disponiveis: undefined, // No vagas display for AGENDA_LIVRE
-          originalData: horario,
-        }))
+        const timeSlots: TimeSlot[] = matchingHorarios.map(horario => {
+          // Ensure fk_tabela_preco_item_horario is available
+          if (!horario.fk_tabela_preco_item_horario) {
+            console.error('fk_tabela_preco_item_horario is missing from horario:', horario)
+            return null
+          }
+          
+          return {
+            id: `${format(currentDate, 'yyyy-MM-dd')}_${horario.fk_tabela_preco_item_horario}`,
+            time: formatTimeRange(horario.hora_inicial, horario.hora_final),
+            available: true,
+            vagas_disponiveis: undefined, // No vagas display for AGENDA_LIVRE
+            originalData: horario,
+          }
+        }).filter(Boolean) as TimeSlot[]
 
         days.push({
           id: format(currentDate, 'yyyy-MM-dd'),
@@ -312,12 +337,17 @@ export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function Sch
         // Set the selected time slot in cart store
         setSelectedTimeSlot(time)
         
-        // Set the date from the day schedule
-        const daySchedule = daySchedules.find(day => 
-          day.timeSlots.some(slot => slot.id === timeId)
-        )
-        if (daySchedule) {
-          setSelectedDate(daySchedule.id) // This is the date in 'yyyy-MM-dd' format
+        // Set the date from the time slot's original data
+        if (time.originalData?.data) {
+          setSelectedDate(time.originalData.data) // Use the date from the time slot
+        } else {
+          // Fallback to day schedule date if time slot doesn't have data
+          const daySchedule = daySchedules.find(day => 
+            day.timeSlots.some(slot => slot.id === timeId)
+          )
+          if (daySchedule) {
+            setSelectedDate(daySchedule.id) // This is the date in 'yyyy-MM-dd' format
+          }
         }
         
         // Set other required fields if provided
@@ -334,7 +364,7 @@ export const ScheduleCalendar: FC<ScheduleCalendarProps> = observer(function Sch
         }
         
         // Call the add to cart and navigate function
-        handleAddToCartAndNavigate()
+        handleAddToCartAndNavigate(time)
       } else {
         // Show alert with fk_tabela_preco_item_horario (original behavior)
         const fk_tabela_preco_item_horario = time.originalData?.fk_tabela_preco_item_horario
