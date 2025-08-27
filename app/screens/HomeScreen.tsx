@@ -27,10 +27,8 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
     { icon: "homegrid_exames_imagem", title: "Exames de Imagem", onPress: () => { 
       navigation.navigate("ExamesImagem")
     } },
-    { icon: "homegrid_exames_laboratoriais", title: "Exames Laboratoriais", onPress: () => { } },
     { icon: "homegrid_procedimentos", title: "Procedimentos", onPress: () => { navigation.navigate("Procedimentos") } },
     { icon: "homegrid_cirurgias", title: "Cirurgias", onPress: () => { navigation.navigate("Cirurgias") } },
-    { icon: "homegrid_nossos_precos", title: "Nossos Preços", onPress: () => { } },
   ]
 
   const specialtyItems = [
@@ -281,10 +279,10 @@ const $serviceGrid: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   flexWrap: "wrap",
   justifyContent: "center",
   alignItems: "center",
-  gap: 0,
+  gap: 14,
   backgroundColor: "white",
   borderRadius: 16,
-  borderWidth: 1,
+
   borderColor: "#E0E0E0",
   shadowColor: "#000",
   shadowOffset: {
@@ -298,11 +296,12 @@ const $serviceGrid: ThemedStyle<ViewStyle> = ({ spacing }) => ({
 })
 
 const $serviceItem: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  width: "33.33%",
+  width: "35%",
   aspectRatio: 1,
   backgroundColor: "transparent",
   borderWidth: 0.5,
   borderColor: "#E0E0E0",
+  borderRadius:16,
   padding: spacing.sm,
   justifyContent: "center",
   alignItems: "center",
