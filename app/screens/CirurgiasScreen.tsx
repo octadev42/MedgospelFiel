@@ -1,4 +1,4 @@
-import { FC } from "react"
+import { FC, useState, useEffect, useRef } from "react"
 import { View, ViewStyle, ScrollView, TouchableOpacity, Image, TextInput, TextStyle, ImageStyle } from "react-native"
 import { observer } from "mobx-react-lite"
 import { ArrowLeft, Search, MessageCircle } from "lucide-react-native"
@@ -11,52 +11,51 @@ import { Header } from "@/components/Header"
 import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 import type { AppStackParamList } from "@/navigators/AppNavigator"
+import { useCirurgias } from "@/hooks/useCirurgias"
 
-// Mocked data for procedures
-const mockProcedures = [
-  {
-    id: 1,
-    title: "Absesso de Pálpebra",
-    clinic: "Clinica Batista",
-    address: "R. Gabriel Ferreira, 630/640 - Centro",
-    price: "R$ 1000,00",
-  },
-  {
-    id: 2,
-    title: "Biopsia de Conjuntiva",
-    clinic: "Clinica Batista",
-    address: "R. Gabriel Ferreira, 630/640 - Centro",
-    price: "R$ 1000,00",
-  },
-  {
-    id: 3,
-    title: "Artroscopia Simples",
-    clinic: "Clinica Batista",
-    address: "R. Gabriel Ferreira, 630/640 - Centro",
-    price: "R$ 1000,00",
-  },
-  {
-    id: 4,
-    title: "Cirurgia de Catarata",
-    clinic: "Clinica Batista",
-    address: "R. Gabriel Ferreira, 630/640 - Centro",
-    price: "R$ 1500,00",
-  },
-  {
-    id: 5,
-    title: "Retinopexia",
-    clinic: "Clinica Batista",
-    address: "R. Gabriel Ferreira, 630/640 - Centro",
-    price: "R$ 1200,00",
-  },
-]
+
 
 export const CirurgiasScreen: FC = observer(function CirurgiasScreen() {
   const { themed, theme: { colors } } = useAppTheme()
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
+  const { cirurgias, isLoading, error, getCirurgias, searchCirurgias } = useCirurgias()
+  const [searchTerm, setSearchTerm] = useState("")
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const handleBackPress = () => {
     navigation.goBack()
+  }
+
+  // Load cirurgias on component mount
+  useEffect(() => {
+    getCirurgias()
+  }, [getCirurgias])
+
+  const handleSearch = (text: string) => {
+    setSearchTerm(text)
+    
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current)
+    }
+    
+    // Set new timeout for debounced search
+    searchTimeoutRef.current = setTimeout(() => {
+      searchCirurgias(text)
+    }, 500) // 500ms delay
+  }
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  const formatPrice = (price: number) => {
+    return `R$ ${price.toFixed(2).replace('.', ',')}`
   }
 
   return (
@@ -73,13 +72,32 @@ export const CirurgiasScreen: FC = observer(function CirurgiasScreen() {
       {/* Search Bar */}
       <View style={themed($searchContainer)}>
         <View style={themed($searchBar)}>
-          <Search size={20} color="#9CA3AF" style={themed($searchIcon)} />
+          <Search size={20} color={searchTerm ? "#1E40AF" : "#9CA3AF"} style={themed($searchIcon)} />
           <TextInput
             style={themed($searchInput)}
-            placeholder="Pesquisar"
+            placeholder="Pesquisar cirurgias"
             placeholderTextColor="#9CA3AF"
+            value={searchTerm}
+            onChangeText={handleSearch}
+            returnKeyType="search"
+            autoCapitalize="none"
+            autoCorrect={false}
           />
+          {searchTerm.length > 0 && (
+            <TouchableOpacity 
+              style={themed($clearButton)} 
+              onPress={() => {
+                setSearchTerm("")
+                getCirurgias()
+              }}
+            >
+              <Text style={themed($clearButtonText)} text="✕" />
+            </TouchableOpacity>
+          )}
         </View>
+        {searchTerm.length > 0 && (
+          <Text style={themed($searchStatus)} text={`Pesquisando por: "${searchTerm}"`} />
+        )}
       </View>
 
       <Screen
@@ -99,24 +117,50 @@ export const CirurgiasScreen: FC = observer(function CirurgiasScreen() {
          
         </View>
 
+        {/* Loading State */}
+        {isLoading && (
+          <View style={themed($loadingContainer)}>
+            <Text style={themed($loadingText)} text="Carregando cirurgias..." />
+          </View>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <View style={themed($errorContainer)}>
+            <Text style={themed($errorText)} text={error} />
+            <TouchableOpacity style={themed($retryButton)} onPress={() => getCirurgias()}>
+              <Text style={themed($retryButtonText)} text="Tentar novamente" />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && !error && cirurgias.length === 0 && (
+          <View style={themed($emptyContainer)}>
+            <Text style={themed($emptyText)} text="Nenhuma cirurgia encontrada" />
+          </View>
+        )}
+
         {/* Procedures List */}
-        <View style={themed($proceduresContainer)}>
-          {mockProcedures.map((procedure) => (
-            <View key={procedure.id} style={themed($procedureCard)}>
-              <View style={themed($procedureInfo)}>
-                <Text style={themed($procedureTitle)} text={procedure.title} />
-                <Text style={themed($procedureClinic)} text={procedure.clinic} />
-                <Text style={themed($procedureAddress)} text={procedure.address} />
-                <TouchableOpacity style={themed($procedureButton)}>
-                  <Text style={themed($procedureButtonText)} text="Falar com atendente" />
-                </TouchableOpacity>
+        {!isLoading && !error && cirurgias.length > 0 && (
+          <View style={themed($proceduresContainer)}>
+            {cirurgias.map((cirurgia, index) => (
+              <View key={`${cirurgia.descricao}-${index}`} style={themed($procedureCard)}>
+                <View style={themed($procedureInfo)}>
+                  <Text style={themed($procedureTitle)} text={cirurgia.descricao} />
+                {/*   <Text style={themed($procedureClinic)} text={cirurgia.pessoa_juridica?.[0]?.nome_fantasia || "Clínica não informada"} />
+                  <Text style={themed($procedureAddress)} text={cirurgia.pessoa_juridica?.[0]?.endereco || "Endereço não informado"} /> */}
+                  <TouchableOpacity style={themed($procedureButton)}>
+                    <Text style={themed($procedureButtonText)} text="Falar com atendente" />
+                  </TouchableOpacity>
+                </View>
+                <View style={themed($procedurePriceContainer)}>
+                  <Text style={themed($procedurePrice)} text={formatPrice(cirurgia.valor)} />
+                </View>
               </View>
-              <View style={themed($procedurePriceContainer)}>
-                <Text style={themed($procedurePrice)} text={procedure.price} />
-              </View>
-            </View>
-          ))}
-        </View>
+            ))}
+          </View>
+        )}
       </Screen>
     </View>
   )
@@ -255,6 +299,7 @@ const $procedureButton: ThemedStyle<ViewStyle> = () => ({
   paddingHorizontal: 16,
   paddingVertical: 8,
   borderRadius: 20,
+  marginTop: 10,
   alignSelf: "flex-start",
 })
 
@@ -274,4 +319,69 @@ const $procedurePrice: ThemedStyle<TextStyle> = () => ({
   fontSize: 16,
   fontWeight: "600",
   color: "#10B981",
+})
+
+const $loadingContainer: ThemedStyle<ViewStyle> = () => ({
+  alignItems: "center",
+  paddingVertical: 32,
+})
+
+const $loadingText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  color: "#666",
+})
+
+const $errorContainer: ThemedStyle<ViewStyle> = () => ({
+  alignItems: "center",
+  paddingVertical: 32,
+})
+
+const $errorText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  color: "#FF6B6B",
+  textAlign: "center",
+  marginBottom: 16,
+})
+
+const $retryButton: ThemedStyle<ViewStyle> = () => ({
+  backgroundColor: "#1E90FF",
+  paddingHorizontal: 24,
+  paddingVertical: 8,
+  borderRadius: 8,
+})
+
+const $retryButtonText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 14,
+  fontWeight: "600",
+  color: "white",
+})
+
+const $emptyContainer: ThemedStyle<ViewStyle> = () => ({
+  alignItems: "center",
+  paddingVertical: 32,
+})
+
+const $emptyText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  color: "#666",
+  textAlign: "center",
+})
+
+const $clearButton: ThemedStyle<ViewStyle> = () => ({
+  padding: 8,
+  marginLeft: 8,
+})
+
+const $clearButtonText: ThemedStyle<TextStyle> = () => ({
+  fontSize: 16,
+  color: "#9CA3AF",
+  fontWeight: "bold",
+})
+
+const $searchStatus: ThemedStyle<TextStyle> = () => ({
+  fontSize: 12,
+  color: "#1E40AF",
+  marginTop: 8,
+  marginLeft: 4,
+  fontStyle: "italic",
 })

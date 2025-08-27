@@ -107,6 +107,17 @@ export interface CarrinhoRemoverItensResponse {
     itens_removidos: number[]
 }
 
+export interface PessoaJuridica {
+    nome_fantasia: string
+    endereco: string
+}
+
+export interface Cirurgia {
+    descricao: string
+    valor: number
+    pessoa_juridica: PessoaJuridica[]
+}
+
 export interface PedidoItemDetail {
     id: number
     fk_paciente: {
@@ -231,6 +242,48 @@ export const ecommerceService = {
             if (removeData) {
                 return { kind: "ok", data: removeData }
             } else {
+                return { kind: "unknown", temporary: true }
+            }
+        } catch (e) {
+            return { kind: "unknown", temporary: true }
+        }
+    },
+
+    /**
+     * Get cirurgias list
+     */
+    async getCirurgias(params: {
+        search?: string
+        descricao?: string
+        fk_pessoa_juridica?: number
+        informacoes?: string
+        nome_fantasia?: string
+        situacao?: string
+        valor?: number
+        ordering?: string
+        page?: number
+    } = {}): Promise<
+        { kind: "ok"; data: Cirurgia[] } | (GeneralApiProblem & { error?: any })
+    > {
+        console.log('API call to /v1/cirurgias/ with params:', params)
+        try {
+            const response: ApiResponse<Cirurgia[]> = await api.apisauce.get(
+                "/v1/cirurgias/",
+                params
+            )
+
+            if (!response.ok) {
+                const problem = getGeneralApiProblem(response)
+                return problem || { kind: "unknown", temporary: true }
+            }
+
+            const cirurgiasData = response.data
+
+            if (cirurgiasData) {
+                console.log('API response received:', cirurgiasData.length, 'items')
+                return { kind: "ok", data: cirurgiasData }
+            } else {
+                console.log('API response is empty')
                 return { kind: "unknown", temporary: true }
             }
         } catch (e) {
