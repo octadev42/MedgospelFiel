@@ -1303,6 +1303,175 @@ paths:
               schema:
                 $ref: '#/components/schemas/CidadeList'
           description: ''
+  /v1/cirurgias/:
+    get:
+      operationId: listCirurgia
+      description: |-
+        Listar Cirurgia.
+
+        ### Autorização
+        - Recurso: `Cirurgia`
+        - Permissões: IsAuthenticated
+      summary: Listar Cirurgia
+      parameters:
+      - in: query
+        name: descricao
+        schema:
+          type: string
+      - in: query
+        name: fk_pessoa_juridica
+        schema:
+          type: integer
+      - in: query
+        name: informacoes
+        schema:
+          type: string
+      - in: query
+        name: nome_fantasia
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: situacao
+        schema:
+          type: string
+      - in: query
+        name: valor
+        schema:
+          type: number
+      tags:
+      - Cirurgia
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCirurgiaListList'
+              examples:
+                ExemploDeListagem:
+                  value:
+                    count: 123
+                    next: http://api.example.org/accounts/?page=4
+                    previous: http://api.example.org/accounts/?page=2
+                    results:
+                    - descricao: ABCESSO DE PÁLPEBRA
+                      valor: 2200.0
+                      pessoa_juridica:
+                      - nome_fantasia: string
+                        endereco: string
+                  summary: Exemplo de listagem
+          description: ''
+    post:
+      operationId: createCirurgia
+      description: |-
+        Criar Cirurgia.
+
+        ### Autorização
+        - Recurso: `Cirurgia`
+        - Permissões: IsAuthenticated
+      summary: Criar Cirurgia
+      tags:
+      - Cirurgia
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CirurgiaCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CirurgiaCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CirurgiaCreate'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CirurgiaCreate'
+          description: ''
+  /v1/cirurgias/{id}/:
+    get:
+      operationId: retrieveCirurgia
+      description: |-
+        Detalhar Cirurgia.
+
+        ### Autorização
+        - Recurso: `Cirurgia`
+        - Permissões: IsAuthenticated
+      summary: Detalhar Cirurgia
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Cirurgia.
+        required: true
+      tags:
+      - Cirurgia
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CirurgiaList'
+          description: ''
+    patch:
+      operationId: partial_updateCirurgia
+      description: |-
+        Atualizar Parcialmente Cirurgia.
+
+        ### Autorização
+        - Recurso: `Cirurgia`
+        - Permissões: IsAuthenticated
+      summary: Atualizar Parcialmente Cirurgia
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Cirurgia.
+        required: true
+      tags:
+      - Cirurgia
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCirurgiaPatch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCirurgiaPatch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCirurgiaPatch'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CirurgiaPatch'
+          description: ''
   /v1/debito-credito/:
     get:
       operationId: listDébito Crédito
@@ -3934,6 +4103,33 @@ paths:
       responses:
         '201':
           description: No response body
+  /v1/pessoa-fisica/grupo-familiar/:
+    get:
+      operationId: v1_pessoa_fisica_grupo_familiar_retrieve
+      description: |
+        Lista os dependentes de um titular (SEM PAGINAÇÃO).
+
+        ### Autorização
+        - Recurso: `GrupoFamiliar`
+      summary: Listar Dependentes
+      tags:
+      - Pessoa Fisica
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PessoaFisica'
+              examples:
+                ExemploDeListagem:
+                  value:
+                  - id: 0
+                    nome: Dependente
+                    data_nascimento: '2020-01-01'
+                    sexo: F
+                    grau_parentesco: PAI
+                  summary: Exemplo de listagem
+          description: ''
   /v1/pessoa-fisica/indicadores/:
     get:
       operationId: v1_pessoa_fisica_indicadores_retrieve
@@ -3942,7 +4138,7 @@ paths:
 
         ### Autorização
         - Recurso: `ListaIndicadores`
-      summary: Listar indicadores
+      summary: Listar Indicadores
       parameters:
       - in: query
         name: codigo_indicacao
@@ -6783,6 +6979,78 @@ components:
       - id
       - nome
       - uf
+    CirurgiaCreate:
+      type: object
+      properties:
+        descricao:
+          type: string
+          title: Descrição
+          maxLength: 255
+        valor:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        fk_pessoa_juridica:
+          type: integer
+          title: Pessoa Jurídica
+        informacoes:
+          type: string
+          title: Informações adicionais
+      required:
+      - descricao
+      - fk_pessoa_juridica
+      - valor
+    CirurgiaList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        descricao:
+          type: string
+          title: Descrição
+          maxLength: 255
+        valor:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        fk_pessoa_juridica:
+          type: string
+          readOnly: true
+        informacoes:
+          type: string
+          title: Informações adicionais
+        data_criacao:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - data_criacao
+      - descricao
+      - fk_pessoa_juridica
+      - id
+      - valor
+    CirurgiaPatch:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        descricao:
+          type: string
+          title: Descrição
+          maxLength: 255
+        valor:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        informacoes:
+          type: string
+          title: Informações adicionais
+      required:
+      - descricao
+      - id
+      - valor
     ContatoRead:
       type: object
       properties:
@@ -7953,6 +8221,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CidadeList'
+    PaginatedCirurgiaListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CirurgiaList'
     PaginatedDebitoCreditoListList:
       type: object
       required:
@@ -8642,6 +8933,23 @@ components:
         fk_especialidade:
           type: integer
           nullable: true
+    PatchedCirurgiaPatch:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        descricao:
+          type: string
+          title: Descrição
+          maxLength: 255
+        valor:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        informacoes:
+          type: string
+          title: Informações adicionais
     PatchedDebitoCreditoPatch:
       type: object
       description: |-
