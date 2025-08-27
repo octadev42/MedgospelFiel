@@ -47,14 +47,14 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   } = useAppTheme()
 
   useEffect(() => {
-    SystemUI.setBackgroundColorAsync(colors.palette.primary600)
+    SystemUI.setBackgroundColorAsync(colors.palette.primary500)
 
     // Return a "cleanup" function that React will run when the component unmounts
     return () => {
       setAuthPassword("")
       setAuthEmail("")
     }
-  }, [colors.palette.primary600])
+  }, [colors.palette.primary500])
 
   const error = isSubmitted ? getValidationError(authEmail) : ""
 
@@ -96,7 +96,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   return (
     <Screen
       preset="auto"
-      backgroundColor={colors.palette.primary600}
+      backgroundColor={colors.palette.primary500}
       systemBarStyle="light"
       SystemBarsProps={{}}
       style={themed($screenBackground)}
@@ -188,7 +188,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
 const $screenBackground: ThemedStyle<ViewStyle> = ({ colors }) => ({
   flex: 1,
-  backgroundColor: colors.palette.primary600,
+  backgroundColor: colors.palette.primary500,
 })
 
 const $screenContentContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({

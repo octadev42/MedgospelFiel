@@ -250,8 +250,8 @@ export const SignupScreen: FC<SignupScreenProps> = observer(function SignupScree
 
 
     useEffect(() => {
-        SystemUI.setBackgroundColorAsync(colors.palette.primary600)
-    }, [colors.palette.primary600])
+        SystemUI.setBackgroundColorAsync(colors.palette.primary500)
+    }, [colors.palette.primary500])
 
 
 
@@ -882,7 +882,7 @@ export const SignupScreen: FC<SignupScreenProps> = observer(function SignupScree
     return (
         <Screen
             preset="auto"
-            backgroundColor={colors.palette.primary600}
+            backgroundColor={colors.palette.primary500}
             systemBarStyle="light"
             SystemBarsProps={{}}
             style={themed($screenBackground)}
@@ -994,7 +994,7 @@ export const SignupScreen: FC<SignupScreenProps> = observer(function SignupScree
 // Screen Styles
 const $screenBackground: ThemedStyle<ViewStyle> = ({ colors }) => ({
     flex: 1,
-    backgroundColor: colors.palette.primary600,
+    backgroundColor: colors.palette.primary500,
 })
 
 const $screenContentContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
