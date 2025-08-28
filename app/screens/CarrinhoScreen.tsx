@@ -14,6 +14,7 @@ import type { AppStackParamList } from "@/navigators/AppNavigator"
 import { useStores } from "@/models"
 import { Header } from "@/components/Header"
 import { useCarrinho } from "@/hooks/useCarrinho"
+import { PaymentMethodModal } from "@/components/PaymentMethodModal"
 
 type CarrinhoScreenProps = {
   navigation: NativeStackNavigationProp<AppStackParamList, "MainTabs">
@@ -33,11 +34,13 @@ interface CartItem {
 export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function CarrinhoScreen() {
   const { themed } = useAppTheme()
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
-  const { cartItems, isLoading, error, getCarrinho, removeFromCarrinho } = useCarrinho()
-  
+  const { cartItems, isLoading, error, getCarrinho, removeFromCarrinho, gerarPedido, criarPagamento } = useCarrinho()
+
   const [selectAll, setSelectAll] = useState(false)
   const [useWalletCredits, setUseWalletCredits] = useState(false)
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [orderData, setOrderData] = useState<any>(null)
 
   // Load cart items on component mount
   useEffect(() => {
@@ -55,7 +58,7 @@ export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function Carrinh
       setSelectedItems(new Set())
     }
   }
-  
+
   const toggleItemSelection = (itemId: string) => {
     const newSelectedItems = new Set(selectedItems)
     if (newSelectedItems.has(itemId)) {
@@ -77,7 +80,7 @@ export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function Carrinh
       console.error("Invalid item ID:", itemId)
       return
     }
-    
+
     const result = await removeFromCarrinho([itemIdNumber])
     if (result.success) {
       // Item was successfully removed, cart will be refreshed automatically
@@ -94,16 +97,25 @@ export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function Carrinh
     navigation.goBack()
   }
 
-  const handlePaymentPress = () => {
-    // Navigate to payment screen
-    console.log("Going to payment with total:", totalPrice)
+  const handlePaymentPress = async () => {
+    if (selectedItems.size === 0) {
+      return
+    }
+
+    const selectedItemIds = Array.from(selectedItems).map(id => parseInt(id, 10))
+    const result = await gerarPedido(selectedItemIds)
+    if (result.success) {
+      // Store order data and show payment modal
+      setOrderData(result.data)
+      setShowPaymentModal(true)
+    }
   }
 
   const handleRemoveSelected = async () => {
     if (selectedItems.size === 0) {
       return
     }
-    
+
     const itemIds = Array.from(selectedItems).map(id => parseInt(id, 10))
     const result = await removeFromCarrinho(itemIds)
     if (result.success) {
@@ -113,9 +125,51 @@ export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function Carrinh
     }
   }
 
+  const handleSelectPix = async () => {
+    if (!orderData) return
+
+    const paymentParams = {
+      fk_estabelecimento: 1, // You might need to get this from the order data
+      fk_pedido: orderData.id,
+      metodo_pagamento: "pix" as const,
+      parcelas: 1
+    }
+
+    const result = await criarPagamento(paymentParams)
+    if (result.success) {
+      setShowPaymentModal(false)
+      // Handle PIX payment success - show QR code or navigate to payment screen
+      console.log("PIX payment created:", result.data)
+    }
+  }
+
+  const handleSelectCreditCard = async () => {
+    if (!orderData) return
+
+    const paymentParams = {
+      fk_estabelecimento: 1, // You might need to get this from the order data
+      fk_pedido: orderData.id,
+      metodo_pagamento: "cartao_credito" as const,
+      parcelas: 1
+      // fk_cartao and cvv would be added here when implementing card selection
+    }
+
+    const result = await criarPagamento(paymentParams)
+    if (result.success) {
+      setShowPaymentModal(false)
+      // Handle credit card payment success
+      console.log("Credit card payment created:", result.data)
+    }
+  }
+
+  const handleClosePaymentModal = () => {
+    setShowPaymentModal(false)
+    setOrderData(null)
+  }
+
   const renderCartItem = (item: any) => {
     const isSelected = selectedItems.has(item.id.toString())
-    
+
     return (
       <View key={item.id} style={themed($cartItemContainer)}>
         <TouchableOpacity
@@ -180,7 +234,7 @@ export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function Carrinh
               </View>
               <Text style={themed($selectAllText)} text="Selecionar todos" />
             </TouchableOpacity>
-            
+
             {selectedItems.size > 0 && (
               <TouchableOpacity style={themed($removeSelectedButton)} onPress={handleRemoveSelected}>
                 <Text style={themed($removeSelectedText)} text={`Remover (${selectedItems.size})`} />
@@ -188,31 +242,31 @@ export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function Carrinh
             )}
           </View>
 
-                  {/* Loading State */}
-        {isLoading && (
-          <View style={themed($loadingContainer)}>
-            <Text style={themed($loadingText)} text="Carregando carrinho..." />
-          </View>
-        )}
+          {/* Loading State */}
+          {isLoading && (
+            <View style={themed($loadingContainer)}>
+              <Text style={themed($loadingText)} text="Carregando carrinho..." />
+            </View>
+          )}
 
-        {/* Error State */}
-        {error && (
-          <View style={themed($errorContainer)}>
-            <Text style={themed($errorText)} text={error} />
-            <TouchableOpacity style={themed($retryButton)} onPress={getCarrinho}>
-              <Text style={themed($retryButtonText)} text="Tentar novamente" />
-            </TouchableOpacity>
-          </View>
-        )}
+          {/* Error State */}
+          {error && (
+            <View style={themed($errorContainer)}>
+              <Text style={themed($errorText)} text={error} />
+              <TouchableOpacity style={themed($retryButton)} onPress={getCarrinho}>
+                <Text style={themed($retryButtonText)} text="Tentar novamente" />
+              </TouchableOpacity>
+            </View>
+          )}
 
-        {/* Cart Items */}
-        {!isLoading && !error && cartItems.length === 0 && (
-          <View style={themed($emptyContainer)}>
-            <Text style={themed($emptyText)} text="Seu carrinho está vazio" />
-          </View>
-        )}
+          {/* Cart Items */}
+          {!isLoading && !error && cartItems.length === 0 && (
+            <View style={themed($emptyContainer)}>
+              <Text style={themed($emptyText)} text="Seu carrinho está vazio" />
+            </View>
+          )}
 
-        {!isLoading && !error && cartItems.map(renderCartItem)}
+          {!isLoading && !error && cartItems.map(renderCartItem)}
 
           {/* Payment Summary */}
           <View style={themed($paymentSummaryContainer)}>
@@ -240,15 +294,30 @@ export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function Carrinh
         {/* Payment Button */}
         <View style={themed($paymentButtonContainer)}>
           <TouchableOpacity
-            style={themed($paymentButton)}
+            style={[
+              themed($paymentButton),
+              selectedItems.size === 0 && themed($paymentButtonDisabled)
+            ]}
             onPress={handlePaymentPress}
-            activeOpacity={0.8}
+            activeOpacity={selectedItems.size === 0 ? 1 : 0.8}
+            disabled={selectedItems.size === 0}
           >
-            <Text style={themed($paymentButtonText)} text="Ir para Pagamento" />
+            <Text style={[
+              themed($paymentButtonText),
+              selectedItems.size === 0 && themed($paymentButtonTextDisabled)
+            ]} text="Ir para Pagamento" />
           </TouchableOpacity>
         </View>
       </Screen>
 
+      {/* Payment Method Selection Modal */}
+      <PaymentMethodModal
+        visible={showPaymentModal}
+        onClose={handleClosePaymentModal}
+        onSelectPix={handleSelectPix}
+        onSelectCreditCard={handleSelectCreditCard}
+        orderData={orderData}
+      />
 
     </View>
   )
@@ -522,6 +591,16 @@ const $paymentButtonText: ThemedStyle<TextStyle> = () => ({
   fontSize: 18,
   fontWeight: "700",
   color: "white",
+})
+
+const $paymentButtonDisabled: ThemedStyle<ViewStyle> = () => ({
+  backgroundColor: "#E0E0E0",
+  shadowOpacity: 0,
+  elevation: 0,
+})
+
+const $paymentButtonTextDisabled: ThemedStyle<TextStyle> = () => ({
+  color: "#999",
 })
 
 const $loadingContainer: ThemedStyle<ViewStyle> = () => ({

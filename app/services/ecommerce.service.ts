@@ -107,6 +107,83 @@ export interface CarrinhoRemoverItensResponse {
     itens_removidos: number[]
 }
 
+export interface GerarPedidoRequest {
+    itens: number[]
+}
+
+export interface GerarPedidoResponse {
+    id: number
+    numero_pedido: string
+    status: string
+    valor_total: string
+    data_criacao: string
+    itens: PedidoItemDetail[]
+}
+
+export interface PagamentoRequest {
+    fk_estabelecimento: number
+    fk_pedido: number
+    metodo_pagamento: "pix" | "cartao_credito"
+    parcelas?: number
+    fk_cartao?: number
+    cvv?: string
+}
+
+export interface DadosPagamentoPix {
+    id: string
+    valor: string
+    dt_aprovacao: string | null
+    dt_criado: string
+    parcelas: number
+    status: string
+    qr_code_base64: string
+    qr_code: string
+    url: string
+}
+
+export interface DadosPagamentoCartao {
+    id: string
+    valor: string
+    dt_aprovacao: string | null
+    dt_criado: string
+    parcelas: number
+    status: string
+    status_motivo?: string | null
+}
+
+export type PagamentoResponse = DadosPagamentoPix | DadosPagamentoCartao
+
+// Credit Card types
+export interface CartaoPFRequestValidacao {
+    token: string
+}
+
+export interface CartaoPFResponse {
+    id: number
+    card_id: string
+    payment_method: string
+    last_four_digits: string
+    expiration_month: string
+    expiration_year: string
+    cardholder_name: string
+}
+
+export interface CartaoPessoaFisicaCreate {
+    id: number
+    situacao: string
+    usuario_criacao: string
+    usuario_edicao: string
+    data_criacao: string
+    data_edicao: string | null
+    padrao_padrao: boolean
+    cartao_mercado_pago_id: string
+    ultimos_digitos: string
+    tipo_cartao: string
+    fk_bandeira: string
+    fk_banco: string
+    fk_pessoa_fisica: number
+}
+
 export interface PessoaJuridica {
     nome_fantasia: string
     endereco: string
@@ -117,6 +194,42 @@ export interface Cirurgia {
     valor: number
     pessoa_juridica: PessoaJuridica[]
 }
+
+export interface Dependente {
+    id: number
+    nome: string
+    data_nascimento: string
+    sexo: string
+    grau_parentesco: string
+}
+
+export interface PessoaFisicaUpdate {
+    nome?: string
+    cpf?: string
+    data_nascimento?: string
+    sexo?: string
+    email?: string
+    telefone?: string
+    apelido?: string
+    observacao?: string
+    foto?: string
+    latitude?: string
+    longitude?: string
+    codigo_device?: string
+    plataforma?: string
+    codigo_indicacao?: string
+    origem?: string
+    situacao?: string
+}
+
+export interface DominioValor {
+    id: number
+    fk_dominio: string
+    fk_valor: string
+    status: boolean
+}
+
+export type PaginatedDominioValorList = DominioValor[]
 
 export interface PedidoItemDetail {
     id: number
@@ -250,6 +363,175 @@ export const ecommerceService = {
     },
 
     /**
+     * Generate order from cart
+     */
+    async gerarPedido(params: GerarPedidoRequest, authToken?: string): Promise<
+        { kind: "ok"; data: GerarPedidoResponse } | (GeneralApiProblem & { error?: any })
+    > {
+        try {
+            const headers: any = {}
+            if (authToken) {
+                headers.Authorization = `Bearer ${authToken}`
+            }
+            
+            const response: ApiResponse<GerarPedidoResponse> = await api.apisauce.post(
+                "/v1/carrinho/gerar-pedido/",
+                params,
+                { headers }
+            )
+
+            if (!response.ok) {
+                const problem = getGeneralApiProblem(response)
+                return problem || { kind: "unknown", temporary: true }
+            }
+
+            const pedidoData = response.data
+
+            if (pedidoData) {
+                return { kind: "ok", data: pedidoData }
+            } else {
+                return { kind: "unknown", temporary: true }
+            }
+        } catch (e) {
+            return { kind: "unknown", temporary: true }
+        }
+    },
+
+    /**
+     * Create payment
+     */
+    async criarPagamento(params: PagamentoRequest, authToken?: string): Promise<
+        { kind: "ok"; data: PagamentoResponse } | (GeneralApiProblem & { error?: any })
+    > {
+        try {
+            const headers: any = {}
+            if (authToken) {
+                headers.Authorization = `Bearer ${authToken}`
+            }
+            
+            const response: ApiResponse<PagamentoResponse> = await api.apisauce.post(
+                "/v1/pagamentos/",
+                params,
+                { headers }
+            )
+
+            if (!response.ok) {
+                const problem = getGeneralApiProblem(response)
+                return problem || { kind: "unknown", temporary: true }
+            }
+
+            const pagamentoData = response.data
+
+            if (pagamentoData) {
+                return { kind: "ok", data: pagamentoData }
+            } else {
+                return { kind: "unknown", temporary: true }
+            }
+        } catch (e) {
+            return { kind: "unknown", temporary: true }
+        }
+    },
+
+    /**
+     * Get credit cards for the logged-in user
+     */
+    async getCartoes(authToken?: string): Promise<
+        { kind: "ok"; data: CartaoPFResponse[] } | (GeneralApiProblem & { error?: any })
+    > {
+        try {
+            const headers: any = {}
+            if (authToken) {
+                headers.Authorization = `Bearer ${authToken}`
+            }
+            
+            const response: ApiResponse<CartaoPFResponse[]> = await api.apisauce.get(
+                "/v1/cartoes-pessoa-fisica/",
+                {},
+                { headers }
+            )
+
+            if (!response.ok) {
+                const problem = getGeneralApiProblem(response)
+                return problem || { kind: "unknown", temporary: true }
+            }
+
+            const cartoesData = response.data
+
+            if (cartoesData) {
+                return { kind: "ok", data: cartoesData }
+            } else {
+                return { kind: "unknown", temporary: true }
+            }
+        } catch (e) {
+            return { kind: "unknown", temporary: true }
+        }
+    },
+
+    /**
+     * Create a new credit card
+     */
+    async criarCartao(params: CartaoPFRequestValidacao, authToken?: string): Promise<
+        { kind: "ok"; data: CartaoPessoaFisicaCreate } | (GeneralApiProblem & { error?: any })
+    > {
+        try {
+            const headers: any = {}
+            if (authToken) {
+                headers.Authorization = `Bearer ${authToken}`
+            }
+            
+            const response: ApiResponse<CartaoPessoaFisicaCreate> = await api.apisauce.post(
+                "/v1/cartoes-pessoa-fisica/",
+                params,
+                { headers }
+            )
+
+            if (!response.ok) {
+                const problem = getGeneralApiProblem(response)
+                return problem || { kind: "unknown", temporary: true }
+            }
+
+            const cartaoData = response.data
+
+            if (cartaoData) {
+                return { kind: "ok", data: cartaoData }
+            } else {
+                return { kind: "unknown", temporary: true }
+            }
+        } catch (e) {
+            return { kind: "unknown", temporary: true }
+        }
+    },
+
+    /**
+     * Delete a credit card
+     */
+    async deletarCartao(cartaoId: number, authToken?: string): Promise<
+        { kind: "ok" } | (GeneralApiProblem & { error?: any })
+    > {
+        try {
+            const headers: any = {}
+            if (authToken) {
+                headers.Authorization = `Bearer ${authToken}`
+            }
+            
+            const response: ApiResponse<void> = await api.apisauce.delete(
+                `/v1/cartoes-pessoa-fisica/${cartaoId}/`,
+                {},
+                { headers }
+            )
+
+            if (!response.ok) {
+                const problem = getGeneralApiProblem(response)
+                return problem || { kind: "unknown", temporary: true }
+            }
+
+            return { kind: "ok" }
+        } catch (e) {
+            return { kind: "unknown", temporary: true }
+        }
+    },
+
+    /**
      * Get cirurgias list
      */
     async getCirurgias(params: {
@@ -284,6 +566,112 @@ export const ecommerceService = {
                 return { kind: "ok", data: cirurgiasData }
             } else {
                 console.log('API response is empty')
+                return { kind: "unknown", temporary: true }
+            }
+        } catch (e) {
+            return { kind: "unknown", temporary: true }
+        }
+    },
+
+    /**
+     * Get dependentes (family group)
+     */
+    async getDependentes(authToken?: string): Promise<
+        { kind: "ok"; data: Dependente[] } | (GeneralApiProblem & { error?: any })
+    > {
+        try {
+            const response: ApiResponse<Dependente[]> = await api.apisauce.get(
+                "/v1/pessoa-fisica/grupo-familiar/",
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                }
+            )
+
+            if (!response.ok) {
+                const problem = getGeneralApiProblem(response)
+                return problem || { kind: "unknown", temporary: true }
+            }
+
+            const dependentesData = response.data
+
+            if (dependentesData) {
+                return { kind: "ok", data: dependentesData }
+            } else {
+                return { kind: "unknown", temporary: true }
+            }
+        } catch (e) {
+            return { kind: "unknown", temporary: true }
+        }
+    },
+
+    /**
+     * Update pessoa fisica partially
+     */
+    async updatePessoaFisica(
+        id: number,
+        data: PessoaFisicaUpdate,
+        authToken?: string
+    ): Promise<
+        { kind: "ok"; data: any } | (GeneralApiProblem & { error?: any })
+    > {
+        try {
+            const response: ApiResponse<any> = await api.apisauce.put(
+                `/v1/pessoa-fisica/${id}/`,
+                data,
+                {
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                }
+            )
+
+            if (!response.ok) {
+                const problem = getGeneralApiProblem(response)
+                return problem || { kind: "unknown", temporary: true }
+            }
+
+            const updatedData = response.data
+
+            if (updatedData) {
+                return { kind: "ok", data: updatedData }
+            } else {
+                return { kind: "unknown", temporary: true }
+            }
+        } catch (e) {
+            return { kind: "unknown", temporary: true }
+        }
+    },
+
+    /**
+     * Get dominio valores
+     */
+    async getDominioValores(params: {
+        mnemonico: string
+        search?: string
+        ordering?: string
+        page?: number
+    }): Promise<
+        { kind: "ok"; data: PaginatedDominioValorList } | (GeneralApiProblem & { error?: any })
+    > {
+        try {
+            const response: ApiResponse<PaginatedDominioValorList> = await api.apisauce.get(
+                "/v1/infos/",
+                params
+            )
+
+            if (!response.ok) {
+                const problem = getGeneralApiProblem(response)
+                return problem || { kind: "unknown", temporary: true }
+            }
+
+            const dominioValoresData = response.data
+
+            if (dominioValoresData) {
+                return { kind: "ok", data: dominioValoresData }
+            } else {
                 return { kind: "unknown", temporary: true }
             }
         } catch (e) {

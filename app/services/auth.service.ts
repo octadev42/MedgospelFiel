@@ -10,9 +10,9 @@ export interface LoginResponse {
 
 // Types for pessoa fisica
 export interface PessoaFisicaData {
-  email: string
-  telefone: string
-  endereco: {
+  email?: string
+  telefone?: string
+  endereco?: {
     tipo_logradouro: string
     logradouro: string
     numero: string
@@ -20,10 +20,10 @@ export interface PessoaFisicaData {
     cep: string
     fk_cidade: number
   }
-  fk_indicador: number
-  senha: string
-  tipo: string
-  nome: string
+  fk_indicador?: number
+  senha?: string
+  tipo?: string
+  nome?: string
   cpf: string
   data_nascimento: string
   sexo: string

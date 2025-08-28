@@ -20,6 +20,7 @@ import { Header } from "@/components/Header"
 import { AppStackParamList } from "@/navigators/AppNavigator"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { useNavigation } from "@react-navigation/native"
+import { BottomTabParamList } from "@/navigators/BottomTabsNavigator"
 
 interface EscolherFluxoConsultaScreenProps {
   navigation: NativeStackNavigationProp<AppStackParamList, "EscolherFluxoConsulta">
@@ -33,6 +34,7 @@ export const EscolherFluxoConsultaScreen: FC<EscolherFluxoConsultaScreenProps> =
     } = useAppTheme()
 
     const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
+    const bottomTabsNavigation = useNavigation<BottomTabParamList>()
 
     const { schedulingStore } = useStores()
 
@@ -48,7 +50,8 @@ export const EscolherFluxoConsultaScreen: FC<EscolherFluxoConsultaScreenProps> =
       navigate("Especialidade")
     }
     const handleBack = () => {
-      navigation.goBack()
+      // navigate to home screen
+      navigation.navigate("MainTabs")
     }
 
     return (

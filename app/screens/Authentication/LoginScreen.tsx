@@ -111,7 +111,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       {/* Login Form Section */}
       <View style={themed($formContainer)}>
         <Text text="Faça login no" preset="heading" style={themed($loginTitle)} weight="light" size="xl"/>
-        <Text text="medgospel" preset="heading" style={themed($loginTitleBold)} weight="bold" size="xxl"/>
+        <Text text="oftalmoclub" preset="heading" style={themed($loginTitleBold)} weight="bold" size="xxl"/>
         
         <TextField
           value={authEmail}

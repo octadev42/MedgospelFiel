@@ -251,7 +251,7 @@ const $labelStyle: ThemedStyle<TextStyle> = ({ spacing }) => ({
 })
 
 const $inputWrapperStyle: ThemedStyle<ViewStyle> = ({ colors }) => ({
-  alignItems: "flex-start",
+  alignItems: "center",
   borderWidth: 1,
   borderRadius: 4,
   backgroundColor: colors.palette.neutral200,

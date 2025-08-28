@@ -28,6 +28,7 @@ import { BottomTabsNavigator } from "./BottomTabsNavigator"
 import { ProcedimentosScreen } from "@/screens/ProcedimentosScreen"
 import { EditarPerfilScreen } from "@/screens/EditarPerfilScreen"
 import { CirurgiasScreen } from "@/screens/CirurgiasScreen"
+import { DependentesScreen } from "@/screens/DependentesScreen"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -55,6 +56,7 @@ export type AppStackParamList = {
   Procedimentos: undefined
   EditarPerfil: undefined
   Cirurgias: undefined
+  Dependentes: undefined
   // 🔥 Your screens go here
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
@@ -90,7 +92,7 @@ const AppStack = observer(() => {
           backgroundColor: colors.background,
         },
       }}
-      initialRouteName={isAuthenticated ? "MainTabs" : "EscolherFluxoConsulta"}
+      initialRouteName={isAuthenticated ? "MainTabs" : "Login"}
     >
       <Stack.Screen name="MainTabs" component={BottomTabsNavigator} />
       <Stack.Screen name="Login" component={LoginScreen} />
@@ -105,6 +107,7 @@ const AppStack = observer(() => {
       <Stack.Screen name="Procedimentos" component={ProcedimentosScreen} />
       <Stack.Screen name="EditarPerfil" component={EditarPerfilScreen} />
       <Stack.Screen name="Cirurgias" component={CirurgiasScreen} />
+      <Stack.Screen name="Dependentes" component={DependentesScreen} />
       {/** 🔥 Your screens go here */}
       {/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
     </Stack.Navigator>

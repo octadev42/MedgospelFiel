@@ -26,6 +26,11 @@ export const ProfileScreen: FC<ProfileScreenProps> = function ProfileScreen() {
       title: "Editar Perfil",
       onPress: () => navigation.navigate("EditarPerfil")
     },
+    {
+      icon: "menu",
+      title: "Dependentes",
+      onPress: () => navigation.navigate("Dependentes")
+    },
     
     /* 
     {

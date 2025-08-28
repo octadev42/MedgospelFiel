@@ -3397,6 +3397,222 @@ paths:
       responses:
         '200':
           description: No response body
+  /v1/pagamentos/:
+    get:
+      operationId: v1_pagamentos_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - v1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPagamentoListList'
+          description: ''
+    post:
+      operationId: v1_pagamentos_create
+      tags:
+      - Pagamento E-commerce
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PagamentoRequestValidacao'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PagamentoRequestValidacao'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PagamentoRequestValidacao'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DadosPagamentoPix'
+              examples:
+                PIX-PagamentoAprovado(200):
+                  value:
+                    mensagem: Pagamento PIX aprovado.
+                    data:
+                      id: '123456'
+                      valor: '150.00'
+                      dt_aprovacao: '2025-08-09T10:00:00Z'
+                      dt_criado: '2025-08-09T09:50:00Z'
+                      parcelas: 1
+                      status: approved
+                      qr_code_base64: iVBORw0KGgoAAAANSUhEUgAA...
+                      qr_code: 00020126580014br.gov.bcb.pix...
+                      url: https://pagamento.com/pix/123456
+                  summary: PIX aprovado retornando dados do QR Code
+          description: Resposta PIX com QR Code (200).
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DadosPagamentoCartao'
+              examples:
+                PIX-PagamentoCriado(201):
+                  value:
+                    mensagem: Pagamento PIX criado com sucesso.
+                    data:
+                      id: '789012'
+                      valor: '150.00'
+                      dt_aprovacao: null
+                      dt_criado: '2025-08-09T09:59:00Z'
+                      parcelas: 1
+                      status: pending
+                      qr_code_base64: iVBORw0KGgoAAAANSUhEUgAA...
+                      qr_code: 00020126580014br.gov.bcb.pix...
+                      url: https://pagamento.com/pix/789012
+                  summary: PIX criado com QR Code pendente
+                Cartão-PagamentoAprovado(201):
+                  value:
+                    mensagem: O pagamento foi aprovado com sucesso.
+                    data:
+                      id: '654321'
+                      valor: '200.00'
+                      dt_aprovacao: '2025-08-09T10:05:00Z'
+                      dt_criado: '2025-08-09T10:00:00Z'
+                      parcelas: 3
+                      status: approved
+                  summary: Pagamento aprovado para cartão de crédito
+          description: Criação de pagamento (PIX ou cartão) (201).
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DadosPagamentoCartao'
+              examples:
+                PIX-ErroAoGerarQRCode(400):
+                  value:
+                    mensagem: Ocorreu um erro ao tentar gerar o qrcode para pagamento
+                      PIX.
+                    data:
+                      status_motivo: offline_process
+                  summary: Erro ao gerar QR Code para PIX
+                Cartão-PagamentoRejeitado(400):
+                  value:
+                    mensagem: Seu pagamento foi rejeitado, entre em contato com o
+                      banco para resolver.
+                    data:
+                      id: '654321'
+                      valor: '200.00'
+                      dt_aprovacao: null
+                      dt_criado: '2025-08-09T10:00:00Z'
+                      parcelas: 3
+                      status: rejected
+                      status_motivo: cc_rejected_blacklist
+                  summary: Pagamento rejeitado no cartão de crédito
+          description: Erros ao processar pagamento (400).
+  /v1/pagamentos/{id}/:
+    get:
+      operationId: v1_pagamentos_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagamentoList'
+          description: ''
+    put:
+      operationId: v1_pagamentos_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PagamentoList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PagamentoList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PagamentoList'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagamentoList'
+          description: ''
+    patch:
+      operationId: v1_pagamentos_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPagamentoList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPagamentoList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPagamentoList'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagamentoList'
+          description: ''
+    delete:
+      operationId: v1_pagamentos_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - v1
+      responses:
+        '204':
+          description: No response body
   /v1/parcelas-mercado-pago/:
     get:
       operationId: v1_parcelas_mercado_pago_list
@@ -7081,6 +7297,69 @@ components:
       required:
       - tipo
       - valor
+    DadosPagamentoCartao:
+      type: object
+      properties:
+        id:
+          type: string
+        valor:
+          type: string
+        dt_aprovacao:
+          type: string
+          format: date-time
+          nullable: true
+        dt_criado:
+          type: string
+          format: date-time
+        parcelas:
+          type: integer
+        status:
+          type: string
+        status_motivo:
+          type: string
+          nullable: true
+      required:
+      - dt_aprovacao
+      - dt_criado
+      - id
+      - parcelas
+      - status
+      - valor
+    DadosPagamentoPix:
+      type: object
+      properties:
+        id:
+          type: string
+        valor:
+          type: string
+        dt_aprovacao:
+          type: string
+          format: date-time
+          nullable: true
+        dt_criado:
+          type: string
+          format: date-time
+        parcelas:
+          type: integer
+        status:
+          type: string
+        qr_code_base64:
+          type: string
+        qr_code:
+          type: string
+        url:
+          type: string
+          format: uri
+      required:
+      - dt_aprovacao
+      - dt_criado
+      - id
+      - parcelas
+      - qr_code
+      - qr_code_base64
+      - status
+      - url
+      - valor
     DebitoCreditoCreate:
       type: object
       description: |-
@@ -8106,6 +8385,126 @@ components:
       - metodo_pagamento
       - status
       - usuario_criacao
+    PagamentoList:
+      type: object
+      properties:
+        fk_pessoa_fisica:
+          type: integer
+          title: Pessoa física
+        valor_cupom:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,24}(?:\.\d{0,6})?$
+          title: Valor do cupom
+        valor_transacao_reembolsado:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,24}(?:\.\d{0,6})?$
+          title: Valor da transação reembolsado
+        data_expiracao:
+          type: string
+          format: date-time
+          nullable: true
+          title: Data de expiração
+        codigo_autorizacao:
+          type: string
+          title: Código de autorização
+          maxLength: 10
+        collector_id:
+          type: string
+          maxLength: 20
+        valor_transacao:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,24}(?:\.\d{0,6})?$
+          title: Valor da transação
+        taxas:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,24}(?:\.\d{0,6})?$
+        metodo_pagamento:
+          type: string
+          title: Método de pagamento
+          maxLength: 50
+        metodo_pagamento_cielo:
+          type: string
+          title: Método de pagamento na cielo
+          maxLength: 50
+        data_aprovacao:
+          type: string
+          format: date-time
+          nullable: true
+          title: Data de aprovação
+        mercado_pago_id:
+          type: string
+          title: ID do mercado pago
+          maxLength: 255
+        status:
+          type: string
+          title: Status do mercado pago
+          maxLength: 20
+        status_detail:
+          type: string
+          title: Status detalhado do mercado pago
+          maxLength: 50
+        status_motivo:
+          type: string
+          title: Motivo do status
+          maxLength: 150
+        informacao_adicional:
+          nullable: true
+          title: Informações adicionais
+        qr_code_base64:
+          type: string
+          title: Qrcode 64
+        qr_code:
+          type: string
+          title: Qrcode
+        url_pagamento:
+          type: string
+          format: uri
+          title: URL de pagamento
+          maxLength: 500
+        usuario_criacao:
+          type: string
+          maxLength: 60
+        parcelas:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          title: Quantidade de parcelas
+        ultimos_digitos:
+          type: string
+          title: Últimos digitos do cartão
+          maxLength: 4
+      required:
+      - fk_pessoa_fisica
+      - mercado_pago_id
+      - metodo_pagamento
+      - status
+      - usuario_criacao
+    PagamentoRequestValidacao:
+      type: object
+      properties:
+        parcelas:
+          type: integer
+        metodo_pagamento:
+          type: string
+          description: pix ou cartao_credito
+        fk_cartao:
+          type: integer
+        cvv:
+          type: string
+          maxLength: 4
+          minLength: 3
+        fk_pedido:
+          type: integer
+        fk_estabelecimento:
+          type: integer
+      required:
+      - fk_estabelecimento
+      - fk_pedido
+      - metodo_pagamento
     PaginatedAcaoSimpleList:
       type: object
       required:
@@ -8428,6 +8827,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Pacote'
+    PaginatedPagamentoListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PagamentoList'
     PaginatedPedidoItemDetailList:
       type: object
       required:
@@ -9246,6 +9668,98 @@ components:
           type: boolean
         motivo_bloqueio:
           type: string
+    PatchedPagamentoList:
+      type: object
+      properties:
+        fk_pessoa_fisica:
+          type: integer
+          title: Pessoa física
+        valor_cupom:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,24}(?:\.\d{0,6})?$
+          title: Valor do cupom
+        valor_transacao_reembolsado:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,24}(?:\.\d{0,6})?$
+          title: Valor da transação reembolsado
+        data_expiracao:
+          type: string
+          format: date-time
+          nullable: true
+          title: Data de expiração
+        codigo_autorizacao:
+          type: string
+          title: Código de autorização
+          maxLength: 10
+        collector_id:
+          type: string
+          maxLength: 20
+        valor_transacao:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,24}(?:\.\d{0,6})?$
+          title: Valor da transação
+        taxas:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,24}(?:\.\d{0,6})?$
+        metodo_pagamento:
+          type: string
+          title: Método de pagamento
+          maxLength: 50
+        metodo_pagamento_cielo:
+          type: string
+          title: Método de pagamento na cielo
+          maxLength: 50
+        data_aprovacao:
+          type: string
+          format: date-time
+          nullable: true
+          title: Data de aprovação
+        mercado_pago_id:
+          type: string
+          title: ID do mercado pago
+          maxLength: 255
+        status:
+          type: string
+          title: Status do mercado pago
+          maxLength: 20
+        status_detail:
+          type: string
+          title: Status detalhado do mercado pago
+          maxLength: 50
+        status_motivo:
+          type: string
+          title: Motivo do status
+          maxLength: 150
+        informacao_adicional:
+          nullable: true
+          title: Informações adicionais
+        qr_code_base64:
+          type: string
+          title: Qrcode 64
+        qr_code:
+          type: string
+          title: Qrcode
+        url_pagamento:
+          type: string
+          format: uri
+          title: URL de pagamento
+          maxLength: 500
+        usuario_criacao:
+          type: string
+          maxLength: 60
+        parcelas:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          title: Quantidade de parcelas
+        ultimos_digitos:
+          type: string
+          title: Últimos digitos do cartão
+          maxLength: 4
     PatchedPermissaoAcesso:
       type: object
       description: |-
