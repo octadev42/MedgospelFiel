@@ -12,6 +12,7 @@ import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 import type { AppStackParamList } from "@/navigators/AppNavigator"
 import { useCirurgias } from "@/hooks/useCirurgias"
+import { openLinkInBrowser } from "@/utils/openLinkInBrowser"
 
 
 
@@ -55,7 +56,15 @@ export const CirurgiasScreen: FC = observer(function CirurgiasScreen() {
   }, [])
 
   const formatPrice = (price: number) => {
-    return `R$ ${price.toFixed(2).replace('.', ',')}`
+    return `A partir de: R$ ${price.toFixed(2).replace('.', ',')}`
+  }
+
+  const openWhatsApp = (message?: string) => {
+    const phoneNumber = "5511999999999" // Mocked WhatsApp number
+    const defaultMessage = "Olá! Gostaria de solicitar um orçamento para cirurgia."
+    const whatsappMessage = message || defaultMessage
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`
+    openLinkInBrowser(whatsappUrl)
   }
 
   return (
@@ -108,13 +117,12 @@ export const CirurgiasScreen: FC = observer(function CirurgiasScreen() {
         {/* Promotional Banner */}
         <View style={themed($promoBanner)}>
           <View style={themed($promoContent)}>
-            <Text style={themed($promoTitle)} text="Agende agora mesmo pelo WhatsApp!" />
-           {/*  <TouchableOpacity style={themed($whatsappButton)}>
+            <Text style={themed($promoTitle)} text="NÃO ENCONTROU SUA CIRURGIA, FALE CONOSCO PELO WHATSAPP" />
+            <TouchableOpacity style={themed($whatsappButton)} onPress={() => openWhatsApp()}>
               <MessageCircle size={16} color="white" />
               <Text style={themed($whatsappButtonText)} text="Falar com atendente" />
-            </TouchableOpacity> */}
+            </TouchableOpacity>
           </View>
-         
         </View>
 
         {/* Loading State */}
@@ -150,8 +158,11 @@ export const CirurgiasScreen: FC = observer(function CirurgiasScreen() {
                   <Text style={themed($procedureTitle)} text={cirurgia.descricao} />
                 {/*   <Text style={themed($procedureClinic)} text={cirurgia.pessoa_juridica?.[0]?.nome_fantasia || "Clínica não informada"} />
                   <Text style={themed($procedureAddress)} text={cirurgia.pessoa_juridica?.[0]?.endereco || "Endereço não informado"} /> */}
-                  <TouchableOpacity style={themed($procedureButton)}>
-                    <Text style={themed($procedureButtonText)} text="Falar com atendente" />
+                  <TouchableOpacity 
+                    style={themed($procedureButton)}
+                    onPress={() => openWhatsApp(`Olá! Gostaria de solicitar um orçamento para: ${cirurgia.descricao}`)}
+                  >
+                    <Text style={themed($procedureButtonText)} text="Solicitar orçamento" />
                   </TouchableOpacity>
                 </View>
                 <View style={themed($procedurePriceContainer)}>
