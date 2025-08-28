@@ -24,11 +24,15 @@ import * as Linking from "expo-linking"
 import * as SplashScreen from "expo-splash-screen"
 import { KeyboardProvider } from "react-native-keyboard-controller"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
+import * as SplashScreen from "expo-splash-screen"
+import { GestureHandlerRootView } from "react-native-gesture-handler"
 
 import { initI18n } from "./i18n"
+import { useInitialRootStore } from "./models/helpers/useStores"
 import { AppNavigator } from "./navigators/AppNavigator"
 import { useNavigationPersistence } from "./navigators/navigationUtilities"
 import { ThemeProvider } from "./theme/context"
+import { ToastComponent } from "./components/Toast"
 import { customFontsToLoad } from "./theme/typography"
 import { loadDateFnsLocale } from "./utils/formatDate"
 import * as storage from "./utils/storage"
@@ -84,13 +88,36 @@ export function App() {
       })
   }, [])
 
+  const { rehydrated } = useInitialRootStore(() => {
+    // This runs after the root store has been initialized and rehydrated.
+
+    // If your initialization scripts run very fast, it's good to show the splash screen for just a bit longer to prevent flicker.
+    // Slightly delaying splash screen hiding for better UX; can be customized or removed as needed,
+    setTimeout(SplashScreen.hideAsync, 500)
+  })
+
+  // Debug logging to identify which condition is causing the blue screen
+  console.log("App initialization states:", {
+    rehydrated,
+    isNavigationStateRestored,
+    isI18nInitialized,
+    areFontsLoaded,
+    fontLoadError,
+  })
+
   // Before we show the app, we have to wait for our state to be ready.
   // In the meantime, don't render anything. This will be the background
   // color set in native by rootView's background color.
   // In iOS: application:didFinishLaunchingWithOptions:
   // In Android: https://stackoverflow.com/a/45838109/204044
   // You can replace with your own loading component if you wish.
-  if (!isNavigationStateRestored || !isI18nInitialized || (!areFontsLoaded && !fontLoadError)) {
+  if (
+    !rehydrated ||
+    !isNavigationStateRestored ||
+    !isI18nInitialized ||
+    (!areFontsLoaded && !fontLoadError)
+  ) {
+    console.log("App not ready yet, showing blue screen")
     return null
   }
 
@@ -101,16 +128,19 @@ export function App() {
 
   // otherwise, we're ready to render the app
   return (
-    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-      <KeyboardProvider>
-        <ThemeProvider>
-          <AppNavigator
-            linking={linking}
-            initialState={initialNavigationState}
-            onStateChange={onNavigationStateChange}
-          />
-        </ThemeProvider>
-      </KeyboardProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+        <KeyboardProvider>
+          <ThemeProvider>
+            <AppNavigator
+              linking={linking}
+             /*  initialState={initialNavigationState}
+              onStateChange={onNavigationStateChange} */
+            />
+            <ToastComponent />
+          </ThemeProvider>
+        </KeyboardProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   )
 }

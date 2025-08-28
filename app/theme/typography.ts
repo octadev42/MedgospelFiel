@@ -3,29 +3,29 @@
 
 import { Platform } from "react-native"
 import {
-  SpaceGrotesk_300Light as spaceGroteskLight,
-  SpaceGrotesk_400Regular as spaceGroteskRegular,
-  SpaceGrotesk_500Medium as spaceGroteskMedium,
-  SpaceGrotesk_600SemiBold as spaceGroteskSemiBold,
-  SpaceGrotesk_700Bold as spaceGroteskBold,
-} from "@expo-google-fonts/space-grotesk"
+  Exo2_300Light as exo2Light,
+  Exo2_400Regular as exo2Regular,
+  Exo2_500Medium as exo2Medium,
+  Exo2_600SemiBold as exo2SemiBold,
+  Exo2_700Bold as exo2Bold,
+} from "@expo-google-fonts/exo-2"
 
 export const customFontsToLoad = {
-  spaceGroteskLight,
-  spaceGroteskRegular,
-  spaceGroteskMedium,
-  spaceGroteskSemiBold,
-  spaceGroteskBold,
+  exo2Light,
+  exo2Regular,
+  exo2Medium,
+  exo2SemiBold,
+  exo2Bold,
 }
 
 const fonts = {
   spaceGrotesk: {
     // Cross-platform Google font.
-    light: "spaceGroteskLight",
-    normal: "spaceGroteskRegular",
-    medium: "spaceGroteskMedium",
-    semiBold: "spaceGroteskSemiBold",
-    bold: "spaceGroteskBold",
+    light: "exo2Light",
+    normal: "exo2Regular",
+    medium: "exo2Medium",
+    semiBold: "exo2SemiBold",
+    bold: "exo2Bold",
   },
   helveticaNeue: {
     // iOS only font.

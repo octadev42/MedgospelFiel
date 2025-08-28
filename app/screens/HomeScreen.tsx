@@ -1,9 +1,9 @@
-import { FC, useState } from "react"
+import { FC, useEffect, useState } from "react"
 import { Image, ImageStyle, TextStyle, View, ViewStyle, TouchableOpacity, ScrollView } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 
-import { BottomNavigation } from "@/components/BottomNavigation"
+
 import { Icon } from "@/components/Icon"
 import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
@@ -11,55 +11,50 @@ import { useAppTheme } from "@/theme/context"
 import { $styles } from "@/theme/styles"
 import type { ThemedStyle } from "@/theme/types"
 import type { AppStackScreenProps, AppStackParamList } from "@/navigators/AppNavigator"
+import { WColorIcon } from "@/components/WColorIcon"
+import { useStores } from "@/models"
 
-type HomeScreenProps = AppStackScreenProps<"Home">
+type HomeScreenProps = {
+  navigation: NativeStackNavigationProp<AppStackParamList, "MainTabs">
+}
 
 export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
   const { themed } = useAppTheme()
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
-  const [activeTab, setActiveTab] = useState<"home" | "wallet" | "cart" | "heart" | "profile">("home")
 
   const serviceItems = [
-    { icon: "check", title: "Consultas", onPress: () => navigation.navigate("Especialistas") },
-    { icon: "settings", title: "Exames de Imagem", onPress: () => {} },
-    { icon: "view", title: "Exames Laboratoriais", onPress: () => {} },
-    { icon: "lock", title: "Procedimentos", onPress: () => {} },
-    { icon: "menu", title: "Cirurgias", onPress: () => {} },
-    { icon: "more", title: "Nossos Preços", onPress: () => {} },
+    { icon: "homegrid_consultas", title: "Consultas", onPress: () => navigation.navigate("EscolherFluxoConsulta") },
+    { icon: "homegrid_exames_imagem", title: "Exames de Imagem", onPress: () => { 
+      navigation.navigate("ExamesImagem")
+    } },
+    { icon: "homegrid_exames_laboratoriais", title: "Exames Laboratoriais", onPress: () => { } },
+    { icon: "homegrid_procedimentos", title: "Procedimentos", onPress: () => { navigation.navigate("Procedimentos") } },
+    { icon: "homegrid_cirurgias", title: "Cirurgias", onPress: () => { navigation.navigate("Cirurgias") } },
+    { icon: "homegrid_nossos_precos", title: "Nossos Preços", onPress: () => { } },
   ]
 
   const specialtyItems = [
-    { icon: "check", title: "Neurologia", onPress: () => {} },
-    { icon: "settings", title: "Gastro-enterologia", onPress: () => {} },
-    { icon: "view", title: "Pneumologia", onPress: () => {} },
-    { icon: "lock", title: "Radiologia", onPress: () => {} },
-    { icon: "menu", title: "Cardiologia", onPress: () => {} },
-    { icon: "more", title: "Dermatologia", onPress: () => {} },
+    { icon: "especialidades_neurologia", title: "Neurologia", onPress: () => { } },
+    { icon: "especialidades_gastroenterologia", title: "Gastro-enterologia", onPress: () => { } },
+    { icon: "especialidades_pneumologia", title: "Pneumologia", onPress: () => { } },
+    { icon: "more", title: "Mais", onPress: () => { } },
   ]
 
   const hospitalCards = [
-    { title: "Clinica Batista", image: null },
-    { title: "Hospital São Lucas", image: null },
+    { title: "HVTCR - Hospital da Visão Dr. Thiago Castro Ramalho", image: require("@assets/images/estabelecimentos/hvisao.webp") },
+    { title: "Clinica Batista", image: require("@assets/images/estabelecimentos/clinica-batista.webp") },
   ]
 
   const handleViewAllSpecialties = () => {
     navigation.navigate("Especialidade")
   }
 
-  const handleTabPress = (tab: "home" | "wallet" | "cart" | "heart" | "profile") => {
-    if (tab === "profile") {
-      navigation.navigate("Profile")
-    } else if (tab === "home") {
-      navigation.navigate("Home")
-    } else {
-      setActiveTab(tab)
-    }
-  }
+
 
   return (
     <View style={themed($container)}>
-      <Screen 
-        preset="scroll" 
+      <Screen
+        preset="scroll"
         contentContainerStyle={themed($screenContentContainer)}
         safeAreaEdges={["top"]}
         systemBarStyle="light"
@@ -73,7 +68,7 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
                 <View style={themed($profileImage)} />
                 <View style={themed($profileTextContainer)}>
                   <Text style={themed($welcomeText)} text="Seja bem-vinda, Maria!" />
-                  <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+                  <TouchableOpacity onPress={() => { }}>
                     <Text style={themed($profileLink)} text="Acessar meu perfil" />
                   </TouchableOpacity>
                 </View>
@@ -93,8 +88,10 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
               </View>
             </View>
           </View>
+        </View>
 
-          {/* Service Grid */}
+        {/* Service Grid */}
+        <View style={{ padding: 8 }}>
           <View style={themed($serviceGridContainer)}>
             <View style={themed($serviceGrid)}>
               {serviceItems.map((item, index) => (
@@ -104,7 +101,7 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
                   onPress={item.onPress}
                 >
                   <View style={themed($serviceIconContainer)}>
-                    <Icon icon={item.icon as any} size={32} color="#20B2AA" />
+                    <WColorIcon icon={item.icon as any} size={32} color="#20B2AA" />
                   </View>
                   <Text style={themed($serviceTitle)} text={item.title} />
                 </TouchableOpacity>
@@ -116,14 +113,14 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
         {/* Especialidades Section */}
         <View style={themed($especialidadesContainer)}>
           <View style={themed($sectionHeader)}>
-            <Text style={themed($sectionTitle)} text="Especialidades" />
+            <Text style={themed($sectionTitle)} text="Especialidades mais acessadas" />
             <TouchableOpacity onPress={handleViewAllSpecialties}>
               <Text style={themed($viewAllLink)} text="Todos >" />
             </TouchableOpacity>
           </View>
-          
-          <ScrollView 
-            horizontal 
+
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={themed($especialidadesScrollContainer)}
           >
@@ -134,7 +131,7 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
                 onPress={item.onPress}
               >
                 <View style={themed($especialidadeIconContainer)}>
-                  <Icon icon={item.icon as any} size={32} color="#20B2AA" />
+                  <WColorIcon icon={item.icon as any} size={32} color="#20B2AA" />
                 </View>
                 <Text style={themed($especialidadeTitle)} text={item.title} />
               </TouchableOpacity>
@@ -150,15 +147,15 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
               <Text style={themed($viewAllLink)} text="Todos >" />
             </TouchableOpacity>
           </View>
-          
-          <ScrollView 
-            horizontal 
+
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={themed($hospitalScrollContainer)}
           >
             {hospitalCards.map((hospital, index) => (
               <TouchableOpacity key={index} style={themed($hospitalCard)}>
-                <View style={themed($hospitalImagePlaceholder)} />
+                <Image source={hospital.image} style={themed($hospitalImagePlaceholder)} />
                 <View style={themed($hospitalCardContent)}>
                   <Text style={themed($hospitalTitle)} text={hospital.title} />
                   <View style={themed($hospitalRatingRow)}>
@@ -177,14 +174,8 @@ export const HomeScreen: FC<HomeScreenProps> = function HomeScreen() {
           </ScrollView>
         </View>
       </Screen>
-      
-      {/* Bottom Navigation - Fixed at bottom */}
-      <View style={themed($bottomNavigationContainer)}>
-        <BottomNavigation
-          active={activeTab}
-          onTabPress={handleTabPress}
-        />
-      </View>
+
+
     </View>
   )
 }
@@ -195,27 +186,17 @@ const $container: ThemedStyle<ViewStyle> = () => ({
 
 const $screenContentContainer: ThemedStyle<ViewStyle> = () => ({
   flexGrow: 1,
-  paddingBottom: 100, // Increased padding to account for fixed bottom navigation
-})
-
-const $bottomNavigationContainer: ThemedStyle<ViewStyle> = () => ({
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  right: 0,
-  backgroundColor: "white",
-  borderTopWidth: 1,
-  borderTopColor: "#E0E0E0",
+  paddingBottom: 120,
 })
 
 const $mainBlueContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  backgroundColor: "#1E90FF",
+  backgroundColor: "#FEE501",
   marginTop: -50, // Extend into status bar area
   paddingTop: 70, // Add extra padding to account for status bar
   paddingHorizontal: spacing.lg,
-  paddingBottom: spacing.xl,
-  borderBottomLeftRadius: 20,
-  borderBottomRightRadius: 20,
+  paddingBottom: spacing.xxs,
+ /*  borderBottomLeftRadius: 20,
+  borderBottomRightRadius: 20, */
 })
 
 const $headerContainer: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
@@ -235,10 +216,10 @@ const $profileSection: ThemedStyle<ViewStyle> = () => ({
 })
 
 const $profileImage: ThemedStyle<ViewStyle> = () => ({
-  width: 50,
+  width: 8,
   height: 50,
   borderRadius: 25,
-  backgroundColor: "white",
+  backgroundColor: "transparent",
   marginRight: 12,
 })
 
@@ -246,16 +227,16 @@ const $profileTextContainer: ThemedStyle<ViewStyle> = () => ({
   flex: 1,
 })
 
-const $welcomeText: ThemedStyle<TextStyle> = () => ({
+const $welcomeText: ThemedStyle<TextStyle> = ({ colors }) => ({
   fontSize: 16,
   fontWeight: "700",
-  color: "white",
+  color: colors.text,
   marginBottom: 4,
 })
 
-const $profileLink: ThemedStyle<TextStyle> = () => ({
+const $profileLink: ThemedStyle<TextStyle> = ({colors}) => ({
   fontSize: 14,
-  color: "#87CEEB",
+  color: colors.text,
   textDecorationLine: "underline",
 })
 
@@ -337,7 +318,7 @@ const $serviceTitle: ThemedStyle<TextStyle> = () => ({
   color: "#333",
   textAlign: "center",
   lineHeight: 16,
-}) 
+})
 
 const $topHospitalContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   paddingHorizontal: spacing.lg,
@@ -385,7 +366,7 @@ const $hospitalCard: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   elevation: 3,
 })
 
-const $hospitalImagePlaceholder: ThemedStyle<ViewStyle> = () => ({
+const $hospitalImagePlaceholder: ThemedStyle<ImageStyle> = () => ({
   width: "100%",
   height: 120,
   backgroundColor: "#E0E0E0",
@@ -448,7 +429,7 @@ const $actionIconsContainer: ThemedStyle<ViewStyle> = () => ({
 
 const $actionIcon: ThemedStyle<ViewStyle> = () => ({
   padding: 4,
-}) 
+})
 
 const $especialidadesContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   paddingHorizontal: spacing.lg,
@@ -491,7 +472,7 @@ const $especialidadeTitle: ThemedStyle<TextStyle> = () => ({
   textAlign: "center",
   lineHeight: 14,
   flexWrap: "wrap",
-}) 
+})
 
 const $hospitalScrollContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   paddingRight: spacing.lg,

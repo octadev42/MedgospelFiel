@@ -5,10 +5,11 @@
  * See the [Backend API Integration](https://docs.infinite.red/ignite-cli/boilerplate/app/services/#backend-api-integration)
  * documentation for more details.
  */
-import { ApisauceInstance, create } from "apisauce"
+import { ApiResponse, ApisauceInstance, create } from "apisauce"
 
 import Config from "@/config"
 
+import { GeneralApiProblem } from "./apiProblem"
 import type { ApiConfig } from "./types"
 
 /**
@@ -40,6 +41,8 @@ export class Api {
       },
     })
   }
+
+
 }
 
 // Singleton instance of the API for convenience

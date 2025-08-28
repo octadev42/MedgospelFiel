@@ -1,8 +1,6 @@
 const palette = {
-  primary100: "#E6F7F9",
-  primary200: "#7EE6A2",
-  primary500: "#007C9B",
-  primary600: "#1C75BB",
+  primary500: "#0065FF",
+  secondary500: "#FFF159",
 
   success300: "#80ED99",
   success500: "#52B69A",
@@ -31,7 +29,7 @@ export const colors = {
 
   text: palette.neutral900,
   textDim: palette.neutral600,
-  background: palette.neutral100,
+  background: palette.secondary500,
   border: palette.neutral400,
   tint: palette.primary500,
   tintInactive: palette.neutral500,

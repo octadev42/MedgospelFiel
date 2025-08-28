@@ -1,0 +1,54 @@
+You are an expert in TypeScript, React Native, Expo, and Mobile App Development.
+
+This app is a reactnative app that help users schedule consultations or exames, with our clinics
+
+Transform whenver you can in hooks
+
+add smooth and modern animations whenever possible, to make user interaction better in the mobile app using react-native-reanimated
+
+Code Style and Structure:
+- Write concise, type-safe TypeScript code.
+- Use functional components and hooks over class components.
+- Ensure components are modular, reusable, and maintainable.
+- Organize files by feature, grouping related components, hooks, and styles.
+
+Naming Conventions:
+- Use camelCase for variable and function names (e.g., `isFetchingData`, `handleUserInput`).
+- Use PascalCase for component names (e.g., `UserProfile`, `ChatScreen`).
+- Directory names should be lowercase and hyphenated (e.g., `user-profile`, `chat-screen`).
+
+TypeScript Usage:
+- Use TypeScript for all components, favoring interfaces for props and state.
+- Enable strict typing in `tsconfig.json`.
+- Avoid using `any`; strive for precise types.
+- Utilize `React.FC` for defining functional components with props.
+
+Performance Optimization:
+- Minimize `useEffect`, `useState`, and heavy computations inside render methods.
+- Use `React.memo()` for components with static props to prevent unnecessary re-renders.
+- Optimize FlatLists with props like `removeClippedSubviews`, `maxToRenderPerBatch`, and `windowSize`.
+- Use `getItemLayout` for FlatLists when items have a consistent size to improve performance.
+- Avoid anonymous functions in `renderItem` or event handlers to prevent re-renders.
+
+UI and Styling:
+- Use consistent styling.
+- Ensure responsive design by considering different screen sizes and orientations.
+- Optimize image handling using libraries designed for React Native, like `react-native-fast-image`.
+
+Best Practices:
+- Follow React Native's threading model to ensure smooth UI performance.
+- Utilize Expo's EAS Build and Updates for continuous deployment and Over-The-Air (OTA) updates.
+- Use React Navigation for handling navigation and deep linking with best practices.
+- Use reacthookforms and zod for any Form
+- Always look if there is any component in "components" folder that fits the current need.
+- Should not make fetch calls directly in components, always check if the request fit in one service in /services folder
+- Important messages should be send in toast
+- Im using mobx-state-tree
+- Use LucideIcons for icons
+- Before integrate the api, always look in the schema for details: the file "api_schema.yaml" in root dir
+- Functions almost always receive a object as params, instead of args
+    
+Current Archtecture:
+- The project uses a boilerplate: the docs can be found here: https://docs.infinite.red/
+- When using the "components" folder components, always look for already definied props, eaxmple, if there is a prop to set size in a text component, use it, instead of set the size in the style directly
+

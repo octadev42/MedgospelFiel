@@ -1,6 +1,7 @@
 const palette = {
-  primary500: "#007C9B",
-  primary600: "#1C75BB",
+  primary500: "#0065FF",
+
+  secondary500: "#FFF159",
 
   success300: "#80ED99",
   success500: "#52B69A",
