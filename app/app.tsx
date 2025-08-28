@@ -21,6 +21,7 @@ import "./utils/gestureHandler"
 import { useEffect, useState } from "react"
 import { useFonts } from "expo-font"
 import * as Linking from "expo-linking"
+import * as SplashScreen from "expo-splash-screen"
 import { KeyboardProvider } from "react-native-keyboard-controller"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import * as SplashScreen from "expo-splash-screen"
@@ -75,9 +76,16 @@ export function App() {
   const [isI18nInitialized, setIsI18nInitialized] = useState(false)
 
   useEffect(() => {
+    // Previne que a splash screen seja escondida automaticamente
+    SplashScreen.preventAutoHideAsync()
+    
     initI18n()
       .then(() => setIsI18nInitialized(true))
       .then(() => loadDateFnsLocale())
+      .then(() => {
+        // Esconde a splash screen quando tudo estiver carregado
+        SplashScreen.hideAsync()
+      })
   }, [])
 
   const { rehydrated } = useInitialRootStore(() => {

@@ -27,7 +27,20 @@
   "ios": {
     "icon": "./assets/images/app-icon-ios.png",
     "supportsTablet": true,
-    "bundleIdentifier": "com.medgospelfiel"
+    "bundleIdentifier": "com.medgospelfiel",
+    "privacyManifests": {
+      "NSPrivacyAccessedAPITypes": [
+        {
+          "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
+          "NSPrivacyAccessedAPITypeReasons": [
+            "CA92.1"
+          ]
+        }
+      ]
+    },
+    "infoPlist": {
+      "ITSAppUsesNonExemptEncryption": false
+    }
   },
   "web": {
     "favicon": "./assets/images/app-icon-web-favicon.png",
@@ -36,15 +49,6 @@
   "plugins": [
     "expo-localization",
     "expo-font",
-    [
-      "expo-splash-screen",
-      {
-        "image": "./assets/images/app-icon-android-adaptive-foreground.png",
-        "imageWidth": 300,
-        "resizeMode": "contain",
-        "backgroundColor": "#191015"
-      }
-    ],
     [
       "react-native-edge-to-edge",
       {
@@ -61,6 +65,9 @@
   "extra": {
     "ignite": {
       "version": "11.0.0"
+    },
+    "eas": {
+      "projectId": "cc6a3078-d0b3-4a51-9da5-a453d4316b00"
     }
   }
 }
