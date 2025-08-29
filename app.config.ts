@@ -17,6 +17,11 @@ module.exports = ({ config }: ConfigContext): Partial<ExpoConfig> => {
 
   return {
     ...config,
+    splash: {
+      image: "./assets/images/SplashScreen_Oftalmoclub.png",
+      resizeMode: "contain",
+      backgroundColor: "#ffffff",
+    },
     ios: {
       ...config.ios,
       // This privacyManifests is to get you started.
@@ -32,6 +37,14 @@ module.exports = ({ config }: ConfigContext): Partial<ExpoConfig> => {
             NSPrivacyAccessedAPITypeReasons: ["CA92.1"], // CA92.1 = "Access info from same app, per documentation"
           },
         ],
+      },
+    },
+    android: {
+      ...config.android,
+      splash: {
+        image: "./assets/images/SplashScreen_Oftalmoclub.png",
+        resizeMode: "contain",
+        backgroundColor: "#ffffff",
       },
     },
     plugins: [...existingPlugins],
