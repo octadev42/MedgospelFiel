@@ -188,4 +188,48 @@ export const authService = {
       return { kind: "bad-data", error: "Erro ao atualizar perfil" }
     }
   },
+
+  /**
+   * Create a new dependent
+   */
+  async criarDependente(dependenteData: PessoaFisicaData): Promise<
+    { kind: "ok"; message: string; data?: any } | (GeneralApiProblem & { error?: any })
+  > {
+    try {
+      const response: ApiResponse<PessoaFisicaResponse> = await api.apisauce.post("/v1/pessoa-fisica/app/", dependenteData)
+      
+      if (!response.ok) {
+        return { kind: "rejected", error: response.data }
+      }
+      
+      return { kind: "ok", message: "Dependente criado com sucesso!", data: response.data }
+    } catch (e) {
+      return { kind: "bad-data", error: "Erro ao criar dependente" }
+    }
+  },
+
+  /**
+   * Update an existing dependent
+   */
+  async atualizarDependente(dependenteData: PessoaFisicaData & { id: number }, authToken?: string): Promise<
+    { kind: "ok"; message: string; data?: any } | (GeneralApiProblem & { error?: any })
+  > {
+    try {
+      const { id, ...updateData } = dependenteData
+      const headers: any = {}
+      if (authToken) {
+        headers.Authorization = `Bearer ${authToken}`
+      }
+      
+      const response: ApiResponse<PessoaFisicaResponse> = await api.apisauce.put(`/v1/pessoa-fisica/${id}/`, updateData, { headers })
+      
+      if (!response.ok) {
+        return { kind: "rejected", error: response.data }
+      }
+      
+      return { kind: "ok", message: "Dependente atualizado com sucesso!", data: response.data }
+    } catch (e) {
+      return { kind: "bad-data", error: "Erro ao atualizar dependente" }
+    }
+  },
 }

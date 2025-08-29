@@ -1,5 +1,6 @@
 import { api } from "./api"
 import { GeneralApiProblem, getGeneralApiProblem } from "./api/apiProblem"
+import { getGeneralApiProblemWithAuthHandling } from "./api/authHandler"
 
 // Types for location
 export interface Cidade {
@@ -20,7 +21,7 @@ export const locationService = {
                 data: response.data
             }
         } else {
-            return getGeneralApiProblem(response)
+            return getGeneralApiProblemWithAuthHandling(response)
         }
     },
 

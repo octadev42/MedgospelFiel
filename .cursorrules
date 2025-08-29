@@ -47,6 +47,7 @@ Best Practices:
 - Use LucideIcons for icons
 - Before integrate the api, always look in the schema for details: the file "api_schema.yaml" in root dir
 - Functions almost always receive a object as params, instead of args
+- No need to create example componentes or screens, just the actual code
     
 Current Archtecture:
 - The project uses a boilerplate: the docs can be found here: https://docs.infinite.red/

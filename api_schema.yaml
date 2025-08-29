@@ -9751,6 +9751,9 @@ components:
         usuario_criacao:
           type: string
           maxLength: 60
+        dt_expiracao:
+          type: string
+          format: date-time
         parcelas:
           type: integer
           maximum: 2147483647

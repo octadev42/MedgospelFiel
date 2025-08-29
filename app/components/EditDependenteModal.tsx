@@ -1,11 +1,11 @@
 import { FC, useState, useEffect } from "react"
 import { View, ViewStyle, Modal, TouchableOpacity, ScrollView, TextStyle, Pressable, ActivityIndicator } from "react-native"
 import { observer } from "mobx-react-lite"
-import { X, User, Calendar, Hash, Users } from "lucide-react-native"
+import { X, User, Calendar, Hash, Users, Edit } from "lucide-react-native"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { format, subYears } from "date-fns"
+import { format, subYears, parseISO } from "date-fns"
 
 // Mask functions
 const applyDateMask = (value: string) => {
@@ -80,19 +80,30 @@ const dependenteSchema = z.object({
 
 type DependenteFormData = z.infer<typeof dependenteSchema>
 
-interface AddDependenteModalProps {
+interface Dependente {
+    id: number
+    nome: string
+    data_nascimento: string
+    sexo: string
+    cpf?: string
+    tipo?: string
+}
+
+interface EditDependenteModalProps {
     visible: boolean
+    dependente: Dependente | null
     onClose: () => void
     onSuccess?: () => void
 }
 
-export const AddDependenteModal: FC<AddDependenteModalProps> = observer(function AddDependenteModal({
+export const EditDependenteModal: FC<EditDependenteModalProps> = observer(function EditDependenteModal({
     visible,
+    dependente,
     onClose,
     onSuccess,
 }) {
     const { themed, theme: { colors } } = useAppTheme()
-    const { criarDependente, loading } = useLogin()
+    const { atualizarDependente, loading } = useLogin()
     const { authenticationStore } = useStores()
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -102,6 +113,7 @@ export const AddDependenteModal: FC<AddDependenteModalProps> = observer(function
         formState: { errors },
         reset,
         watch,
+        setValue,
     } = useForm<DependenteFormData>({
         resolver: zodResolver(dependenteSchema),
         defaultValues: {
@@ -112,6 +124,27 @@ export const AddDependenteModal: FC<AddDependenteModalProps> = observer(function
             cpf: "",
         },
     })
+
+    // Convert API date format (YYYY-MM-DD) to display format (DD/MM/YYYY)
+    const convertApiDateToDisplay = (apiDate: string) => {
+        try {
+            const date = parseISO(apiDate)
+            return format(date, "dd/MM/yyyy")
+        } catch {
+            return apiDate
+        }
+    }
+
+    // Set form values when dependente changes
+    useEffect(() => {
+        if (dependente && visible) {
+            setValue("nome", dependente.nome)
+            setValue("data_nascimento", convertApiDateToDisplay(dependente.data_nascimento))
+            setValue("sexo", dependente.sexo === "M" ? "masculino" : "feminino")
+            setValue("cpf", dependente.cpf || "")
+            setValue("tipo", dependente.tipo || "D")
+        }
+    }, [dependente, visible, setValue])
 
     const watchedDataNascimento = watch("data_nascimento")
     const isMaiorIdade = () => {
@@ -137,6 +170,8 @@ export const AddDependenteModal: FC<AddDependenteModalProps> = observer(function
     }
 
     const onSubmit = async (data: DependenteFormData) => {
+        if (!dependente) return
+        
         setIsSubmitting(true)
 
         try {
@@ -146,8 +181,9 @@ export const AddDependenteModal: FC<AddDependenteModalProps> = observer(function
                 return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
             }
 
-            // Prepare signup data
-            const signupData = {
+            // Prepare update data
+            const updateData = {
+                id: dependente.id,
                 tipo: data.tipo,
                 nome: data.nome,
                 data_nascimento: convertDateToApiFormat(data.data_nascimento),
@@ -161,16 +197,16 @@ export const AddDependenteModal: FC<AddDependenteModalProps> = observer(function
                 ],
             }
 
-            const success = await criarDependente(signupData)
+            const success = await atualizarDependente(updateData)
 
             if (success) {
-                showToast.success("Sucesso!", "Dependente adicionado com sucesso!")
+                showToast.success("Sucesso!", "Dependente atualizado com sucesso!")
                 reset()
                 onSuccess?.()
                 onClose()
             }
         } catch (error) {
-            showToast.error("Erro", "Erro ao adicionar dependente")
+            showToast.error("Erro", "Erro ao atualizar dependente")
         } finally {
             setIsSubmitting(false)
         }
@@ -180,8 +216,6 @@ export const AddDependenteModal: FC<AddDependenteModalProps> = observer(function
         reset()
         onClose()
     }
-
-    // Remove grau parentesco loading since we're mocking it
 
     return (
         <Modal
@@ -196,7 +230,7 @@ export const AddDependenteModal: FC<AddDependenteModalProps> = observer(function
                     <View style={themed($loadingOverlay)}>
                         <View style={themed($loadingContainer)}>
                             <ActivityIndicator size="large" color="#1E40AF" />
-                            <Text style={themed($loadingText)} text="Adicionando dependente..." />
+                            <Text style={themed($loadingText)} text="Atualizando dependente..." />
                         </View>
                     </View>
                 )}
@@ -209,8 +243,8 @@ export const AddDependenteModal: FC<AddDependenteModalProps> = observer(function
                     {/* Header */}
                     <View style={themed($header)}>
                         <View style={themed($headerContent)}>
-                            <Users size={24} color={colors.palette.secondary500} />
-                            <Text style={themed($headerTitle)} text="Adicionar Dependente" />
+                            <Edit size={24} color={colors.palette.secondary500} />
+                            <Text style={themed($headerTitle)} text="Editar Dependente" />
                         </View>
                         <TouchableOpacity style={themed($closeButton)} onPress={handleClose}>
                             <X size={24} color="#6B7280" />
@@ -219,7 +253,7 @@ export const AddDependenteModal: FC<AddDependenteModalProps> = observer(function
 
                     {/* Form */}
                     <View style={themed($formContainer)}>
-                        <Text style={themed($formSubtitle)} text="Preencha os dados do dependente" />
+                        <Text style={themed($formSubtitle)} text="Edite os dados do dependente" />
 
                         {/* Nome */}
                         <Controller
@@ -337,7 +371,7 @@ export const AddDependenteModal: FC<AddDependenteModalProps> = observer(function
                         {/* Submit Button */}
                         <View style={themed($buttonContainer)}>
                             <Button
-                                text={isSubmitting ? "Adicionando..." : "Adicionar Dependente"}
+                                text={isSubmitting ? "Atualizando..." : "Atualizar Dependente"}
                                 onPress={handleSubmit(onSubmit as any)}
                                 disabled={loading || isSubmitting}
                                 style={themed($submitButton)}

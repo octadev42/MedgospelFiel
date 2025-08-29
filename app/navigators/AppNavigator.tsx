@@ -29,6 +29,7 @@ import { ProcedimentosScreen } from "@/screens/ProcedimentosScreen"
 import { EditarPerfilScreen } from "@/screens/EditarPerfilScreen"
 import { CirurgiasScreen } from "@/screens/CirurgiasScreen"
 import { DependentesScreen } from "@/screens/DependentesScreen"
+import { PixPaymentScreen } from "@/screens/PixPaymentScreen"
 
 /**
  * This type allows TypeScript to know what routes are defined in this navigator
@@ -57,6 +58,22 @@ export type AppStackParamList = {
   EditarPerfil: undefined
   Cirurgias: undefined
   Dependentes: undefined
+  PixPayment: {
+    paymentData: {
+      mensagem: string
+      data: {
+        id: string | null
+        valor: string
+        dt_aprovacao: string | null
+        dt_criado: string
+        parcelas: number
+        status: string
+        qr_code_base64: string
+        qr_code: string
+        url: string
+      }
+    }
+  }
   // 🔥 Your screens go here
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
@@ -108,6 +125,7 @@ const AppStack = observer(() => {
       <Stack.Screen name="EditarPerfil" component={EditarPerfilScreen} />
       <Stack.Screen name="Cirurgias" component={CirurgiasScreen} />
       <Stack.Screen name="Dependentes" component={DependentesScreen} />
+      <Stack.Screen name="PixPayment" component={PixPaymentScreen} />
       {/** 🔥 Your screens go here */}
       {/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
     </Stack.Navigator>

@@ -2,6 +2,7 @@ import { ApiResponse } from "apisauce"
 
 import { api } from "./api"
 import { GeneralApiProblem, getGeneralApiProblem } from "./api/apiProblem"
+import { getGeneralApiProblemWithAuthHandling } from "./api/authHandler"
 
 export type TabelaPrecoResponse = Array<{
     fk_pessoa_juridica: number
@@ -153,6 +154,11 @@ export interface DadosPagamentoCartao {
 
 export type PagamentoResponse = DadosPagamentoPix | DadosPagamentoCartao
 
+export interface PagamentoApiResponse {
+  mensagem: string
+  data: DadosPagamentoPix | DadosPagamentoCartao
+}
+
 // Credit Card types
 export interface CartaoPFRequestValidacao {
     token: string
@@ -276,7 +282,7 @@ export const ecommerceService = {
             )
 
             if (!response.ok) {
-                const problem = getGeneralApiProblem(response)
+                const problem = getGeneralApiProblemWithAuthHandling(response)
                 return problem || { kind: "unknown", temporary: true }
             }
 
@@ -311,7 +317,7 @@ export const ecommerceService = {
             )
 
             if (!response.ok) {
-                const problem = getGeneralApiProblem(response)
+                const problem = getGeneralApiProblemWithAuthHandling(response)
                 return problem || { kind: "unknown", temporary: true }
             }
 
@@ -346,7 +352,7 @@ export const ecommerceService = {
             )
 
             if (!response.ok) {
-                const problem = getGeneralApiProblem(response)
+                const problem = getGeneralApiProblemWithAuthHandling(response)
                 return problem || { kind: "unknown", temporary: true }
             }
 
@@ -381,7 +387,7 @@ export const ecommerceService = {
             )
 
             if (!response.ok) {
-                const problem = getGeneralApiProblem(response)
+                const problem = getGeneralApiProblemWithAuthHandling(response)
                 return problem || { kind: "unknown", temporary: true }
             }
 
@@ -401,7 +407,7 @@ export const ecommerceService = {
      * Create payment
      */
     async criarPagamento(params: PagamentoRequest, authToken?: string): Promise<
-        { kind: "ok"; data: PagamentoResponse } | (GeneralApiProblem & { error?: any })
+        { kind: "ok"; data: PagamentoApiResponse } | (GeneralApiProblem & { error?: any })
     > {
         try {
             const headers: any = {}
@@ -409,14 +415,14 @@ export const ecommerceService = {
                 headers.Authorization = `Bearer ${authToken}`
             }
             
-            const response: ApiResponse<PagamentoResponse> = await api.apisauce.post(
+            const response: ApiResponse<PagamentoApiResponse> = await api.apisauce.post(
                 "/v1/pagamentos/",
                 params,
                 { headers }
             )
 
             if (!response.ok) {
-                const problem = getGeneralApiProblem(response)
+                const problem = getGeneralApiProblemWithAuthHandling(response)
                 return problem || { kind: "unknown", temporary: true }
             }
 
@@ -451,7 +457,7 @@ export const ecommerceService = {
             )
 
             if (!response.ok) {
-                const problem = getGeneralApiProblem(response)
+                const problem = getGeneralApiProblemWithAuthHandling(response)
                 return problem || { kind: "unknown", temporary: true }
             }
 
@@ -486,7 +492,7 @@ export const ecommerceService = {
             )
 
             if (!response.ok) {
-                const problem = getGeneralApiProblem(response)
+                const problem = getGeneralApiProblemWithAuthHandling(response)
                 return problem || { kind: "unknown", temporary: true }
             }
 
@@ -521,7 +527,7 @@ export const ecommerceService = {
             )
 
             if (!response.ok) {
-                const problem = getGeneralApiProblem(response)
+                const problem = getGeneralApiProblemWithAuthHandling(response)
                 return problem || { kind: "unknown", temporary: true }
             }
 
@@ -555,7 +561,7 @@ export const ecommerceService = {
             )
 
             if (!response.ok) {
-                const problem = getGeneralApiProblem(response)
+                const problem = getGeneralApiProblemWithAuthHandling(response)
                 return problem || { kind: "unknown", temporary: true }
             }
 
@@ -591,7 +597,7 @@ export const ecommerceService = {
             )
 
             if (!response.ok) {
-                const problem = getGeneralApiProblem(response)
+                const problem = getGeneralApiProblemWithAuthHandling(response)
                 return problem || { kind: "unknown", temporary: true }
             }
 
@@ -629,7 +635,7 @@ export const ecommerceService = {
             )
 
             if (!response.ok) {
-                const problem = getGeneralApiProblem(response)
+                const problem = getGeneralApiProblemWithAuthHandling(response)
                 return problem || { kind: "unknown", temporary: true }
             }
 
@@ -663,7 +669,7 @@ export const ecommerceService = {
             )
 
             if (!response.ok) {
-                const problem = getGeneralApiProblem(response)
+                const problem = getGeneralApiProblemWithAuthHandling(response)
                 return problem || { kind: "unknown", temporary: true }
             }
 
@@ -701,7 +707,7 @@ export const ecommerceService = {
             console.log('params', params)
 
             if (!response.ok) {
-                const problem = getGeneralApiProblem(response)
+                const problem = getGeneralApiProblemWithAuthHandling(response)
                 return problem || { kind: "unknown", temporary: true }
             }
 
@@ -742,7 +748,7 @@ export const ecommerceService = {
             )
 
             if (!response.ok) {
-                const problem = getGeneralApiProblem(response)
+                const problem = getGeneralApiProblemWithAuthHandling(response)
                 return problem || { kind: "unknown", temporary: true }
             }
 
@@ -796,7 +802,7 @@ export const ecommerceService = {
             )
 
             if (!response.ok) {
-                const problem = getGeneralApiProblem(response)
+                const problem = getGeneralApiProblemWithAuthHandling(response)
                 return problem || { kind: "unknown", temporary: true }
             }
 
@@ -834,7 +840,7 @@ export const ecommerceService = {
             )
 
             if (!response.ok) {
-                const problem = getGeneralApiProblem(response)
+                const problem = getGeneralApiProblemWithAuthHandling(response)
                 return problem || { kind: "unknown", temporary: true }
             }
 

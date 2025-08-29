@@ -8,6 +8,8 @@ import { showApiErrors } from "@/utils/errorHandler"
 interface UseLoginReturn {
   login: (email: string, password: string) => Promise<boolean>
   signup: (signupData: PessoaFisicaData) => Promise<boolean>
+  criarDependente: (dependenteData: PessoaFisicaData) => Promise<boolean>
+  atualizarDependente: (dependenteData: PessoaFisicaData & { id: number }) => Promise<boolean>
   loading: boolean
   loginError: string
   getValidationError: (value: string) => string
@@ -17,9 +19,7 @@ export const useLogin = (): UseLoginReturn => {
   const [loading, setLoading] = useState(false)
   const [loginError, setLoginError] = useState("")
 
-  const {
-    authenticationStore: { setAuthToken, setAuthUsername, setPessoaFisicaId },
-  } = useStores()
+  const { authenticationStore } = useStores()
 
   // Custom validation: allow either a valid email or a non-empty username
   function getValidationError(value: string): string {
@@ -47,12 +47,12 @@ export const useLogin = (): UseLoginReturn => {
       const result = await authService.login(email, password)
       console.log("result", result)
       if (result.kind === "ok") {
-        setAuthToken(result.token)
-        setAuthUsername(email)
+        authenticationStore.setAuthToken(result.token)
+        authenticationStore.setAuthUsername(email)
 
         // Set pessoa_fisica_id from login response
         if (result.fk_pessoa_fisica) {
-          setPessoaFisicaId(result.fk_pessoa_fisica)
+          authenticationStore.setPessoaFisicaId(result.fk_pessoa_fisica)
         }
 
         setLoginError("")
@@ -84,16 +84,22 @@ export const useLogin = (): UseLoginReturn => {
       
       if (signupResult.kind === "ok") {
         // If signup is successful, automatically login with the new credentials
+        if (!signupData.email || !signupData.senha) {
+          showToast.error("Erro", "Dados de login inválidos")
+          setLoginError("Dados de login inválidos")
+          setLoading(false)
+          return false
+        }
         const loginResult = await authService.login(signupData.email, signupData.senha)
         
         if (loginResult.kind === "ok") {
           // Set authentication data
-          setAuthToken(loginResult.token)
-          setAuthUsername(signupData.email)
+          authenticationStore.setAuthToken(loginResult.token)
+          authenticationStore.setAuthUsername(signupData.email!)
           
           // Set pessoa_fisica_id from login response
           if (loginResult.fk_pessoa_fisica) {
-            setPessoaFisicaId(loginResult.fk_pessoa_fisica)
+            authenticationStore.setPessoaFisicaId(loginResult.fk_pessoa_fisica)
           }
 
           showToast.success("Sucesso!", "Conta criada com sucesso!")
@@ -122,9 +128,64 @@ export const useLogin = (): UseLoginReturn => {
     }
   }
 
+  async function criarDependente(dependenteData: PessoaFisicaData): Promise<boolean> {
+    setLoginError("")
+    setLoading(true)
+
+    try {
+      const result = await authService.criarDependente(dependenteData)
+      
+      if (result.kind === "ok") {
+        showToast.success("Sucesso!", "Dependente criado com sucesso!")
+        setLoginError("")
+        setLoading(false)
+        return true
+      } else {
+        showApiErrors(result.error, "Erro ao Criar Dependente")
+        setLoginError("Erro ao criar dependente")
+        setLoading(false)
+        return false
+      }
+    } catch (error) {
+      showToast.error("Erro", "Erro inesperado ao criar dependente")
+      setLoginError("Erro inesperado")
+      setLoading(false)
+      return false
+    }
+  }
+
+  async function atualizarDependente(dependenteData: PessoaFisicaData & { id: number }): Promise<boolean> {
+    setLoginError("")
+    setLoading(true)
+
+    try {
+      const authToken = authenticationStore.authToken
+      const result = await authService.atualizarDependente(dependenteData, authToken)
+      
+      if (result.kind === "ok") {
+        showToast.success("Sucesso!", "Dependente atualizado com sucesso!")
+        setLoginError("")
+        setLoading(false)
+        return true
+      } else {
+        showApiErrors(result.error, "Erro ao Atualizar Dependente")
+        setLoginError("Erro ao atualizar dependente")
+        setLoading(false)
+        return false
+      }
+    } catch (error) {
+      showToast.error("Erro", "Erro inesperado ao atualizar dependente")
+      setLoginError("Erro inesperado")
+      setLoading(false)
+      return false
+    }
+  }
+
   return {
     login,
     signup,
+    criarDependente,
+    atualizarDependente,
     loading,
     loginError,
     getValidationError,

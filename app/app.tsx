@@ -35,6 +35,8 @@ import { ToastComponent } from "./components/Toast"
 import { customFontsToLoad } from "./theme/typography"
 import { loadDateFnsLocale } from "./utils/formatDate"
 import * as storage from "./utils/storage"
+import { setGlobalRootStore, setToastFunction } from "./services/api/authHandler"
+import { showToast } from "./components/Toast"
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 
@@ -87,8 +89,14 @@ export function App() {
       })
   }, [])
 
-  const { rehydrated } = useInitialRootStore(() => {
+  const { rehydrated, rootStore } = useInitialRootStore(() => {
     // This runs after the root store has been initialized and rehydrated.
+
+    // Set the global root store reference for auth handling
+    setGlobalRootStore(rootStore)
+    
+    // Set the toast function for auth error notifications
+    setToastFunction(showToast)
 
     // If your initialization scripts run very fast, it's good to show the splash screen for just a bit longer to prevent flicker.
     // Slightly delaying splash screen hiding for better UX; can be customized or removed as needed,

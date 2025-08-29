@@ -138,8 +138,8 @@ export const CarrinhoScreen: FC<CarrinhoScreenProps> = observer(function Carrinh
     const result = await criarPagamento(paymentParams)
     if (result.success) {
       setShowPaymentModal(false)
-      // Handle PIX payment success - show QR code or navigate to payment screen
-      console.log("PIX payment created:", result.data)
+      // Navigate to PIX payment screen with the response data
+      navigation.navigate("PixPayment", { paymentData: result.data })
     }
   }
 

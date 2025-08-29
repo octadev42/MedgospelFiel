@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from "react"
 import { View, ViewStyle, ScrollView, TouchableOpacity, TextStyle } from "react-native"
 import { observer } from "mobx-react-lite"
-import { ArrowLeft, User, Calendar, Users, Plus } from "lucide-react-native"
+import { ArrowLeft, User, Calendar, Users, Plus, Edit } from "lucide-react-native"
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { format, parseISO } from "date-fns"
@@ -15,12 +15,15 @@ import type { ThemedStyle } from "@/theme/types"
 import type { AppStackParamList } from "@/navigators/AppNavigator"
 import { useDependentes } from "@/hooks/useDependentes"
 import { AddDependenteModal } from "@/components/AddDependenteModal"
+import { EditDependenteModal } from "@/components/EditDependenteModal"
 
 export const DependentesScreen: FC = observer(function DependentesScreen() {
   const { themed, theme: { colors } } = useAppTheme()
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>()
   const { dependentes, isLoading, error, getDependentes } = useDependentes()
   const [isModalVisible, setIsModalVisible] = useState(false)
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false)
+  const [selectedDependente, setSelectedDependente] = useState<any>(null)
 
   const handleBackPress = () => {
     navigation.goBack()
@@ -37,6 +40,16 @@ export const DependentesScreen: FC = observer(function DependentesScreen() {
   const handleDependenteAdded = () => {
     // Refresh the dependentes list
     getDependentes()
+  }
+
+  const handleEditDependente = (dependente: any) => {
+    setSelectedDependente(dependente)
+    setIsEditModalVisible(true)
+  }
+
+  const handleCloseEditModal = () => {
+    setIsEditModalVisible(false)
+    setSelectedDependente(null)
   }
 
   // Load dependentes on component mount
@@ -127,6 +140,12 @@ export const DependentesScreen: FC = observer(function DependentesScreen() {
                     <Text style={themed($dependenteName)} text={dependente.nome} />
                     <Text style={themed($dependenteGrau)} text="Outro" />
                   </View>
+                  <TouchableOpacity 
+                    style={themed($editButton)} 
+                    onPress={() => handleEditDependente(dependente)}
+                  >
+                    <Edit size={18} color="#1E40AF" />
+                  </TouchableOpacity>
                 </View>
                 
                 <View style={themed($dependenteDetails)}>
@@ -148,6 +167,14 @@ export const DependentesScreen: FC = observer(function DependentesScreen() {
         <AddDependenteModal
           visible={isModalVisible}
           onClose={handleCloseModal}
+          onSuccess={handleDependenteAdded}
+        />
+
+        {/* Edit Dependente Modal */}
+        <EditDependenteModal
+          visible={isEditModalVisible}
+          dependente={selectedDependente}
+          onClose={handleCloseEditModal}
           onSuccess={handleDependenteAdded}
         />
       </Screen>
@@ -331,4 +358,12 @@ const $detailText: ThemedStyle<TextStyle> = () => ({
   fontSize: 14,
   color: "#374151",
   marginLeft: 6,
+})
+
+const $editButton: ThemedStyle<ViewStyle> = () => ({
+  padding: 8,
+  borderRadius: 8,
+  backgroundColor: "#F3F4F6",
+  justifyContent: "center",
+  alignItems: "center",
 })

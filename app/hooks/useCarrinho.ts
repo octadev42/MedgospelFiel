@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react"
 import { useStores } from "@/models"
-import { ecommerceService, CarrinhoAddItensRequest, CarrinhoRemoverItensRequest, GerarPedidoResponse, GerarPedidoRequest, PagamentoRequest, PagamentoResponse } from "@/services/ecommerce.service"
+import { ecommerceService, CarrinhoAddItensRequest, CarrinhoRemoverItensRequest, GerarPedidoResponse, GerarPedidoRequest, PagamentoRequest, PagamentoApiResponse } from "@/services/ecommerce.service"
 import { showToast } from "@/components/Toast"
 
 export const useCarrinho = () => {
@@ -176,7 +176,7 @@ export const useCarrinho = () => {
       const response = await ecommerceService.criarPagamento(params, authenticationStore.authToken)
       
       if (response.kind === "ok") {
-        const isPix = 'qr_code' in response.data
+        const isPix = 'qr_code' in response.data.data
         const message = isPix 
           ? "Pagamento PIX criado com sucesso!" 
           : "Pagamento com cartão processado com sucesso!"

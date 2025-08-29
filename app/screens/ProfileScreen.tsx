@@ -10,6 +10,7 @@ import { useAppTheme } from "@/theme/context"
 import type { ThemedStyle } from "@/theme/types"
 import type { AppStackParamList } from "@/navigators/AppNavigator"
 import { useStores } from "@/models/helpers/useStores"
+import { logoutAndRedirectToLogin } from "@/services/api/authHandler"
 
 type ProfileScreenProps = {
   navigation: NativeStackNavigationProp<AppStackParamList, "MainTabs">
@@ -62,8 +63,7 @@ export const ProfileScreen: FC<ProfileScreenProps> = function ProfileScreen() {
       icon: "back",
       title: "Sair",
       onPress: () => {
-        authenticationStore.logout()
-        navigation.navigate("Login")
+        logoutAndRedirectToLogin()
       }
     },
   ]
